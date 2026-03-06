@@ -1,0 +1,3 @@
+﻿src/components/dashboard/KpiCard.tsx(1,10): error TS1484: 'ReactNode' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/pages/admin/AdminPage.tsx(21,10): error TS6133: 'CreateRoleModal' is declared but its value is never read.
+src/pages/admin/AdminPage.tsx(76,10): error TS6133: 'ConfirmDeleteModal' is declared but its value is never read.

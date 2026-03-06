@@ -1,0 +1,101 @@
+import { format } from 'date-fns';
+import { useAuditLogs } from '../../hooks/useAuditLogs';
+import { Activity, User, ShieldAlert, Package, ShoppingCart } from 'lucide-react';
+import { clsx } from 'clsx';
+import { Card } from '../ui/Card';
+
+const getEntityIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+        case 'user': return <User size={16} className="text-blue-500" />;
+        case 'role': return <ShieldAlert size={16} className="text-purple-500" />;
+        case 'inventory_item': return <Package size={16} className="text-orange-500" />;
+        case 'sale': return <ShoppingCart size={16} className="text-green-500" />;
+        default: return <Activity size={16} className="text-gray-500" />;
+    }
+};
+
+const formatActionText = (action: string) => {
+    return action.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ');
+};
+
+export function AuditLogTable() {
+    const { logs, isLoading } = useAuditLogs();
+
+    if (isLoading) {
+        return (
+            <Card>
+                <div className="p-8 text-center text-gray-500">Loading audit trail...</div>
+            </Card>
+        );
+    }
+
+    return (
+        <Card>
+            <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="bg-gray-50/50 border-b border-gray-100/50">
+                            <th className="px-6 py-4 text-xs font-semibold text-gray-500 tracking-wider">Timestamp</th>
+                            <th className="px-6 py-4 text-xs font-semibold text-gray-500 tracking-wider">User</th>
+                            <th className="px-6 py-4 text-xs font-semibold text-gray-500 tracking-wider">Action</th>
+                            <th className="px-6 py-4 text-xs font-semibold text-gray-500 tracking-wider">Entity</th>
+                            <th className="px-6 py-4 text-xs font-semibold text-gray-500 tracking-wider">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100/50">
+                        {logs.length === 0 ? (
+                            <tr>
+                                <td colSpan={5} className="px-6 py-8 text-center text-gray-500 text-sm">
+                                    No audit logs found.
+                                </td>
+                            </tr>
+                        ) : (
+                            logs.map((log) => (
+                                <tr key={log.id} className="hover:bg-gray-50/30 transition-colors">
+                                    <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                                        {format(new Date(log.created_at), 'MMM d, yyyy HH:mm:ss')}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="text-sm font-medium text-gray-900">
+                                            {log.user?.full_name ?? 'System'}
+                                        </div>
+                                        <div className="text-xs text-gray-500">
+                                            {log.user?.email ?? ''}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={clsx(
+                                            "inline-flex items-center px-2 py-1 rounded text-xs font-medium border",
+                                            log.action.includes('DELETE') ? "bg-red-50 text-red-700 border-red-100" :
+                                                log.action.includes('CREATE') || log.action.includes('ADD') ? "bg-green-50 text-green-700 border-green-100" :
+                                                    log.action.includes('UPDATE') || log.action.includes('EDIT') ? "bg-blue-50 text-blue-700 border-blue-100" :
+                                                        "bg-gray-50 text-gray-700 border-gray-200"
+                                        )}>
+                                            {formatActionText(log.action)}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-2">
+                                            {getEntityIcon(log.entity_type)}
+                                            <span className="text-sm text-gray-700 capitalize">
+                                                {log.entity_type.replace('_', ' ')}
+                                            </span>
+                                        </div>
+                                        <div className="text-xs text-gray-400 mt-1 font-mono truncate max-w-[120px]" title={log.entity_id || ''}>
+                                            {log.entity_id}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="text-xs text-gray-500 font-mono bg-gray-50 p-2 rounded max-h-16 overflow-y-auto max-w-xs break-all">
+                                            {log.details ? JSON.stringify(log.details) : '-'}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </Card>
+    );
+}

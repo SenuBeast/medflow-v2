@@ -1,0 +1,15 @@
+Hello,
+
+Use the following one-time password (OTP) to complete your login. This code is valid for 5 minutes.
+
+Your verification code:
+{{OTP_CODE}}
+
+Security Notice: Do not share this code with anyone. {{APP_NAME}} staff will never ask you for this password.
+
+If you didn't request this code or attempted to log in to {{APP_NAME}} using {{USER_EMAIL}}, you can safely ignore this email.
+
+---
+{{APP_NAME}} © 2026
+This is an automated message. Please do not reply to this email.
+Need help? Contact support@medflow.com
