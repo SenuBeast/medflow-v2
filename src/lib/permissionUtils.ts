@@ -10,14 +10,16 @@ import type { PermissionKey } from './constants';
  */
 export function hasPermission(permissionKey: PermissionKey | string): boolean {
     const store = useAuthStore.getState();
-
-    // Super Admin override - they can do everything
-    if (store.user?.role?.name === 'Super Admin') {
-        return true;
-    }
-
-    // Otherwise check explicit permission list
+    if (store.user?.role?.name === 'Super Admin') return true;
     return store.permissions.some((p) => p.key === permissionKey);
+}
+
+export function useHasPermission(permissionKey: PermissionKey | string): boolean {
+    const userRole = useAuthStore(state => state.user?.role?.name);
+    const permissions = useAuthStore(state => state.permissions);
+
+    if (userRole === 'Super Admin') return true;
+    return permissions.some((p) => p.key === permissionKey);
 }
 
 /**
@@ -25,12 +27,17 @@ export function hasPermission(permissionKey: PermissionKey | string): boolean {
  * Useful for broad route guards (e.g. "can they see the admin panel at all?")
  */
 export function hasAnyPermission(permissionKeys: (PermissionKey | string)[]): boolean {
-    return permissionKeys.some(hasPermission);
+    return permissionKeys.some(key => hasPermission(key));
 }
 
-/**
- * Helper to check if the user has ALL of the provided permissions.
- */
+export function useHasAnyPermission(permissionKeys: (PermissionKey | string)[]): boolean {
+    const userRole = useAuthStore(state => state.user?.role?.name);
+    const permissions = useAuthStore(state => state.permissions);
+
+    if (userRole === 'Super Admin') return true;
+    return permissionKeys.some(key => permissions.some(p => p.key === key));
+}
+
 export function hasAllPermissions(permissionKeys: (PermissionKey | string)[]): boolean {
-    return permissionKeys.every(hasPermission);
+    return permissionKeys.every(key => hasPermission(key));
 }

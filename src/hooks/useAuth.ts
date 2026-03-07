@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
-import { hasPermission } from '../lib/permissionUtils';
+import { hasPermission, useHasPermission } from '../lib/permissionUtils';
 import type { User } from '../lib/types';
 
 async function fetchUserProfile(userId: string): Promise<User | null> {
@@ -72,15 +72,15 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 
 let _loadingUser = false;
 
-async function initUser(userId: string, email: string) {
+async function initUser(userId: string, email: string, forceRefresh = false) {
     if (_loadingUser) return;
 
     // Skip if already loaded for this exact user
     const currentUser = useAuthStore.getState().user;
-    if (currentUser?.id === userId) return;
+    if (!forceRefresh && currentUser?.id === userId) return;
 
     _loadingUser = true;
-    useAuthStore.getState().setLoading(true);
+    if (!forceRefresh) useAuthStore.getState().setLoading(true);
 
     try {
         await withTimeout(ensureUserRecord(userId, email), 10000);
@@ -113,15 +113,15 @@ function setupRealtimeSync(userId: string, email: string) {
     _realtimeChannel = supabase.channel('admin_sync')
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users', filter: `id=eq.${userId}` }, () => {
             console.log('[Realtime] User updated by Admin. Syncing...');
-            initUser(userId, email);
+            initUser(userId, email, true);
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'roles' }, () => {
             console.log('[Realtime] Roles updated. Syncing...');
-            initUser(userId, email);
+            initUser(userId, email, true);
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'role_permissions' }, () => {
             console.log('[Realtime] Permissions updated. Syncing...');
-            initUser(userId, email);
+            initUser(userId, email, true);
         })
         .subscribe();
 }
@@ -198,5 +198,5 @@ export function useAuth() {
         useAuthStore.getState().reset();
     };
 
-    return { user, permissions, isLoading, isInitialized, hasPermission, signIn, signInWithGoogle, signOut };
+    return { user, permissions, isLoading, isInitialized, hasPermission, useHasPermission, signIn, signInWithGoogle, signOut };
 }

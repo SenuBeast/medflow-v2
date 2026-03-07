@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import type { PermissionKey } from '../../lib/constants';
 import { LoadingScreen } from '../ui/Spinner';
 import { Loader2 } from 'lucide-react';
-import { hasPermission } from '../../lib/permissionUtils';
+import { useHasPermission } from '../../lib/permissionUtils';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { user, isInitialized, isLoading, isTwoFactorVerified } = useAuthStore();
@@ -43,7 +43,9 @@ export function RouteGuard({ permission, children }: RouteGuardProps) {
         return <LoadingScreen />;
     }
 
-    if (!hasPermission(permission)) {
+    const canAccess = useHasPermission(permission);
+
+    if (!canAccess) {
         return <Navigate to="/no-access" replace />;
     }
 
@@ -61,7 +63,7 @@ export function PermissionGuard({
     children,
     fallback = null,
 }: PermissionGuardProps) {
-    const canAccess = hasPermission(permission);
+    const canAccess = useHasPermission(permission);
 
     if (!canAccess) {
         return <>{fallback}</>;
