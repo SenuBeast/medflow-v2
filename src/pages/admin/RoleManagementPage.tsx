@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Shield, Plus } from 'lucide-react';
 import { useRoles, useDeleteRole } from '../../hooks/useRoles';
-import { useAuthStore } from '../../store/authStore';
-import { hasPermission } from '../../lib/permissionUtils';
+import { useHasPermission } from '../../lib/permissionUtils';
 import { PERMISSIONS } from '../../lib/constants';
 import { Button } from '../../components/ui/Button';
 import { RoleCard } from '../../components/admin/RoleCard';
@@ -13,11 +12,9 @@ import { ConfirmDeleteModal } from '../../components/admin/ConfirmDeleteModal';
 import type { Role } from '../../lib/types';
 
 export function RoleManagementPage() {
-    useAuthStore((state) => state.permissions); // subscribe to layout reactivity
+    const canManageRoles = useHasPermission(PERMISSIONS.ADMIN_ROLES_MANAGE);
     const { data: roles = [], isLoading } = useRoles();
     const deleteRole = useDeleteRole();
-
-    const canManageRoles = hasPermission(PERMISSIONS.ADMIN_ROLES_MANAGE);
 
     const [editPermRole, setEditPermRole] = useState<Role | null>(null);
     const [showCreateRole, setShowCreateRole] = useState(false);

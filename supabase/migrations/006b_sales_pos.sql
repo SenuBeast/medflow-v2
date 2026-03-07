@@ -86,26 +86,33 @@ ALTER TABLE sale_items        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sale_refunds      ENABLE ROW LEVEL SECURITY;
 
 -- sale_transactions: view if sales.view permission
+DROP POLICY IF EXISTS "allow_sale_transactions_select" ON sale_transactions;
 CREATE POLICY "allow_sale_transactions_select" ON sale_transactions
     FOR SELECT USING (user_has_permission('sales.view'::text));
 
+DROP POLICY IF EXISTS "allow_sale_transactions_insert" ON sale_transactions;
 CREATE POLICY "allow_sale_transactions_insert" ON sale_transactions
     FOR INSERT WITH CHECK (user_has_permission('sales.create'::text));
 
+DROP POLICY IF EXISTS "allow_sale_transactions_update" ON sale_transactions;
 CREATE POLICY "allow_sale_transactions_update" ON sale_transactions
     FOR UPDATE USING (user_has_permission('sales.create'::text));
 
 -- sale_items: follow parent transaction permissions
+DROP POLICY IF EXISTS "allow_sale_items_select" ON sale_items;
 CREATE POLICY "allow_sale_items_select" ON sale_items
     FOR SELECT USING (user_has_permission('sales.view'::text));
 
+DROP POLICY IF EXISTS "allow_sale_items_insert" ON sale_items;
 CREATE POLICY "allow_sale_items_insert" ON sale_items
     FOR INSERT WITH CHECK (user_has_permission('sales.create'::text));
 
 -- sale_refunds
+DROP POLICY IF EXISTS "allow_sale_refunds_select" ON sale_refunds;
 CREATE POLICY "allow_sale_refunds_select" ON sale_refunds
     FOR SELECT USING (user_has_permission('sales.view'::text));
 
+DROP POLICY IF EXISTS "allow_sale_refunds_insert" ON sale_refunds;
 CREATE POLICY "allow_sale_refunds_insert" ON sale_refunds
     FOR INSERT WITH CHECK (user_has_permission('sales.refund'::text));
 

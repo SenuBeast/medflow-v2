@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Users, Shield, ScrollText, Settings, ChevronRight } from 'lucide-react';
 import { clsx } from 'clsx';
 
-import { hasPermission } from '../../lib/permissionUtils';
-import { useAuthStore } from '../../store/authStore';
+import { useHasPermission } from '../../lib/permissionUtils';
 import { PERMISSIONS } from '../../lib/constants';
 
 import { UsersPage } from './UsersPage';
@@ -55,16 +54,43 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 // ─── Main Admin Page ──────────────────────────────────────────────────────────
+// Per-item hook to reactively check permissions
+function NavItemVisible({ item, activeSection, setActiveSection }: { item: NavItem; activeSection: SectionId; setActiveSection: (id: SectionId) => void }) {
+    const canAccess = useHasPermission(item.permission);
+    if (!canAccess) return null;
+    const { id, label, description, icon: Icon } = item;
+    return (
+        <button
+            onClick={() => setActiveSection(id)}
+            className={clsx(
+                'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all group',
+                activeSection === id
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-gray-700 hover:bg-gray-100'
+            )}
+        >
+            <div className={clsx(
+                'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
+                activeSection === id ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-gray-200'
+            )}>
+                <Icon size={15} className={activeSection === id ? 'text-white' : 'text-gray-500'} />
+            </div>
+            <div className="flex-1 min-w-0">
+                <p className={clsx('text-sm font-semibold truncate', activeSection === id ? 'text-white' : 'text-gray-800')}>
+                    {label}
+                </p>
+                <p className={clsx('text-xs truncate', activeSection === id ? 'text-blue-100' : 'text-gray-400')}>
+                    {description}
+                </p>
+            </div>
+            <ChevronRight size={13} className={clsx('shrink-0 transition-opacity', activeSection === id ? 'text-white opacity-80' : 'opacity-0 group-hover:opacity-40')} />
+        </button>
+    );
+}
+
 export function AdminPage() {
-    useAuthStore(s => s.permissions); // Subscribe to permission changes
-    const [activeSection, setActiveSection] = useState<SectionId>(() => {
-        const first = NAV_ITEMS.find(item => hasPermission(item.permission));
-        return first ? first.id : 'users';
-    });
+    const [activeSection, setActiveSection] = useState<SectionId>('users');
 
-    // Pick first accessible section as default handled in useState
-
-    const visibleNav = NAV_ITEMS.filter(item => hasPermission(item.permission));
     const currentNav = NAV_ITEMS.find(n => n.id === activeSection);
 
     return (
@@ -78,33 +104,13 @@ export function AdminPage() {
                     </div>
 
                     <nav className="space-y-1">
-                        {visibleNav.map(({ id, label, description, icon: Icon }) => (
-                            <button
-                                key={id}
-                                onClick={() => setActiveSection(id)}
-                                className={clsx(
-                                    'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all group',
-                                    activeSection === id
-                                        ? 'bg-blue-600 text-white shadow-sm'
-                                        : 'text-gray-700 hover:bg-gray-100'
-                                )}
-                            >
-                                <div className={clsx(
-                                    'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
-                                    activeSection === id ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-gray-200'
-                                )}>
-                                    <Icon size={15} className={activeSection === id ? 'text-white' : 'text-gray-500'} />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className={clsx('text-sm font-semibold truncate', activeSection === id ? 'text-white' : 'text-gray-800')}>
-                                        {label}
-                                    </p>
-                                    <p className={clsx('text-xs truncate', activeSection === id ? 'text-blue-100' : 'text-gray-400')}>
-                                        {description}
-                                    </p>
-                                </div>
-                                <ChevronRight size={13} className={clsx('shrink-0 transition-opacity', activeSection === id ? 'text-white opacity-80' : 'opacity-0 group-hover:opacity-40')} />
-                            </button>
+                        {NAV_ITEMS.map(item => (
+                            <NavItemVisible
+                                key={item.id}
+                                item={item}
+                                activeSection={activeSection}
+                                setActiveSection={setActiveSection}
+                            />
                         ))}
                     </nav>
 

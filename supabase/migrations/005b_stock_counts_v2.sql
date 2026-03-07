@@ -61,6 +61,7 @@ ALTER TABLE public.stock_count_audit_logs ENABLE ROW LEVEL SECURITY;
 -- We rely on the `user_has_permission()` helper defined in '003_rls.sql'
 
 -- SESSIONS
+DROP POLICY IF EXISTS "Users can view stock count sessions in their company" ON public.stock_count_sessions;
 CREATE POLICY "Users can view stock count sessions in their company"
     ON public.stock_count_sessions FOR SELECT
     USING (
@@ -68,6 +69,7 @@ CREATE POLICY "Users can view stock count sessions in their company"
         OR current_user_is_admin()
     );
 
+DROP POLICY IF EXISTS "Users with perform permission can create sessions" ON public.stock_count_sessions;
 CREATE POLICY "Users with perform permission can create sessions"
     ON public.stock_count_sessions FOR INSERT
     WITH CHECK (
@@ -75,6 +77,7 @@ CREATE POLICY "Users with perform permission can create sessions"
         (company_id = (SELECT company_id FROM public.users WHERE id = auth.uid()) OR current_user_is_admin())
     );
 
+DROP POLICY IF EXISTS "Users with perform or approve permission can update sessions" ON public.stock_count_sessions;
 CREATE POLICY "Users with perform or approve permission can update sessions"
     ON public.stock_count_sessions FOR UPDATE
     USING (
@@ -82,6 +85,7 @@ CREATE POLICY "Users with perform or approve permission can update sessions"
         (company_id = (SELECT company_id FROM public.users WHERE id = auth.uid()) OR current_user_is_admin())
     );
 
+DROP POLICY IF EXISTS "Users with perform permission can delete draft sessions" ON public.stock_count_sessions;
 CREATE POLICY "Users with perform permission can delete draft sessions"
     ON public.stock_count_sessions FOR DELETE
     USING (
@@ -90,6 +94,7 @@ CREATE POLICY "Users with perform permission can delete draft sessions"
     );
 
 -- ITEMS
+DROP POLICY IF EXISTS "Users can view stock count items for their company" ON public.stock_count_items;
 CREATE POLICY "Users can view stock count items for their company"
     ON public.stock_count_items FOR SELECT
     USING (
@@ -99,6 +104,7 @@ CREATE POLICY "Users can view stock count items for their company"
         )
     );
 
+DROP POLICY IF EXISTS "Users with perform permission can insert stock count items" ON public.stock_count_items;
 CREATE POLICY "Users with perform permission can insert stock count items"
     ON public.stock_count_items FOR INSERT
     WITH CHECK (
@@ -109,6 +115,7 @@ CREATE POLICY "Users with perform permission can insert stock count items"
         )
     );
 
+DROP POLICY IF EXISTS "Users with perform permission can update stock count items" ON public.stock_count_items;
 CREATE POLICY "Users with perform permission can update stock count items"
     ON public.stock_count_items FOR UPDATE
     USING (
@@ -119,6 +126,7 @@ CREATE POLICY "Users with perform permission can update stock count items"
         )
     );
 
+DROP POLICY IF EXISTS "Users with perform permission can delete stock count items" ON public.stock_count_items;
 CREATE POLICY "Users with perform permission can delete stock count items"
     ON public.stock_count_items FOR DELETE
     USING (
@@ -130,6 +138,7 @@ CREATE POLICY "Users with perform permission can delete stock count items"
     );
 
 -- AUDIT LOGS
+DROP POLICY IF EXISTS "Users can view audit logs for their company's sessions" ON public.stock_count_audit_logs;
 CREATE POLICY "Users can view audit logs for their company's sessions"
     ON public.stock_count_audit_logs FOR SELECT
     USING (
@@ -139,6 +148,7 @@ CREATE POLICY "Users can view audit logs for their company's sessions"
         )
     );
 
+DROP POLICY IF EXISTS "System can insert audit logs" ON public.stock_count_audit_logs;
 CREATE POLICY "System can insert audit logs"
     ON public.stock_count_audit_logs FOR INSERT
     WITH CHECK (

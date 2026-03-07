@@ -20,18 +20,21 @@ ALTER TABLE public.otp_codes ENABLE ROW LEVEL SECURITY;
 
 -- 4. Create RLS Policies
 -- Only service_role (Edge Functions) can manage these records
+DROP POLICY IF EXISTS "Service role has full access to otp_codes" ON public.otp_codes;
 CREATE POLICY "Service role has full access to otp_codes"
 ON public.otp_codes
 FOR ALL
 USING (auth.uid() IS NULL); -- In Edge functions with service role, auth.uid() is null but it bypasses RLS anyway if using service_role key.
 
 -- Allow no access to authenticated or anon users
+DROP POLICY IF EXISTS "Deny anon access to otp_codes" ON public.otp_codes;
 CREATE POLICY "Deny anon access to otp_codes"
 ON public.otp_codes
 FOR ALL
 TO anon
 USING (false);
 
+DROP POLICY IF EXISTS "Deny authenticated access to otp_codes" ON public.otp_codes;
 CREATE POLICY "Deny authenticated access to otp_codes"
 ON public.otp_codes
 FOR ALL

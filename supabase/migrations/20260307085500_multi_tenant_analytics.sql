@@ -14,7 +14,12 @@ INSERT INTO public.tenants (id, name)
 VALUES ('00000000-0000-0000-0000-000000000000', 'Default Tenant') 
 ON CONFLICT DO NOTHING;
 
--- 2. Rename company_id to tenant_id on existing tables and set foreign keys
+-- 2. Drop any existing FKs on company_id before rename (they may reference users.id, not tenants.id)
+ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_company_id_fkey;
+ALTER TABLE public.inventory_items DROP CONSTRAINT IF EXISTS inventory_items_company_id_fkey;
+ALTER TABLE public.sale_transactions DROP CONSTRAINT IF EXISTS sale_transactions_company_id_fkey;
+
+-- Rename company_id to tenant_id on existing tables
 DO $$ 
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='users' AND column_name='company_id') THEN
@@ -28,18 +33,20 @@ BEGIN
   END IF;
 END $$;
 
--- 3. Update existing nulls to point to the default tenant BEFORE making them NOT NULL
-UPDATE public.users SET tenant_id = '00000000-0000-0000-0000-000000000000' WHERE tenant_id IS NULL;
-UPDATE public.inventory_items SET tenant_id = '00000000-0000-0000-0000-000000000000' WHERE tenant_id IS NULL;
-UPDATE public.sale_transactions SET tenant_id = '00000000-0000-0000-0000-000000000000' WHERE tenant_id IS NULL;
+-- 3. Overwrite ALL existing tenant_id values to point to the default tenant
+-- (old values were user IDs referencing users table, not tenant IDs)
+UPDATE public.users SET tenant_id = '00000000-0000-0000-0000-000000000000';
+UPDATE public.inventory_items SET tenant_id = '00000000-0000-0000-0000-000000000000';
+UPDATE public.sale_transactions SET tenant_id = '00000000-0000-0000-0000-000000000000';
 
--- Apply foreign keys securely
-ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_company_id_fkey;
+-- Drop any stale FK constraints then re-add pointing to tenants
+ALTER TABLE public.users DROP CONSTRAINT IF EXISTS fk_user_tenant;
 ALTER TABLE public.users ADD CONSTRAINT fk_user_tenant FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
+ALTER TABLE public.inventory_items DROP CONSTRAINT IF EXISTS fk_inv_tenant;
 ALTER TABLE public.inventory_items ADD CONSTRAINT fk_inv_tenant FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
-ALTER TABLE public.sale_transactions DROP CONSTRAINT IF EXISTS sale_transactions_company_id_fkey;
+ALTER TABLE public.sale_transactions DROP CONSTRAINT IF EXISTS fk_txn_tenant;
 ALTER TABLE public.sale_transactions ADD CONSTRAINT fk_txn_tenant FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
 
 -- Make them NOT NULL
@@ -48,7 +55,24 @@ ALTER TABLE public.inventory_items ALTER COLUMN tenant_id SET NOT NULL;
 ALTER TABLE public.sale_transactions ALTER COLUMN tenant_id SET NOT NULL;
 
 -- 4. Add tenant_id to other business tables and backfill data
-ALTER TABLE public.stock_counts ADD COLUMN IF NOT EXISTS tenant_id UUID DEFAULT '00000000-0000-0000-0000-000000000000' REFERENCES public.tenants(id) ON DELETE CASCADE;
+-- `stock_counts` was replaced by `stock_count_sessions` in migration 005, but in case legacy rows exist:
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'stock_counts') THEN
+        ALTER TABLE public.stock_counts ADD COLUMN IF NOT EXISTS tenant_id UUID DEFAULT '00000000-0000-0000-0000-000000000000' REFERENCES public.tenants(id) ON DELETE CASCADE;
+        UPDATE public.stock_counts SET tenant_id = '00000000-0000-0000-0000-000000000000';
+        ALTER TABLE public.stock_counts ALTER COLUMN tenant_id SET NOT NULL;
+        ALTER TABLE public.stock_counts ENABLE ROW LEVEL SECURITY;
+        EXECUTE 'DROP POLICY IF EXISTS "tenant_isolation_select" ON public.stock_counts';
+        EXECUTE 'DROP POLICY IF EXISTS "tenant_isolation_insert" ON public.stock_counts';
+        EXECUTE 'DROP POLICY IF EXISTS "tenant_isolation_update" ON public.stock_counts';
+        EXECUTE 'DROP POLICY IF EXISTS "tenant_isolation_delete" ON public.stock_counts';
+        EXECUTE 'CREATE POLICY "tenant_isolation_select" ON public.stock_counts FOR SELECT USING (tenant_id = NULLIF(current_setting(''request.jwt.claim.tenant_id'', true), '''')::uuid OR tenant_id = (auth.jwt()->>''tenant_id'')::uuid)';
+        EXECUTE 'CREATE POLICY "tenant_isolation_insert" ON public.stock_counts FOR INSERT WITH CHECK (tenant_id = NULLIF(current_setting(''request.jwt.claim.tenant_id'', true), '''')::uuid OR tenant_id = (auth.jwt()->>''tenant_id'')::uuid)';
+        EXECUTE 'CREATE POLICY "tenant_isolation_update" ON public.stock_counts FOR UPDATE USING (tenant_id = NULLIF(current_setting(''request.jwt.claim.tenant_id'', true), '''')::uuid OR tenant_id = (auth.jwt()->>''tenant_id'')::uuid)';
+        EXECUTE 'CREATE POLICY "tenant_isolation_delete" ON public.stock_counts FOR DELETE USING (tenant_id = NULLIF(current_setting(''request.jwt.claim.tenant_id'', true), '''')::uuid OR tenant_id = (auth.jwt()->>''tenant_id'')::uuid)';
+    END IF;
+END $$;
 ALTER TABLE public.sale_items ADD COLUMN IF NOT EXISTS tenant_id UUID DEFAULT '00000000-0000-0000-0000-000000000000' REFERENCES public.tenants(id) ON DELETE CASCADE;
 ALTER TABLE public.sale_refunds ADD COLUMN IF NOT EXISTS tenant_id UUID DEFAULT '00000000-0000-0000-0000-000000000000' REFERENCES public.tenants(id) ON DELETE CASCADE;
 ALTER TABLE public.audit_logs ADD COLUMN IF NOT EXISTS tenant_id UUID DEFAULT '00000000-0000-0000-0000-000000000000' REFERENCES public.tenants(id) ON DELETE CASCADE;
@@ -57,10 +81,9 @@ ALTER TABLE public.item_batches ADD COLUMN IF NOT EXISTS tenant_id UUID DEFAULT 
 UPDATE public.sale_items SET tenant_id = COALESCE((SELECT tenant_id FROM public.sale_transactions st WHERE st.id = sale_items.transaction_id), '00000000-0000-0000-0000-000000000000');
 UPDATE public.sale_refunds SET tenant_id = COALESCE((SELECT tenant_id FROM public.sale_transactions st WHERE st.id = sale_refunds.transaction_id), '00000000-0000-0000-0000-000000000000');
 UPDATE public.item_batches SET tenant_id = COALESCE((SELECT tenant_id FROM public.inventory_items i WHERE i.id = item_batches.item_id), '00000000-0000-0000-0000-000000000000');
-UPDATE public.stock_counts SET tenant_id = COALESCE((SELECT tenant_id FROM public.users u WHERE u.id = stock_counts.performed_by), '00000000-0000-0000-0000-000000000000');
 UPDATE public.audit_logs SET tenant_id = COALESCE((SELECT tenant_id FROM public.users u WHERE u.id = audit_logs.user_id), '00000000-0000-0000-0000-000000000000');
 
-ALTER TABLE public.stock_counts ALTER COLUMN tenant_id SET NOT NULL;
+-- ALTER TABLE public.stock_counts ALTER COLUMN tenant_id SET NOT NULL;
 ALTER TABLE public.sale_items ALTER COLUMN tenant_id SET NOT NULL;
 ALTER TABLE public.sale_refunds ALTER COLUMN tenant_id SET NOT NULL;
 ALTER TABLE public.audit_logs ALTER COLUMN tenant_id SET NOT NULL;
@@ -71,7 +94,7 @@ ALTER TABLE public.item_batches ALTER COLUMN tenant_id SET NOT NULL;
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.inventory_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sale_transactions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.stock_counts ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE public.stock_counts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sale_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sale_refunds ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
@@ -86,7 +109,7 @@ DO $$
 DECLARE
     t text;
 BEGIN
-    FOR t IN SELECT unnest(ARRAY['users', 'inventory_items', 'sale_transactions', 'stock_counts', 'sale_items', 'sale_refunds', 'audit_logs', 'item_batches']) 
+    FOR t IN SELECT unnest(ARRAY['users', 'inventory_items', 'sale_transactions', 'sale_items', 'sale_refunds', 'audit_logs', 'item_batches']) 
     LOOP
         EXECUTE format('DROP POLICY IF EXISTS "tenant_isolation_select" ON public.%I', t);
         EXECUTE format('DROP POLICY IF EXISTS "tenant_isolation_insert" ON public.%I', t);

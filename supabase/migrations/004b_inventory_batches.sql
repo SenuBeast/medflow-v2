@@ -40,6 +40,7 @@ ALTER TABLE public.item_batches ENABLE ROW LEVEL SECURITY;
 
 -- 5. RLS Policies for item_batches
 -- Ensure the user's company matches the parent item's company, or they have admin rights
+DROP POLICY IF EXISTS "Users can view batches of their company items" ON public.item_batches;
 CREATE POLICY "Users can view batches of their company items"
     ON public.item_batches FOR SELECT
     USING (
@@ -50,6 +51,7 @@ CREATE POLICY "Users can view batches of their company items"
         )
     );
 
+DROP POLICY IF EXISTS "Users with inventory.add can insert batches" ON public.item_batches;
 CREATE POLICY "Users with inventory.add can insert batches"
     ON public.item_batches FOR INSERT
     WITH CHECK (
@@ -61,6 +63,7 @@ CREATE POLICY "Users with inventory.add can insert batches"
         )
     );
 
+DROP POLICY IF EXISTS "Users with inventory.adjust can update batches" ON public.item_batches;
 CREATE POLICY "Users with inventory.adjust can update batches"
     ON public.item_batches FOR UPDATE
     USING (
@@ -72,6 +75,7 @@ CREATE POLICY "Users with inventory.adjust can update batches"
         )
     );
 
+DROP POLICY IF EXISTS "Users with inventory.expiry.dispose can delete batches" ON public.item_batches;
 CREATE POLICY "Users with inventory.expiry.dispose can delete batches"
     ON public.item_batches FOR DELETE
     USING (

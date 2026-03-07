@@ -39,12 +39,14 @@ END $$;
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Only admins with admin.audit.view can select logs
+DROP POLICY IF EXISTS "Admins can view audit logs" ON public.audit_logs;
 CREATE POLICY "Admins can view audit logs" ON public.audit_logs
     FOR SELECT USING (
         public.user_has_permission('admin.audit.view')
     );
 
 -- Policy: Authenticated users can insert their own actions (system triggers can also bypass RLS)
+DROP POLICY IF EXISTS "Authenticated users can insert audit logs" ON public.audit_logs;
 CREATE POLICY "Authenticated users can insert audit logs" ON public.audit_logs
     FOR INSERT WITH CHECK (
         auth.uid() = user_id
