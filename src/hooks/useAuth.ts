@@ -105,6 +105,33 @@ async function initUser(userId: string, email: string) {
 }
 
 let _listenerStarted = false;
+let _realtimeChannel: ReturnType<typeof supabase.channel> | null = null;
+
+function setupRealtimeSync(userId: string, email: string) {
+    if (_realtimeChannel) return;
+
+    _realtimeChannel = supabase.channel('admin_sync')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users', filter: `id=eq.${userId}` }, () => {
+            console.log('[Realtime] User updated by Admin. Syncing...');
+            initUser(userId, email);
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'roles' }, () => {
+            console.log('[Realtime] Roles updated. Syncing...');
+            initUser(userId, email);
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'role_permissions' }, () => {
+            console.log('[Realtime] Permissions updated. Syncing...');
+            initUser(userId, email);
+        })
+        .subscribe();
+}
+
+function cleanupRealtimeSync() {
+    if (_realtimeChannel) {
+        supabase.removeChannel(_realtimeChannel);
+        _realtimeChannel = null;
+    }
+}
 
 function startGlobalAuthListener() {
     if (_listenerStarted) return;
@@ -119,24 +146,24 @@ function startGlobalAuthListener() {
             // Session exists AND user completed 2FA: restore fully
             initUser(session.user.id, session.user.email ?? '').then(() => {
                 useAuthStore.getState().setTwoFactorVerified(true);
+                setupRealtimeSync(session.user.id, session.user.email ?? '');
             });
         } else {
-            // Dangling unverified session — load the profile so the store has the user,
-            // but keep isTwoFactorVerified = false. Route guards block protected pages.
-            // DO NOT call signOut() here — it destroys the session token, causes all
-            // Supabase queries to fail (RLS sees auth.uid()=null), and creates an
-            // infinite sign-out loop that breaks the Google OAuth + OTP flow.
+            // Dangling unverified session
             initUser(session.user.id, session.user.email ?? '');
+            setupRealtimeSync(session.user.id, session.user.email ?? '');
         }
     });
 
     // 2. Subsequent Auth Events (after the user actively signs in/out)
     supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_OUT') {
+            cleanupRealtimeSync();
             useAuthStore.getState().reset();
         } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
             if (session?.user) {
                 initUser(session.user.id, session.user.email ?? '');
+                setupRealtimeSync(session.user.id, session.user.email ?? '');
             }
         }
     });
@@ -166,6 +193,7 @@ export function useAuth() {
     };
 
     const signOut = async () => {
+        cleanupRealtimeSync();
         await supabase.auth.signOut();
         useAuthStore.getState().reset();
     };

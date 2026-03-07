@@ -6,7 +6,7 @@ import { useAuthStore } from '../store/authStore';
 export function useStockCountSessions() {
     const { user } = useAuthStore();
     return useQuery({
-        queryKey: ['stock_count_sessions', user?.company_id],
+        queryKey: ['stock_count_sessions', user?.tenant_id],
         queryFn: async () => {
             const { data, error } = await supabase
                 .from('stock_count_sessions')
@@ -20,7 +20,7 @@ export function useStockCountSessions() {
             if (error) throw error;
             return data as StockCountSession[];
         },
-        enabled: !!user?.company_id,
+        enabled: !!user?.tenant_id,
     });
 }
 
@@ -94,7 +94,7 @@ export function useCreateStockCountSession() {
                     notes: notes || null,
                     status: 'draft',
                     created_by: user.id,
-                    company_id: user.company_id,
+                    tenant_id: user.tenant_id,
                 })
                 .select()
                 .single();

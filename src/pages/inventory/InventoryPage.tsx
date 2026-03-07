@@ -48,7 +48,7 @@ function ItemForm({
         expiry_date: initialData?.expiry_date ?? null,
         is_controlled: initialData?.is_controlled ?? false,
         minimum_order_quantity: initialData?.minimum_order_quantity ?? 10,
-        company_id: initialData?.company_id ?? null,
+        tenant_id: initialData?.tenant_id ?? null,
     });
 
     const handleChange = (field: string, value: string | number | boolean | null) => {

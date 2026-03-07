@@ -111,7 +111,7 @@ export function useCreateSaleTransaction() {
                     total,
                     notes: payload.notes ?? null,
                     sold_by: user.id,
-                    company_id: user.company_id,
+                    tenant_id: user.tenant_id,
                 })
                 .select()
                 .single();

@@ -11,6 +11,12 @@ import { StockCountsPage } from './pages/inventory/StockCountsPage';
 import { StockCountSessionPage } from './pages/inventory/StockCountSessionPage';
 import { ControlledSubstancesPage } from './pages/inventory/ControlledSubstancesPage';
 import { SalesPage } from './pages/sales/SalesPage';
+import { OverviewDashboard } from './pages/sales/OverviewDashboard';
+import { TransactionsTable } from './pages/sales/TransactionsTable';
+import { ProductPerformance } from './pages/sales/ProductPerformance';
+import { StaffPerformance } from './pages/sales/StaffPerformance';
+import { RefundsReturns } from './pages/sales/RefundsReturns';
+import { SalesReports } from './pages/sales/SalesReports';
 import { ReportsPage } from './pages/reports/ReportsPage';
 import { AdminPage } from './pages/admin/AdminPage';
 import { ToastProvider } from './components/ui/Toast';
@@ -76,8 +82,15 @@ function App() {
                 <RouteGuard permission={PERMISSIONS.SALES_VIEW}>
                   <SalesPage />
                 </RouteGuard>
-              }
-              />
+              }>
+                <Route index element={<Navigate to="overview" replace />} />
+                <Route path="overview" element={<OverviewDashboard />} />
+                <Route path="transactions" element={<TransactionsTable />} />
+                <Route path="products" element={<ProductPerformance />} />
+                <Route path="staff" element={<StaffPerformance />} />
+                <Route path="refunds" element={<RefundsReturns />} />
+                <Route path="reports" element={<SalesReports />} />
+              </Route>
 
               <Route
                 path="/reports"
