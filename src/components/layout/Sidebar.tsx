@@ -51,16 +51,16 @@ export function Sidebar() {
     // );
 
     return (
-        <aside className="w-60 shrink-0 h-screen flex flex-col bg-gray-900 border-r border-gray-800">
+        <aside className="w-60 shrink-0 h-screen flex flex-col bg-pos-surface border-r border-pos-border">
             {/* Logo */}
-            <div className="px-5 py-5 border-b border-gray-800">
+            <div className="px-5 py-5 border-b border-pos-border">
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-pos-primary flex items-center justify-center">
                         <Activity size={16} className="text-white" />
                     </div>
                     <div>
-                        <p className="text-white font-bold text-sm leading-none">MedFlow</p>
-                        <p className="text-gray-500 text-xs mt-0.5">Healthcare OS</p>
+                        <p className="text-pos-text font-bold text-sm leading-none">MedFlow</p>
+                        <p className="text-pos-text-muted text-xs mt-0.5">Healthcare OS</p>
                     </div>
                 </div>
             </div>
@@ -84,8 +84,8 @@ export function Sidebar() {
                             className={clsx(
                                 'flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm transition-all',
                                 isActive
-                                    ? 'bg-blue-600 text-white shadow-sm'
-                                    : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                                    ? 'bg-pos-primary text-white shadow-sm'
+                                    : 'text-pos-text-muted hover:text-pos-text hover:bg-pos-surface-hover'
                             )}
                         >
                             <span className="flex items-center gap-3">
@@ -107,7 +107,7 @@ export function Sidebar() {
                         </span>
                     </div>
                     <div className="min-w-0">
-                        <p className="text-white text-xs font-medium truncate">
+                        <p className="text-pos-text text-xs font-medium truncate">
                             {user?.full_name ?? user?.email}
                         </p>
                         <div className="mt-1">
@@ -115,9 +115,14 @@ export function Sidebar() {
                         </div>
                     </div>
                 </div>
+
+                <div className="mb-4">
+                    <ThemeToggle />
+                </div>
+
                 <button
                     onClick={handleSignOut}
-                    className="flex items-center gap-2 w-full px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg text-xs transition-colors"
+                    className="flex items-center gap-2 w-full px-3 py-2 text-pos-text-muted hover:text-pos-accent hover:bg-pos-surface-hover rounded-lg text-xs transition-colors"
                 >
                     <LogOut size={14} />
                     Sign out
@@ -126,3 +131,5 @@ export function Sidebar() {
         </aside >
     );
 }
+
+import { ThemeToggle } from '@shared-ui/theme/ThemeToggle';

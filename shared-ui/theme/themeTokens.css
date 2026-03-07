@@ -1,0 +1,47 @@
+@theme {
+  /* Semantic Tokens for MedFlow Design System */
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-border-subtle: var(--border-subtle);
+  --color-accent-primary: var(--accent-primary);
+  
+  /* Status Colors (Accessible) */
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+  --color-status-danger: var(--status-danger);
+  --color-status-info: var(--status-info);
+}
+
+:root {
+  /* Light Theme Palette */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F7F9FC;
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --border-subtle: #E5E7EB;
+  
+  --accent-primary: #2563EB;
+  
+  --status-success: #10B981;
+  --status-warning: #F59E0B;
+  --status-danger: #EF4444;
+  --status-info: #3B82F6;
+}
+
+.dark {
+  /* Dark Theme Palette */
+  --bg-primary: #0F172A;
+  --bg-secondary: #1E293B;
+  --text-primary: #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --border-subtle: #334155;
+  
+  --accent-primary: #3B82F6;
+  
+  --status-success: #059669;
+  --status-warning: #D97706;
+  --status-danger: #DC2626;
+  --status-info: #2563EB;
+}

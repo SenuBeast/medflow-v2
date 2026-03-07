@@ -5,6 +5,23 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>medflow-v2</title>
+    <script>
+      (function() {
+        const storageKey = 'medflow-theme';
+        const theme = localStorage.getItem(storageKey) || 'system';
+        const root = document.documentElement;
+        
+        let effectiveTheme = 'light';
+        if (theme === 'system') {
+          effectiveTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        } else {
+          effectiveTheme = theme;
+        }
+        
+        root.classList.add(effectiveTheme);
+        root.style.colorScheme = effectiveTheme;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -2,6 +2,9 @@ import { StrictMode, Component, type ReactNode, type ErrorInfo } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
+import { ThemeProvider } from '@shared-ui/theme/ThemeProvider'
+import { useAuthStore } from './store/authStore'
+import { useAuth } from './hooks/useAuth'
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   constructor(props: { children: ReactNode }) {
@@ -29,10 +32,24 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
   }
 }
 
+function Main() {
+  const themePreference = useAuthStore(s => s.user?.theme_preference);
+  const { updateThemePreference } = useAuth();
+
+  return (
+    <ThemeProvider
+      value={themePreference}
+      onThemeChange={(t) => updateThemePreference(t as any)}
+    >
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </ThemeProvider>
+  );
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
+    <Main />
   </StrictMode>
 )

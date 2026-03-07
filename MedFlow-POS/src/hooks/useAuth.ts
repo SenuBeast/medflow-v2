@@ -192,5 +192,27 @@ export function useAuth() {
         useAuthStore.getState().reset();
     };
 
-    return { user, permissions, isLoading, isInitialized, hasPermission, signIn, signInWithGoogle, signOut };
+    const updateThemePreference = async (theme: 'light' | 'dark' | 'system') => {
+        if (!user) return;
+
+        // Optimistic update
+        useAuthStore.getState().setUser({ ...user, theme_preference: theme });
+
+        await supabase
+            .from('users')
+            .update({ theme_preference: theme })
+            .eq('id', user.id);
+    };
+
+    return {
+        user,
+        permissions,
+        isLoading,
+        isInitialized,
+        hasPermission,
+        signIn,
+        signInWithGoogle,
+        signOut,
+        updateThemePreference
+    };
 }
