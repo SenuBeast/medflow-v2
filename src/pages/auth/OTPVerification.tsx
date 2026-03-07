@@ -44,6 +44,11 @@ export function OTPVerification({ email, onVerified, onBack }: OTPVerificationPr
         if (clean && index < 5) {
             inputRefs.current[index + 1]?.focus();
         }
+
+        const token = next.join('');
+        if (token.length === 6) {
+            handleVerify(token);
+        }
     };
 
     const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
@@ -66,11 +71,17 @@ export function OTPVerification({ email, onVerified, onBack }: OTPVerificationPr
         // Focus last filled or last
         const lastIdx = Math.min(pasted.length, 5);
         inputRefs.current[lastIdx]?.focus();
+
+        const token = next.join('');
+        if (token.length === 6) {
+            handleVerify(token);
+        }
     };
 
-    const handleVerify = async () => {
-        const token = digits.join('');
+    const handleVerify = async (manualToken?: string | React.MouseEvent) => {
+        const token = typeof manualToken === 'string' ? manualToken : digits.join('');
         if (token.length < 6) { setError('Enter all 6 digits'); return; }
+        if (loading || verified) return;
         setLoading(true);
         setError(null);
         try {
