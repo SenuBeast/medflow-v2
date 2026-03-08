@@ -17,16 +17,24 @@ export function ExpiryReport({ filters, onFiltersChange }: ExpiryReportProps) {
         <div className="space-y-4">
             {/* Window Tabs */}
             <div className="flex items-center justify-between">
-                <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
-                    {([30, 60, 90, 'expired'] as const).map(w => (
-                        <button key={w} onClick={() => onFiltersChange({ ...filters, expiryWindow: w })}
-                            className={clsx('px-4 py-2 rounded-lg text-xs font-semibold transition-all',
-                                window === w
-                                    ? w === 'expired' ? 'bg-red-600 text-white shadow-sm' : 'bg-white text-gray-900 shadow-sm'
-                                    : 'text-gray-500 hover:text-gray-700')}>
-                            {w === 'expired' ? '🚫 Expired' : `⚠️ Next ${w} days`}
-                        </button>
-                    ))}
+                <div className="flex gap-1 bg-surface-dim/50 border border-border-dim/50 p-1 rounded-2xl">
+                    {([30, 60, 90, 'expired'] as const).map(w => {
+                        const isActive = window === w;
+                        return (
+                            <button
+                                key={w}
+                                onClick={() => onFiltersChange({ ...filters, expiryWindow: w })}
+                                className={clsx(
+                                    'px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap',
+                                    isActive
+                                        ? 'bg-text-main text-text-inverse shadow-md scale-[1.02]'
+                                        : 'text-text-dim hover:text-text-main hover:bg-surface-elevated/50'
+                                )}
+                            >
+                                {w === 'expired' ? '🚫 Expired' : `⚠️ Next ${w} days`}
+                            </button>
+                        );
+                    })}
                 </div>
                 <ExportButton
                     filename={`medflow-expiry-${window}d`}
@@ -47,13 +55,13 @@ export function ExpiryReport({ filters, onFiltersChange }: ExpiryReportProps) {
             )}
 
             {/* Table */}
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+            <div className="bg-card rounded-2xl border border-border-dim overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                        <thead className="bg-gray-50 border-b border-gray-100 sticky top-0">
+                        <thead className="bg-surface-dim border-b border-border-dim sticky top-0">
                             <tr>
                                 {['Product', 'Batch #', 'Quantity', 'Expiry Date', 'Days Remaining', 'Severity'].map(h => (
-                                    <th key={h} className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                                    <th key={h} className="text-left px-5 py-3.5 text-xs font-semibold text-text-sub uppercase tracking-wide">{h}</th>
                                 ))}
                             </tr>
                         </thead>
@@ -64,27 +72,27 @@ export function ExpiryReport({ filters, onFiltersChange }: ExpiryReportProps) {
                                 <tr>
                                     <td colSpan={6} className="px-5 py-16 text-center">
                                         <AlertTriangle size={32} className="text-gray-200 mx-auto mb-3" />
-                                        <p className="text-gray-400 text-sm">
+                                        <p className="text-text-dim text-sm">
                                             {window === 'expired' ? 'No expired batches found — great!' : `No batches expiring in the next ${window} days`}
                                         </p>
                                     </td>
                                 </tr>
                             ) : (
                                 data.map(row => (
-                                    <tr key={row.id} className={clsx('hover:bg-gray-50/60 transition-colors',
+                                    <tr key={row.id} className={clsx('hover:bg-surface-dim/60 transition-colors',
                                         row.status === 'expired' && 'bg-red-50/50',
                                         row.status === 'critical' && 'bg-amber-50/40')}>
                                         <td className="px-5 py-3.5">
-                                            <p className="font-medium text-gray-900">{row.item_name}</p>
-                                            {row.item_sku && <p className="text-xs text-gray-400 font-mono">{row.item_sku}</p>}
+                                            <p className="font-medium text-text-main">{row.item_name}</p>
+                                            {row.item_sku && <p className="text-xs text-text-dim font-mono">{row.item_sku}</p>}
                                         </td>
-                                        <td className="px-5 py-3.5 font-mono text-xs text-gray-600">{row.batch_number}</td>
-                                        <td className="px-5 py-3.5 font-semibold text-gray-900">{row.quantity}</td>
-                                        <td className="px-5 py-3.5 text-gray-600 whitespace-nowrap">{format(new Date(row.expiry_date), 'MMM d, yyyy')}</td>
+                                        <td className="px-5 py-3.5 font-mono text-xs text-text-sub">{row.batch_number}</td>
+                                        <td className="px-5 py-3.5 font-semibold text-text-main">{row.quantity}</td>
+                                        <td className="px-5 py-3.5 text-text-sub whitespace-nowrap">{format(new Date(row.expiry_date), 'MMM d, yyyy')}</td>
                                         <td className="px-5 py-3.5">
                                             <span className={clsx('font-bold',
                                                 row.status === 'expired' ? 'text-red-600' :
-                                                    row.status === 'critical' ? 'text-amber-600' : 'text-gray-600')}>
+                                                    row.status === 'critical' ? 'text-amber-600' : 'text-text-sub')}>
                                                 {row.days_to_expiry < 0 ? `${Math.abs(row.days_to_expiry)}d ago` : `${row.days_to_expiry}d`}
                                             </span>
                                         </td>

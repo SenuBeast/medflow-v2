@@ -53,7 +53,7 @@ export function RefundModal({ transaction: tx, onClose, onSuccess }: RefundModal
         }
     };
 
-    const inputCls = 'w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30';
+    const inputCls = 'w-full px-3 py-2 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30';
 
     return (
         <div className="space-y-5">
@@ -70,7 +70,7 @@ export function RefundModal({ transaction: tx, onClose, onSuccess }: RefundModal
 
             {/* Refund Type */}
             <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Refund Type</p>
+                <p className="text-xs font-semibold text-text-sub uppercase tracking-wide mb-2">Refund Type</p>
                 <div className="grid grid-cols-2 gap-2">
                     {(['full', 'partial'] as const).map(type => (
                         <button
@@ -78,11 +78,11 @@ export function RefundModal({ transaction: tx, onClose, onSuccess }: RefundModal
                             onClick={() => setRefundType(type)}
                             className={`py-2.5 px-3 rounded-xl border-2 text-sm font-semibold capitalize transition-all ${refundType === type
                                     ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                    : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                                    : 'border-border-main text-text-sub hover:border-gray-300'
                                 }`}
                         >
                             {type} Refund
-                            {type === 'full' && <span className="block text-xs font-normal text-gray-400 mt-0.5">${tx.total.toFixed(2)}</span>}
+                            {type === 'full' && <span className="block text-xs font-normal text-text-dim mt-0.5">${tx.total.toFixed(2)}</span>}
                         </button>
                     ))}
                 </div>
@@ -91,13 +91,13 @@ export function RefundModal({ transaction: tx, onClose, onSuccess }: RefundModal
             {/* Partial Item Quantities */}
             {refundType === 'partial' && (
                 <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Select Quantities to Refund</p>
+                    <p className="text-xs font-semibold text-text-sub uppercase tracking-wide mb-2">Select Quantities to Refund</p>
                     <div className="space-y-2">
                         {(tx.items ?? []).map(item => (
-                            <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                            <div key={item.id} className="flex items-center justify-between p-3 bg-surface-dim rounded-xl">
                                 <div>
                                     <p className="text-sm font-semibold text-gray-800">{item.item_name}</p>
-                                    <p className="text-xs text-gray-400">{item.quantity} sold · ${item.unit_price.toFixed(2)}/unit</p>
+                                    <p className="text-xs text-text-dim">{item.quantity} sold · ${item.unit_price.toFixed(2)}/unit</p>
                                 </div>
                                 <input
                                     type="number"
@@ -108,7 +108,7 @@ export function RefundModal({ transaction: tx, onClose, onSuccess }: RefundModal
                                         ...prev,
                                         [item.id]: Math.min(parseInt(e.target.value) || 0, item.quantity),
                                     }))}
-                                    className="w-20 px-2 py-1.5 rounded-lg border border-gray-200 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                    className="w-20 px-2 py-1.5 rounded-lg border border-border-main text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                                     title={`Refund quantity for ${item.item_name}`}
                                 />
                             </div>
@@ -119,7 +119,7 @@ export function RefundModal({ transaction: tx, onClose, onSuccess }: RefundModal
 
             {/* Reason */}
             <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                <label className="block text-xs font-semibold text-text-sub uppercase tracking-wide mb-1">
                     Reason <span className="text-red-500">*</span>
                 </label>
                 <textarea

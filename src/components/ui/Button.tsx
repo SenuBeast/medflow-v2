@@ -24,15 +24,15 @@ export function Button({
 
     const variants = {
         primary:
-            'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500 shadow-sm hover:shadow-md',
+            'bg-brand hover:bg-brand-hover text-text-inverse focus:ring-brand shadow-sm hover:shadow-md',
         secondary:
-            'bg-gray-100 hover:bg-gray-200 text-gray-700 focus:ring-gray-400',
+            'bg-surface-dim hover:bg-surface text-text-main focus:ring-border-main',
         danger:
-            'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 shadow-sm',
+            'bg-danger hover:bg-danger text-text-inverse focus:ring-danger shadow-sm',
         ghost:
-            'bg-transparent hover:bg-gray-100 text-gray-600 focus:ring-gray-400',
+            'bg-transparent hover:bg-surface-dim text-text-sub focus:ring-border-main',
         outline:
-            'border border-gray-300 hover:bg-gray-50 text-gray-700 focus:ring-gray-400',
+            'border border-border-main hover:bg-surface-dim text-text-main focus:ring-border-main',
     };
 
     const sizes = {

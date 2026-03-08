@@ -56,21 +56,21 @@ function ForgotPassword({ onBack }: { onBack: () => void }) {
                     <KeyRound size={22} className="text-blue-400" />
                 </div>
                 <h2 className="text-white font-bold text-xl">Reset Password</h2>
-                <p className="text-gray-400 text-sm mt-1">
+                <p className="text-text-dim text-sm mt-1">
                     {sent ? "We've sent a reset link to your email." : "Enter your email to receive a password reset link."}
                 </p>
             </div>
             {!sent && (
                 <form onSubmit={handleSend} className="space-y-4">
                     <div className="relative">
-                        <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                        <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-sub" />
                         <input
                             type="email"
                             required
                             placeholder="your@email.com"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
+                            className="w-full pl-9 pr-4 py-2.5 bg-card/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
                         />
                     </div>
                     <button
@@ -85,7 +85,7 @@ function ForgotPassword({ onBack }: { onBack: () => void }) {
                     </button>
                 </form>
             )}
-            <button onClick={onBack} className="w-full text-center text-sm text-gray-500 hover:text-gray-300 transition-colors">
+            <button onClick={onBack} className="w-full text-center text-sm text-text-sub hover:text-gray-300 transition-colors">
                 ← Back to sign in
             </button>
         </div>
@@ -155,7 +155,7 @@ function LoginForm({
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={googleLoading || loading}
-                className="w-full flex items-center justify-center gap-3 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                className="w-full flex items-center justify-center gap-3 py-2.5 rounded-xl border border-white/10 bg-card/5 hover:bg-card/10 text-white text-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500/50"
             >
                 {googleLoading
                     ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -166,9 +166,9 @@ function LoginForm({
 
             {/* Divider */}
             <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-white/10" />
-                <span className="text-xs text-gray-600 font-medium uppercase tracking-wider">or</span>
-                <div className="flex-1 h-px bg-white/10" />
+                <div className="flex-1 h-px bg-card/10" />
+                <span className="text-xs text-text-sub font-medium uppercase tracking-wider">or</span>
+                <div className="flex-1 h-px bg-card/10" />
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5" noValidate>
@@ -176,7 +176,7 @@ function LoginForm({
                 <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1.5" htmlFor="login-email">Email Address</label>
                     <div className="relative">
-                        <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                        <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-sub" />
                         <input
                             id="login-email"
                             type="email"
@@ -185,7 +185,7 @@ function LoginForm({
                             required
                             placeholder="admin@medflow.com"
                             autoComplete="email"
-                            className="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-sm transition"
+                            className="w-full pl-9 pr-4 py-2.5 bg-card/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-sm transition"
                         />
                     </div>
                 </div>
@@ -205,9 +205,9 @@ function LoginForm({
                             type="checkbox"
                             checked={rememberMe}
                             onChange={e => setRememberMe(e.target.checked)}
-                            className="w-4 h-4 rounded border-white/20 bg-white/5 text-blue-600 focus:ring-blue-500/50"
+                            className="w-4 h-4 rounded border-white/20 bg-card/5 text-blue-600 focus:ring-blue-500/50"
                         />
-                        <span className="text-sm text-gray-400">Remember me</span>
+                        <span className="text-sm text-text-dim">Remember me</span>
                     </label>
                     <button
                         type="button"
@@ -255,7 +255,7 @@ function LoginForm({
                     }
                 </button>
 
-                <p className="text-center text-sm text-gray-500">
+                <p className="text-center text-sm text-text-sub">
                     Don't have an account?{' '}
                     <button type="button" onClick={onSwitchToSignup} className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
                         Sign up
@@ -331,7 +331,7 @@ export function LoginPage() {
 
             <div className="relative w-full max-w-[420px]">
                 {/* Glass card */}
-                <div className="bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-8 shadow-2xl">
+                <div className="bg-card/[0.03] backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-8 shadow-2xl">
                     {/* Logo — always visible */}
                     {step !== 'otp' && (
                         <div className="flex flex-col items-center mb-8">
@@ -339,21 +339,21 @@ export function LoginPage() {
                                 <Activity size={26} className="text-white" />
                             </div>
                             <h1 className="text-2xl font-bold text-white tracking-tight">MedFlow</h1>
-                            <p className="text-gray-500 text-sm mt-1">Medical Inventory System</p>
+                            <p className="text-text-sub text-sm mt-1">Medical Inventory System</p>
                         </div>
                     )}
 
                     {/* ── Login/Signup tabs ──────────────────────────────── */}
                     {(step === 'login' || step === 'signup') && (
                         <>
-                            <div className="flex bg-white/5 p-1 rounded-xl mb-6 border border-white/5">
+                            <div className="flex bg-card/5 p-1 rounded-xl mb-6 border border-white/5">
                                 {(['login', 'signup'] as const).map(s => (
                                     <button
                                         key={s}
                                         onClick={() => setStep(s)}
                                         className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all capitalize ${step === s
                                             ? 'bg-blue-600 text-white shadow-sm'
-                                            : 'text-gray-500 hover:text-gray-300'
+                                            : 'text-text-sub hover:text-gray-300'
                                             }`}
                                     >
                                         {s === 'login' ? 'Sign In' : 'Sign Up'}

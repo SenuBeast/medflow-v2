@@ -21,8 +21,8 @@ function Toggle({ on, onToggle, label }: { on: boolean; onToggle: () => void; la
             aria-label={`Toggle ${label}`}
         >
             {on
-                ? <ToggleRight size={28} className="text-blue-500" />
-                : <ToggleLeft size={28} className="text-gray-300" />
+                ? <ToggleRight size={28} className="text-brand" />
+                : <ToggleLeft size={28} className="text-text-dim/40" />
             }
         </button>
     );
@@ -30,10 +30,10 @@ function Toggle({ on, onToggle, label }: { on: boolean; onToggle: () => void; la
 
 function SettingRow({ label, description, children }: { label: string; description: string; children: React.ReactNode }) {
     return (
-        <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-0">
+        <div className="flex items-center justify-between py-4 border-b border-border-dim last:border-0">
             <div>
-                <p className="text-sm font-semibold text-gray-900">{label}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{description}</p>
+                <p className="text-sm font-semibold text-text-main">{label}</p>
+                <p className="text-xs text-text-dim mt-0.5">{description}</p>
             </div>
             <div className="ml-4 shrink-0">{children}</div>
         </div>
@@ -55,7 +55,7 @@ export function SystemSettingsPage() {
     const set = <K extends keyof SettingsState>(key: K, value: SettingsState[K]) =>
         setSettings(prev => ({ ...prev, [key]: value }));
 
-    const inputCls = 'w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-white transition-all';
+    const inputCls = 'w-full px-3 py-2 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-card transition-all';
 
     const handleSave = async () => {
         setSaving(true);
@@ -67,20 +67,20 @@ export function SystemSettingsPage() {
     return (
         <div className="max-w-2xl space-y-6">
             <div>
-                <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <h2 className="text-lg font-bold text-text-main flex items-center gap-2">
                     <Settings size={18} /> System Settings
                 </h2>
-                <p className="text-sm text-gray-500 mt-0.5">Configure application-wide preferences</p>
+                <p className="text-sm text-text-sub mt-0.5">Configure application-wide preferences</p>
             </div>
 
             {/* Company Info */}
             <Card>
-                <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-5">
-                    <Building2 size={15} className="text-blue-500" /> Company Information
+                <h3 className="text-sm font-bold text-text-main flex items-center gap-2 mb-5">
+                    <Building2 size={15} className="text-brand" /> Company Information
                 </h3>
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Company Name</label>
+                        <label className="block text-xs font-semibold text-text-sub uppercase tracking-wide mb-1">Company Name</label>
                         <input
                             type="text"
                             className={inputCls}
@@ -91,7 +91,7 @@ export function SystemSettingsPage() {
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Admin Email</label>
+                        <label className="block text-xs font-semibold text-text-sub uppercase tracking-wide mb-1">Admin Email</label>
                         <input
                             type="email"
                             className={inputCls}
@@ -106,7 +106,7 @@ export function SystemSettingsPage() {
 
             {/* Alerts & Notifications */}
             <Card>
-                <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
+                <h3 className="text-sm font-bold text-text-main flex items-center gap-2 mb-3">
                     <Bell size={15} className="text-amber-500" /> Alerts & Notifications
                 </h3>
                 <SettingRow label="Enable Alerts" description="Show system notifications for critical events">
@@ -119,12 +119,12 @@ export function SystemSettingsPage() {
 
             {/* Thresholds */}
             <Card>
-                <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-5">
+                <h3 className="text-sm font-bold text-text-main flex items-center gap-2 mb-5">
                     <Calendar size={15} className="text-indigo-500" /> Thresholds
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Expiry Warning Window (days)</label>
+                        <label className="block text-xs font-semibold text-text-sub uppercase tracking-wide mb-1">Expiry Warning Window (days)</label>
                         <input
                             type="number"
                             min={1}
@@ -137,7 +137,7 @@ export function SystemSettingsPage() {
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Low Stock Default Threshold</label>
+                        <label className="block text-xs font-semibold text-text-sub uppercase tracking-wide mb-1">Low Stock Default Threshold</label>
                         <input
                             type="number"
                             min={1}

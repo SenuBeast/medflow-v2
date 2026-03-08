@@ -58,32 +58,22 @@ const NAV_ITEMS: NavItem[] = [
 function NavItemVisible({ item, activeSection, setActiveSection }: { item: NavItem; activeSection: SectionId; setActiveSection: (id: SectionId) => void }) {
     const canAccess = useHasPermission(item.permission);
     if (!canAccess) return null;
-    const { id, label, description, icon: Icon } = item;
+    const { id, label, icon: Icon } = item;
+    const isActive = activeSection === id;
+
     return (
         <button
             onClick={() => setActiveSection(id)}
             className={clsx(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all group',
-                activeSection === id
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-gray-700 hover:bg-gray-100'
+                'relative flex items-center gap-2 px-4 py-4 text-sm font-bold transition-all whitespace-nowrap group',
+                isActive ? 'text-brand' : 'text-text-dim hover:text-text-main'
             )}
         >
-            <div className={clsx(
-                'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
-                activeSection === id ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-gray-200'
-            )}>
-                <Icon size={15} className={activeSection === id ? 'text-white' : 'text-gray-500'} />
-            </div>
-            <div className="flex-1 min-w-0">
-                <p className={clsx('text-sm font-semibold truncate', activeSection === id ? 'text-white' : 'text-gray-800')}>
-                    {label}
-                </p>
-                <p className={clsx('text-xs truncate', activeSection === id ? 'text-blue-100' : 'text-gray-400')}>
-                    {description}
-                </p>
-            </div>
-            <ChevronRight size={13} className={clsx('shrink-0 transition-opacity', activeSection === id ? 'text-white opacity-80' : 'opacity-0 group-hover:opacity-40')} />
+            <Icon size={16} className={clsx('transition-colors', isActive ? 'text-brand' : 'text-text-dim group-hover:text-text-main')} />
+            {label}
+            {isActive && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand rounded-t-full shadow-[0_-2px_6px_rgba(20,110,245,0.3)] animate-in fade-in slide-in-from-bottom-1 duration-300" />
+            )}
         </button>
     );
 }
@@ -94,50 +84,35 @@ export function AdminPage() {
     const currentNav = NAV_ITEMS.find(n => n.id === activeSection);
 
     return (
-        <div className="flex gap-6 max-w-[1400px] mx-auto">
-            {/* ── Admin Left Sidebar ───────────────────────────────────── */}
-            <aside className="w-60 shrink-0">
-                <div className="sticky top-0">
-                    <div className="mb-4">
-                        <h1 className="text-lg font-bold text-gray-900">Admin Panel</h1>
-                        <p className="text-xs text-gray-400 mt-0.5">System configuration</p>
-                    </div>
-
-                    <nav className="space-y-1">
-                        {NAV_ITEMS.map(item => (
-                            <NavItemVisible
-                                key={item.id}
-                                item={item}
-                                activeSection={activeSection}
-                                setActiveSection={setActiveSection}
-                            />
-                        ))}
-                    </nav>
-
-                    {/* Danger zone hint */}
-                    <div className="mt-6 p-3 bg-amber-50 border border-amber-100 rounded-xl">
-                        <p className="text-xs font-semibold text-amber-800">⚠️ Admin Area</p>
-                        <p className="text-[11px] text-amber-600 mt-0.5">Changes here affect all users and clinical workflows.</p>
-                    </div>
-                </div>
-            </aside>
-
-            {/* ── Content Area ─────────────────────────────────────────── */}
-            <main className="flex-1 min-w-0">
-                {/* Breadcrumb */}
-                <div className="flex items-center gap-2 mb-5 text-sm text-gray-500">
-                    <span className="font-medium text-gray-700">Admin</span>
+        <div className="max-w-[1400px] mx-auto space-y-6">
+            <header className="flex flex-col gap-1">
+                <div className="flex items-center gap-2 text-sm text-text-sub">
+                    <span className="font-medium">Admin Panel</span>
                     <ChevronRight size={13} />
-                    <span className="text-gray-900 font-semibold">{currentNav?.label}</span>
+                    <span className="text-text-main font-semibold">{currentNav?.label}</span>
+                </div>
+            </header>
+
+            <div className="flex flex-col border-b border-border-dim overflow-x-auto no-scrollbar">
+                <nav className="flex items-center">
+                    {NAV_ITEMS.map(item => (
+                        <NavItemVisible
+                            key={item.id}
+                            item={item}
+                            activeSection={activeSection}
+                            setActiveSection={setActiveSection}
+                        />
+                    ))}
+                </nav>
+            </div>
+
+            {/* Section Content */}
+            <main className="min-w-0">
+                <div className="mb-6">
+                    <h2 className="text-xl font-bold text-text-main">{currentNav?.label}</h2>
+                    <p className="text-sm text-text-sub mt-1">{currentNav?.description}</p>
                 </div>
 
-                {/* Section Header */}
-                <div className="mb-5">
-                    <h2 className="text-xl font-bold text-gray-900">{currentNav?.label}</h2>
-                    <p className="text-sm text-gray-500 mt-0.5">{currentNav?.description}</p>
-                </div>
-
-                {/* Section Content */}
                 <PermissionGuard
                     permission={currentNav?.permission as import('../../lib/constants').PermissionKey ?? PERMISSIONS.ADMIN_ACCESS_PANEL}
                     fallback={
@@ -146,8 +121,8 @@ export function AdminPage() {
                                 <Shield size={28} className="text-gray-300" />
                             </div>
                             <div>
-                                <p className="font-bold text-gray-900 text-lg">Access Denied</p>
-                                <p className="text-gray-400 text-sm mt-1">You don't have permission to view this section.</p>
+                                <p className="font-bold text-text-main text-lg">Access Denied</p>
+                                <p className="text-text-dim text-sm mt-1">You don't have permission to view this section.</p>
                             </div>
                         </div>
                     }

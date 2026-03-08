@@ -22,43 +22,43 @@ export function ActivityFeed() {
     activities[4].action = 'Received PO: #PO-1042';
 
     return (
-        <Card className="h-full flex flex-col hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
-                <h3 className="text-base font-bold text-slate-900 tracking-tight">Recent Activity</h3>
-                <Activity size={18} className="text-slate-400" />
+        <Card className="h-full flex flex-col bg-card border-border-main">
+            <div className="flex items-center justify-between pb-4 border-b border-border-dim/50 mb-6">
+                <h3 className="text-base font-bold text-text-main tracking-tight">Recent Activity</h3>
+                <Activity size={18} className="text-text-dim" />
             </div>
 
             <div className="flex-1 overflow-y-auto pr-2 space-y-6">
                 {activities.map((item, index) => {
                     const icons = {
-                        sale: <ShoppingCart size={14} className="text-emerald-500" />,
-                        adjustment: <PackageMinus size={14} className="text-blue-500" />,
-                        expiry: <AlertCircle size={14} className="text-rose-500" />
+                        sale: <ShoppingCart size={14} className="text-success" />,
+                        adjustment: <PackageMinus size={14} className="text-brand" />,
+                        expiry: <AlertCircle size={14} className="text-danger" />
                     };
 
                     const iconBgs = {
-                        sale: 'bg-emerald-100 ring-emerald-50',
-                        adjustment: 'bg-blue-100 ring-blue-50',
-                        expiry: 'bg-rose-100 ring-rose-50'
+                        sale: 'bg-success/10 ring-success/5',
+                        adjustment: 'bg-brand/10 ring-brand/5',
+                        expiry: 'bg-danger/10 ring-danger/5'
                     };
 
                     return (
                         <div key={item.id} className="relative flex gap-4">
                             {/* Connection Line */}
                             {index !== activities.length - 1 && (
-                                <div className="absolute top-8 left-4 bottom-[-24px] w-px bg-slate-100" />
+                                <div className="absolute top-8 left-4 bottom-[-24px] w-px bg-border-dim/30" />
                             )}
 
                             <div className={clsx('relative z-10 shrink-0 w-8 h-8 rounded-full flex items-center justify-center ring-4', iconBgs[item.type])}>
                                 {icons[item.type]}
                             </div>
 
-                            <div className="pt-1.5 flex-1 min-w-0">
-                                <p className="text-sm font-medium text-slate-800 truncate">{item.action}</p>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-xs font-semibold text-slate-500">{item.user}</span>
-                                    <span className="w-1 h-1 rounded-full bg-slate-300" />
-                                    <span className="text-xs text-slate-400">{item.timestamp}</span>
+                            <div className="pt-1 flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-text-main truncate">{item.action}</p>
+                                <div className="flex items-center gap-2 mt-1.5">
+                                    <span className="text-[10px] font-bold text-text-sub uppercase tracking-wider">{item.user}</span>
+                                    <span className="w-1 h-1 rounded-full bg-border-dim" />
+                                    <span className="text-[10px] font-medium text-text-dim">{item.timestamp}</span>
                                 </div>
                             </div>
                         </div>

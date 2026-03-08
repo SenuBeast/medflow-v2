@@ -34,17 +34,17 @@ export function StockCountReport({ filters }: StockCountReportProps) {
                     { label: 'Approved', value: approvedSessions.length },
                     { label: 'Items with Variance', value: totalVarianceItems.length },
                 ].map(({ label, value }) => (
-                    <div key={label} className="bg-white border border-gray-100 rounded-xl p-4">
-                        <p className="text-xs text-gray-500 font-medium">{label}</p>
-                        <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
+                    <div key={label} className="bg-card border border-border-dim rounded-xl p-4">
+                        <p className="text-xs text-text-sub font-medium">{label}</p>
+                        <p className="text-2xl font-bold text-text-main mt-1">{value}</p>
                     </div>
                 ))}
             </div>
 
             {/* Sessions Table */}
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-900 text-sm">Count Sessions</h3>
+            <div className="bg-card rounded-2xl border border-border-dim overflow-hidden">
+                <div className="px-5 py-4 border-b border-border-dim flex items-center justify-between">
+                    <h3 className="font-semibold text-text-main text-sm">Count Sessions</h3>
                     <ExportButton
                         filename="medflow-stock-count-report"
                         headers={['ID', 'Type', 'Status', 'Created By', 'Date', 'Total Items', 'Variance Items']}
@@ -53,10 +53,10 @@ export function StockCountReport({ filters }: StockCountReportProps) {
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                        <thead className="bg-gray-50 border-b border-gray-100">
+                        <thead className="bg-surface-dim border-b border-border-dim">
                             <tr>
                                 {['Type', 'Status', 'Created By', 'Date', 'Items', 'Variants', ''].map(h => (
-                                    <th key={h} className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                                    <th key={h} className="text-left px-5 py-3.5 text-xs font-semibold text-text-sub uppercase tracking-wide">{h}</th>
                                 ))}
                             </tr>
                         </thead>
@@ -67,23 +67,23 @@ export function StockCountReport({ filters }: StockCountReportProps) {
                                 <tr>
                                     <td colSpan={7} className="px-5 py-16 text-center">
                                         <ClipboardCheck size={32} className="text-gray-200 mx-auto mb-3" />
-                                        <p className="text-gray-400 text-sm">No stock count sessions in this period</p>
+                                        <p className="text-text-dim text-sm">No stock count sessions in this period</p>
                                     </td>
                                 </tr>
                             ) : (
                                 data.map(session => {
                                     const varianceCount = (session.items ?? []).filter(i => i.variance !== null && i.variance !== 0).length;
                                     return (
-                                        <tr key={session.id} className="hover:bg-gray-50/60 transition-colors">
+                                        <tr key={session.id} className="hover:bg-surface-dim/60 transition-colors">
                                             <td className="px-5 py-3.5 capitalize font-medium text-gray-800">{session.type}</td>
                                             <td className="px-5 py-3.5">
                                                 <StatusBadge status={session.status as 'draft' | 'in_progress' | 'submitted' | 'approved' | 'rejected'} />
                                             </td>
-                                            <td className="px-5 py-3.5 text-gray-600">{(session.creator as { full_name?: string })?.full_name ?? '—'}</td>
-                                            <td className="px-5 py-3.5 text-gray-500 whitespace-nowrap">{format(new Date(session.created_at), 'MMM d, yyyy')}</td>
-                                            <td className="px-5 py-3.5 text-gray-600">{(session.items ?? []).length}</td>
+                                            <td className="px-5 py-3.5 text-text-sub">{(session.creator as { full_name?: string })?.full_name ?? '—'}</td>
+                                            <td className="px-5 py-3.5 text-text-sub whitespace-nowrap">{format(new Date(session.created_at), 'MMM d, yyyy')}</td>
+                                            <td className="px-5 py-3.5 text-text-sub">{(session.items ?? []).length}</td>
                                             <td className="px-5 py-3.5">
-                                                <span className={clsx('font-semibold text-sm', varianceCount > 0 ? 'text-amber-600' : 'text-gray-400')}>
+                                                <span className={clsx('font-semibold text-sm', varianceCount > 0 ? 'text-amber-600' : 'text-text-dim')}>
                                                     {varianceCount > 0 ? `${varianceCount} variances` : '—'}
                                                 </span>
                                             </td>

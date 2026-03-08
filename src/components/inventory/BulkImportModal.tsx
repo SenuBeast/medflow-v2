@@ -132,7 +132,7 @@ export function BulkImportModal({ isOpen, onClose }: { isOpen: boolean; onClose:
                 )}
 
                 {!successMsg && (
-                    <div className="flex justify-center border-2 border-dashed border-gray-300 rounded-xl p-8 hover:bg-gray-50 transition-colors">
+                    <div className="flex justify-center border-2 border-dashed border-gray-300 rounded-xl p-8 hover:bg-surface-dim transition-colors">
                         <div className="text-center">
                             <UploadCloud className="w-10 h-10 text-blue-500 mx-auto mb-3" />
                             <p className="text-sm font-medium text-gray-700">
@@ -158,7 +158,7 @@ export function BulkImportModal({ isOpen, onClose }: { isOpen: boolean; onClose:
                     </div>
                 )}
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                <div className="flex justify-end gap-3 pt-4 border-t border-border-dim">
                     <Button variant="secondary" onClick={onClose}>Cancel</Button>
                     <Button
                         variant="primary"

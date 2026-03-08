@@ -75,7 +75,7 @@ export function StockCountSessionPage() {
         }
     }, [progressPct]);
 
-    if (isLoading) return <div className="p-8 text-center text-gray-500 animate-pulse">Loading session details...</div>;
+    if (isLoading) return <div className="p-8 text-center text-text-sub animate-pulse">Loading session details...</div>;
     if (!session) return <div className="p-8 text-center text-red-500">Session not found.</div>;
 
     return (
@@ -86,21 +86,21 @@ export function StockCountSessionPage() {
                     <button
                         title="Back to Stock Counts"
                         onClick={() => navigate('/inventory/stock-counts')}
-                        className="p-2 hover:bg-gray-100 rounded-xl transition text-gray-500 mt-1"
+                        className="p-2 hover:bg-gray-100 rounded-xl transition text-text-sub mt-1"
                     >
                         <ArrowLeft size={20} />
                     </button>
                     <div>
                         <div className="flex items-center gap-3">
-                            <h1 className="text-2xl font-bold text-gray-900 font-mono tracking-tight uppercase">
+                            <h1 className="text-2xl font-bold text-text-main font-mono tracking-tight uppercase">
                                 Count #{session.id.substring(0, 8)}
                             </h1>
                             <StatusBadge status={session.status as "draft" | "in_progress" | "submitted" | "approved" | "rejected"} />
                         </div>
-                        <p className="text-gray-500 text-sm mt-1">
+                        <p className="text-text-sub text-sm mt-1">
                             {session.type.charAt(0).toUpperCase() + session.type.slice(1)} Count · Created by {session.creator?.full_name} on {format(new Date(session.created_at), 'PPP')}
                         </p>
-                        {session.notes && <p className="text-gray-600 text-sm italic mt-2 bg-gray-50 p-2 rounded">"{session.notes}"</p>}
+                        {session.notes && <p className="text-text-sub text-sm italic mt-2 bg-surface-dim p-2 rounded">"{session.notes}"</p>}
                     </div>
                 </div>
 
@@ -130,7 +130,7 @@ export function StockCountSessionPage() {
                     )}
 
                     {isPendingApproval && canApprove && (
-                        <div className="flex items-center gap-2 border-l border-gray-200 pl-4 ml-2">
+                        <div className="flex items-center gap-2 border-l border-border-main pl-4 ml-2">
                             <Button
                                 variant="secondary"
                                 className="text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -162,7 +162,7 @@ export function StockCountSessionPage() {
             <Card className="p-4">
                 <div className="flex items-center justify-between text-sm mb-2">
                     <span className="font-medium text-gray-700">Completion Progress</span>
-                    <span className="text-gray-500">{totalCounted} of {session.items?.length || 0} batches counted ({progressPct}%)</span>
+                    <span className="text-text-sub">{totalCounted} of {session.items?.length || 0} batches counted ({progressPct}%)</span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                     <div
@@ -175,12 +175,12 @@ export function StockCountSessionPage() {
             {/* Table Area */}
             <Card className="flex flex-col min-h-[500px]">
                 {/* Toolbar */}
-                <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                <div className="p-4 border-b border-border-dim flex items-center justify-between bg-surface-dim/50">
                     <div className="flex items-center gap-3">
                         <div className="relative w-72">
-                            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-dim" />
                             <input
-                                className="w-full pl-9 pr-4 py-2 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-colors"
+                                className="w-full pl-9 pr-4 py-2 rounded-xl border border-border-main text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-colors"
                                 placeholder="Search by name, SKU, or batch..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
@@ -188,7 +188,7 @@ export function StockCountSessionPage() {
                         </div>
                         {categories.length > 0 && (
                             <select
-                                className="px-3 py-2 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                className="px-3 py-2 rounded-xl border border-border-main text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                                 value={filterCategory}
                                 onChange={(e) => setFilterCategory(e.target.value)}
                                 title="Filter by Category"
@@ -203,7 +203,7 @@ export function StockCountSessionPage() {
                 {/* Main Table */}
                 <div className="flex-1 overflow-auto">
                     <table className="w-full text-sm text-left whitespace-nowrap">
-                        <thead className="text-xs text-gray-500 uppercase bg-gray-50 sticky top-0 z-10 shadow-sm">
+                        <thead className="text-xs text-text-sub uppercase bg-surface-dim sticky top-0 z-10 shadow-sm">
                             <tr>
                                 <th className="px-6 py-4 font-medium">Item Details</th>
                                 <th className="px-6 py-4 font-medium">Batch info</th>
@@ -218,7 +218,7 @@ export function StockCountSessionPage() {
                                 const variance = row.variance !== undefined ? row.variance : null;
 
                                 return (
-                                    <tr key={row.id} className="hover:bg-gray-50/30 transition-colors group">
+                                    <tr key={row.id} className="hover:bg-surface-dim/30 transition-colors group">
                                         <td className="px-6 py-3">
                                             <div className="flex items-center gap-2">
                                                 {row.item?.is_controlled && (
@@ -227,14 +227,14 @@ export function StockCountSessionPage() {
                                                     </span>
                                                 )}
                                                 <div>
-                                                    <p className="font-medium text-gray-900">{row.item?.name}</p>
-                                                    <p className="text-xs text-gray-500 font-mono mt-0.5">{row.item?.sku}</p>
+                                                    <p className="font-medium text-text-main">{row.item?.name}</p>
+                                                    <p className="text-xs text-text-sub font-mono mt-0.5">{row.item?.sku}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-3">
-                                            <p className="font-mono text-gray-900">{row.batch?.batch_number}</p>
-                                            <p className="text-xs text-gray-500 mt-0.5">Exp: {row.batch?.expiry_date ? format(new Date(row.batch.expiry_date), 'MMM yyyy') : 'N/A'}</p>
+                                            <p className="font-mono text-text-main">{row.batch?.batch_number}</p>
+                                            <p className="text-xs text-text-sub mt-0.5">Exp: {row.batch?.expiry_date ? format(new Date(row.batch.expiry_date), 'MMM yyyy') : 'N/A'}</p>
                                         </td>
                                         <td className="px-6 py-3 text-center">
                                             <div className="inline-flex items-center justify-center min-w-[3rem] px-2 py-1 rounded bg-gray-100 font-medium text-gray-700">
@@ -255,7 +255,7 @@ export function StockCountSessionPage() {
                                                         }
                                                     }}
                                                     placeholder="Enter count..."
-                                                    className="w-28 px-3 py-1.5 rounded-lg border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500 font-medium"
+                                                    className="w-28 px-3 py-1.5 rounded-lg border border-border-main text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-surface-dim disabled:text-text-sub font-medium"
                                                 />
                                                 {updateItem.isPending && updateItem.variables?.id === row.id && (
                                                     <span className="text-xs text-blue-500 animate-pulse">Saving...</span>
@@ -268,7 +268,7 @@ export function StockCountSessionPage() {
                                             ) : (
                                                 <span className={`inline-flex font-bold px-2.5 py-1 rounded-full text-xs ${variance > 0 ? 'bg-emerald-100 text-emerald-700' :
                                                     variance < 0 ? 'bg-red-100 text-red-700' :
-                                                        'bg-gray-100 text-gray-600'
+                                                        'bg-gray-100 text-text-sub'
                                                     }`}>
                                                     {variance > 0 ? '+' : ''}{variance}
                                                 </span>
@@ -279,7 +279,7 @@ export function StockCountSessionPage() {
                             })}
                             {filteredItems.length === 0 && (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                    <td colSpan={5} className="px-6 py-12 text-center text-text-sub">
                                         No items matching your criteria.
                                     </td>
                                 </tr>

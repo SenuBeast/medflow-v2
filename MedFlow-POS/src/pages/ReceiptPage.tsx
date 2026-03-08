@@ -5,7 +5,7 @@ export default function ReceiptPage() {
 
     return (
         <div className="min-h-screen bg-pos-bg flex items-center justify-center p-8 text-pos-text">
-            <div className="max-w-md w-full bg-white text-black p-8 shadow-2xl">
+            <div className="max-w-md w-full bg-card text-black p-8 shadow-2xl">
                 <div className="text-center mb-6">
                     <h1 className="text-2xl font-bold font-mono">MedFlow Pharmacy</h1>
                     <p className="text-sm">123 Health Ave, Medical District</p>

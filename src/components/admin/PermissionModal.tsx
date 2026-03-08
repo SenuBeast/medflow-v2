@@ -51,17 +51,17 @@ interface PermissionModalProps {
 
 function CriticalWarning({ onDismiss }: { onDismiss: () => void }) {
     return (
-        <div className="mb-6 p-4 bg-amber-50 border border-amber-200/60 rounded-xl flex items-start gap-3 shadow-sm shadow-amber-100/20 animate-in fade-in slide-in-from-top-2">
-            <ShieldAlert size={18} className="text-amber-500 shrink-0 mt-0.5" />
+        <div className="mb-6 p-4 bg-warning/10 border border-warning/20 rounded-xl flex items-start gap-3 shadow-sm animate-in fade-in slide-in-from-top-2">
+            <ShieldAlert size={18} className="text-warning shrink-0 mt-0.5" />
             <div className="flex-1">
-                <p className="text-sm font-semibold text-amber-900">Enable Critical Permission?</p>
-                <p className="text-xs text-amber-700/80 mt-1 leading-relaxed">
+                <p className="text-sm font-semibold text-warning">Enable Critical Permission?</p>
+                <p className="text-xs text-warning/80 mt-1 leading-relaxed">
                     This permission grants privileged access that can bypass standard security controls. Only assign it to fully trusted administrative roles.
                 </p>
             </div>
             <button
                 onClick={onDismiss}
-                className="px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs font-medium rounded-lg transition-colors shrink-0"
+                className="px-3 py-1.5 bg-warning/20 hover:bg-warning/30 text-warning text-xs font-medium rounded-lg transition-colors shrink-0"
             >
                 I understand
             </button>
@@ -175,7 +175,7 @@ export function PermissionModal({ role, onClose }: PermissionModalProps) {
                     {canReset && (
                         <button
                             onClick={handleResetToDefault}
-                            className="mr-auto inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+                            className="mr-auto inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-text-dim hover:text-text-main hover:bg-surface-elevated rounded-lg transition-colors"
                         >
                             <RotateCcw size={14} />
                             Reset to Default
@@ -194,15 +194,15 @@ export function PermissionModal({ role, onClose }: PermissionModalProps) {
             }
         >
             {/* Header Area */}
-            <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-100">
+            <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border-dim">
                 {role.is_system && (
-                    <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
-                        <Lock size={20} className="text-slate-500" />
+                    <div className="w-12 h-12 rounded-xl bg-surface-dim flex items-center justify-center shrink-0 border border-border-dim">
+                        <Lock size={20} className="text-text-dim" />
                     </div>
                 )}
                 <div>
-                    <h2 className="text-xl font-bold text-slate-900 tracking-tight">{role.name}</h2>
-                    <p className="text-sm text-slate-500 mt-0.5">
+                    <h2 className="text-xl font-bold text-text-main tracking-tight">{role.name}</h2>
+                    <p className="text-sm text-text-sub mt-0.5">
                         {isSuperAdmin
                             ? 'Super Admin implicitly holds all system permissions.'
                             : `Configured with ${selected.size} active permissions out of ${allPermissions.length} available.`}
@@ -215,12 +215,12 @@ export function PermissionModal({ role, onClose }: PermissionModalProps) {
             )}
 
             {isSuperAdmin ? (
-                <div className="p-6 bg-slate-50 border border-slate-200 rounded-xl text-center flex flex-col items-center">
-                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-100 mb-3">
-                        <Zap size={24} className="text-amber-500" />
+                <div className="p-6 bg-surface-dim border border-border-dim rounded-xl text-center flex flex-col items-center">
+                    <div className="w-12 h-12 bg-card rounded-full flex items-center justify-center shadow-sm border border-border-dim mb-3">
+                        <Zap size={24} className="text-warning" />
                     </div>
-                    <h3 className="text-sm font-semibold text-slate-900 mb-1">Unrestricted Access</h3>
-                    <p className="text-xs text-slate-500 max-w-sm">
+                    <h3 className="text-sm font-semibold text-text-main mb-1">Unrestricted Access</h3>
+                    <p className="text-xs text-text-dim max-w-sm">
                         The Super Admin role is hardcoded to possess all system permissions. Granular access control cannot be applied to this role.
                     </p>
                 </div>
@@ -235,22 +235,22 @@ export function PermissionModal({ role, onClose }: PermissionModalProps) {
                         const isExpanded = expandedCategories.has(category);
 
                         return (
-                            <div key={category} className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
-                                {/* Category Header (Sticky mechanism via relative/sticky depends on modal scroll setup, standard flex here) */}
+                            <div key={category} className="border border-border-dim rounded-xl overflow-hidden bg-card shadow-sm">
+                                {/* Category Header */}
                                 <div
                                     className={clsx(
-                                        "flex items-center justify-between p-3 bg-slate-50/80 cursor-pointer transition-colors hover:bg-slate-100/80",
-                                        isExpanded && "border-b border-slate-200"
+                                        "flex items-center justify-between p-3 bg-surface-dim/80 cursor-pointer transition-colors hover:bg-surface-elevated/80",
+                                        isExpanded && "border-b border-border-dim"
                                     )}
                                     onClick={() => toggleCategoryExpanded(category)}
                                 >
                                     <div className="flex items-center gap-3">
-                                        <button className="text-slate-400 hover:text-slate-600">
+                                        <button className="text-text-dim hover:text-text-main">
                                             {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                                         </button>
                                         <div>
-                                            <h4 className="text-sm font-semibold text-slate-800">{category} Access</h4>
-                                            <p className="text-xs text-slate-500">
+                                            <h4 className="text-sm font-semibold text-text-main">{category} Access</h4>
+                                            <p className="text-xs text-text-sub">
                                                 {perms.filter(p => selected.has(p.id)).length} of {perms.length} enabled
                                             </p>
                                         </div>
@@ -258,7 +258,7 @@ export function PermissionModal({ role, onClose }: PermissionModalProps) {
 
                                     <button
                                         onClick={(e) => {
-                                            e.stopPropagation(); // prevent accordion toggle
+                                            e.stopPropagation();
                                             const next = new Set(selected);
                                             if (allSelected) {
                                                 perms.forEach((p) => next.delete(p.id));
@@ -270,10 +270,10 @@ export function PermissionModal({ role, onClose }: PermissionModalProps) {
                                         className={clsx(
                                             "px-3 py-1.5 text-xs font-medium rounded-lg transition-all",
                                             allSelected
-                                                ? "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                                                ? "bg-text-dim/20 text-text-main hover:bg-text-dim/30"
                                                 : someSelected
-                                                    ? "bg-teal-50 text-teal-700 hover:bg-teal-100"
-                                                    : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                                                    ? "bg-brand/10 text-brand hover:bg-brand/20"
+                                                    : "bg-card border border-border-dim text-text-sub hover:bg-surface-elevated"
                                         )}
                                     >
                                         {allSelected ? 'Deselect All' : 'Select All'}
@@ -282,7 +282,7 @@ export function PermissionModal({ role, onClose }: PermissionModalProps) {
 
                                 {/* Dense Permission Grid */}
                                 {isExpanded && (
-                                    <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-2 bg-white">
+                                    <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-2 bg-card">
                                         {perms.map((perm) => {
                                             const critical = isCritical(perm.key);
                                             const isChecked = selected.has(perm.id);
@@ -294,9 +294,9 @@ export function PermissionModal({ role, onClose }: PermissionModalProps) {
                                                         'group relative flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all duration-200',
                                                         isChecked
                                                             ? critical
-                                                                ? 'bg-amber-50/50 border-amber-200/60 shadow-sm'
-                                                                : 'bg-teal-50/30 border-teal-200/50 shadow-sm'
-                                                            : 'bg-white border-slate-100 hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm'
+                                                                ? 'bg-warning/10 border-warning/30 shadow-sm'
+                                                                : 'bg-brand/5 border-brand/20 shadow-sm'
+                                                            : 'bg-card border-border-dim/50 hover:border-border-dim hover:bg-surface-dim hover:shadow-sm'
                                                     )}
                                                 >
                                                     {/* Custom Animated Checkbox */}
@@ -310,11 +310,11 @@ export function PermissionModal({ role, onClose }: PermissionModalProps) {
                                                         <div className={clsx(
                                                             "w-4 h-4 rounded border transition-all duration-200 flex items-center justify-center",
                                                             isChecked
-                                                                ? "bg-teal-600 border-teal-600"
-                                                                : "bg-white border-slate-300 group-hover:border-slate-400"
+                                                                ? "bg-brand border-brand"
+                                                                : "bg-card border-border-main group-hover:border-text-dim"
                                                         )}>
                                                             <Check size={12} strokeWidth={3} className={clsx(
-                                                                "text-white transition-transform duration-200",
+                                                                "text-text-inverse transition-transform duration-200",
                                                                 isChecked ? "scale-100" : "scale-0"
                                                             )} />
                                                         </div>
@@ -324,24 +324,24 @@ export function PermissionModal({ role, onClose }: PermissionModalProps) {
                                                         <div className="flex items-center gap-2 mb-1">
                                                             <span className={clsx(
                                                                 "text-sm font-semibold transition-colors duration-200 tracking-tight",
-                                                                isChecked ? "text-slate-900" : "text-slate-700"
+                                                                isChecked ? "text-text-main" : "text-text-sub"
                                                             )}>
                                                                 {perm.key.split('.').pop()?.replace(/_/g, ' ')}
                                                             </span>
                                                             {critical && (
-                                                                <span className="inline-flex items-center px-1.5 py-0.5 bg-amber-100/50 text-amber-800 text-[10px] uppercase tracking-wider font-bold rounded shadow-sm border border-amber-200/50">
+                                                                <span className="inline-flex items-center px-1.5 py-0.5 bg-warning/20 text-warning text-[10px] uppercase tracking-wider font-bold rounded shadow-sm border border-warning/30">
                                                                     Critical
                                                                 </span>
                                                             )}
                                                         </div>
                                                         <p className={clsx(
                                                             "text-xs leading-relaxed transition-colors duration-200",
-                                                            isChecked ? "text-slate-600" : "text-slate-500"
+                                                            isChecked ? "text-text-sub" : "text-text-dim"
                                                         )}>
                                                             {perm.description}
                                                         </p>
                                                         <div className="mt-1.5">
-                                                            <span className="inline-block px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-mono rounded">
+                                                            <span className="inline-block px-1.5 py-0.5 bg-surface-dim text-text-dim text-[10px] font-mono rounded">
                                                                 {perm.key}
                                                             </span>
                                                         </div>

@@ -8,7 +8,7 @@ export function ProductPerformance() {
     return (
         <div className="space-y-6">
             <Card className="p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-6">Top 10 Selling Products</h3>
+                <h3 className="text-lg font-bold text-text-main mb-6">Top 10 Selling Products</h3>
                 {topProducts.isLoading ? (
                     <div className="h-[400px] flex items-center justify-center">
                         <div className="w-8 h-8 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>

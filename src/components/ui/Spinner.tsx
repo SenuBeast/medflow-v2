@@ -36,9 +36,9 @@ interface LoadingScreenProps {
 
 export function LoadingScreen({ message = 'Loading...' }: LoadingScreenProps) {
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-surface-dim">
             <Spinner size="lg" />
-            <p className="mt-4 text-sm text-gray-500">{message}</p>
+            <p className="mt-4 text-sm text-text-sub">{message}</p>
         </div>
     );
 }

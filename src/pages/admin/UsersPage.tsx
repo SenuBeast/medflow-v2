@@ -19,7 +19,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
     const { success, error } = useToast();
     const [form, setForm] = useState({ full_name: '', email: '', password: '', role_id: '' });
 
-    const inputCls = 'w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30';
+    const inputCls = 'w-full px-3 py-2 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30';
 
     const handleSubmit = async () => {
         if (!form.email || !form.password || !form.role_id) return;
@@ -35,19 +35,19 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
     return (
         <div className="space-y-4">
             <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Full Name</label>
+                <label className="block text-xs font-semibold text-text-sub uppercase tracking-wide mb-1">Full Name</label>
                 <input type="text" className={inputCls} placeholder="John Doe" value={form.full_name} onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} />
             </div>
             <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Email <span className="text-red-500">*</span></label>
+                <label className="block text-xs font-semibold text-text-sub uppercase tracking-wide mb-1">Email <span className="text-red-500">*</span></label>
                 <input type="email" className={inputCls} placeholder="user@medflow.com" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
             </div>
             <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Password <span className="text-red-500">*</span></label>
+                <label className="block text-xs font-semibold text-text-sub uppercase tracking-wide mb-1">Password <span className="text-red-500">*</span></label>
                 <input type="password" className={inputCls} placeholder="Min. 8 characters" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} />
             </div>
             <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Role <span className="text-red-500">*</span></label>
+                <label className="block text-xs font-semibold text-text-sub uppercase tracking-wide mb-1">Role <span className="text-red-500">*</span></label>
                 <select className={inputCls} value={form.role_id} onChange={e => setForm(f => ({ ...f, role_id: e.target.value }))} title="Select role">
                     <option value="">Select a role…</option>
                     {roles.map((r: Role) => <option key={r.id} value={r.id}>{r.name}</option>)}
@@ -83,7 +83,7 @@ function AssignRoleModal({ userId, currentRoleId, onClose }: { userId: string; c
     return (
         <div className="space-y-4">
             <select
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                className="w-full px-3 py-2 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                 title="Select role"
                 value={roleId}
                 onChange={e => setRoleId(e.target.value)}
@@ -136,23 +136,34 @@ export function UsersPage() {
                 {/* Toolbar */}
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="relative flex-1 min-w-[200px]">
-                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-dim" />
                         <input
                             type="text"
-                            className="pl-8 pr-3 py-2 w-full rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                            className="pl-10 pr-4 py-2 w-full rounded-xl bg-card border border-border-main text-sm text-text-main placeholder:text-text-dim focus:outline-none focus:ring-2 focus:ring-brand/30 transition-all font-medium"
                             placeholder="Search by name or email…"
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                         />
                     </div>
-                    <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
-                        {(['all', 'active', 'inactive'] as const).map(s => (
-                            <button key={s} onClick={() => setStatusFilter(s)}
-                                className={clsx('px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all',
-                                    statusFilter === s ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700')}>
-                                {s}
-                            </button>
-                        ))}
+                    <div className="flex border-b border-border-dim/50">
+                        {(['all', 'active', 'inactive'] as const).map(s => {
+                            const isActive = statusFilter === s;
+                            return (
+                                <button
+                                    key={s}
+                                    onClick={() => setStatusFilter(s)}
+                                    className={clsx(
+                                        'px-4 py-3 text-sm font-bold capitalize transition-all relative',
+                                        isActive ? 'text-brand' : 'text-text-dim hover:text-text-main'
+                                    )}
+                                >
+                                    {s}
+                                    {isActive && (
+                                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand rounded-t-full shadow-[0_-2px_6px_rgba(20,110,245,0.3)]" />
+                                    )}
+                                </button>
+                            );
+                        })}
                     </div>
                     <PermissionGuard permission={PERMISSIONS.ADMIN_USERS_CREATE}>
                         <Button variant="primary" icon={<UserPlus size={15} />} onClick={() => setShowCreate(true)}>
@@ -162,13 +173,13 @@ export function UsersPage() {
                 </div>
 
                 {/* Table */}
-                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+                <div className="bg-card rounded-2xl border border-border-dim overflow-hidden shadow-sm">
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
-                            <thead className="bg-gray-50 border-b border-gray-100">
+                            <thead className="bg-surface-dim border-b border-border-dim">
                                 <tr>
                                     {['User', 'Email', 'Role', 'Status', 'Joined', 'Actions'].map(h => (
-                                        <th key={h} className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                                        <th key={h} className="text-left px-5 py-3.5 text-xs font-semibold text-text-sub uppercase tracking-wide">{h}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -181,12 +192,12 @@ export function UsersPage() {
                                     <tr>
                                         <td colSpan={6} className="px-5 py-16 text-center">
                                             <Users2 size={36} className="text-gray-200 mx-auto mb-3" />
-                                            <p className="text-gray-400 text-sm">{search ? 'No users match your search' : 'No users found'}</p>
+                                            <p className="text-text-dim text-sm">{search ? 'No users match your search' : 'No users found'}</p>
                                         </td>
                                     </tr>
                                 ) : (
                                     filtered.map(user => (
-                                        <tr key={user.id} className="hover:bg-gray-50/60 transition-colors">
+                                        <tr key={user.id} className="hover:bg-surface-dim/60 transition-colors">
                                             <td className="px-5 py-3.5">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center shrink-0">
@@ -194,17 +205,17 @@ export function UsersPage() {
                                                             {(user.full_name ?? user.email).charAt(0).toUpperCase()}
                                                         </span>
                                                     </div>
-                                                    <span className="font-semibold text-gray-900">{user.full_name ?? '—'}</span>
+                                                    <span className="font-semibold text-text-main">{user.full_name ?? '—'}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-5 py-3.5 text-gray-500">{user.email}</td>
+                                            <td className="px-5 py-3.5 text-text-sub">{user.email}</td>
                                             <td className="px-5 py-3.5">
                                                 {user.role ? <RoleBadge roleName={user.role.name} /> : <span className="text-gray-300 text-xs">No role</span>}
                                             </td>
                                             <td className="px-5 py-3.5">
                                                 <StatusBadge status={user.is_active ? 'active' : 'inactive'} />
                                             </td>
-                                            <td className="px-5 py-3.5 text-xs text-gray-400">
+                                            <td className="px-5 py-3.5 text-xs text-text-dim">
                                                 {format(new Date(user.created_at), 'MMM d, yyyy')}
                                             </td>
                                             <td className="px-5 py-3.5">
@@ -217,7 +228,7 @@ export function UsersPage() {
                                                     </PermissionGuard>
                                                     <PermissionGuard permission={PERMISSIONS.ADMIN_USERS_DEACTIVATE}>
                                                         <Button variant="ghost" size="sm"
-                                                            className={user.is_active ? 'text-red-400 hover:bg-red-50 hover:text-red-600' : 'text-green-500 hover:bg-green-50'}
+                                                            className={user.is_active ? 'text-danger hover:bg-danger/10' : 'text-success hover:bg-success/10'}
                                                             onClick={() => handleToggleActive(user.id, user.is_active)}>
                                                             {user.is_active ? 'Deactivate' : 'Activate'}
                                                         </Button>
@@ -231,7 +242,7 @@ export function UsersPage() {
                         </table>
                     </div>
                     {filtered.length > 0 && (
-                        <div className="px-5 py-3 border-t border-gray-100 text-xs text-gray-400">
+                        <div className="px-5 py-3 border-t border-border-dim text-xs text-text-dim">
                             Showing {filtered.length} of {users.length} users
                         </div>
                     )}

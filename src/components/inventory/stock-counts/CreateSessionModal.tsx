@@ -38,7 +38,7 @@ export function CreateSessionModal({ isOpen, onClose }: CreateSessionModalProps)
                     </label>
                     <select
                         title="Stock count type"
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                        className="w-full px-3 py-2 rounded-lg border border-border-main text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                         value={type}
                         onChange={(e) => setType(e.target.value as 'full' | 'partial' | 'cycle')}
                     >
@@ -55,13 +55,13 @@ export function CreateSessionModal({ isOpen, onClose }: CreateSessionModalProps)
                     <textarea
                         title="Session notes"
                         placeholder="e.g., Q3 Full Warehouse Audit"
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 min-h-[80px]"
+                        className="w-full px-3 py-2 rounded-lg border border-border-main text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500/30 min-h-[80px]"
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                     />
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                <div className="flex justify-end gap-3 pt-4 border-t border-border-dim">
                     <Button variant="secondary" onClick={onClose} disabled={createSession.isPending}>
                         Cancel
                     </Button>

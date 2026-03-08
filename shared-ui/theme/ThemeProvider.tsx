@@ -1,104 +1,101 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 
-export type Theme = 'light' | 'dark' | 'system';
+// ── Types ──────────────────────────────────────────────────
+export type ThemeMode = 'light' | 'dark' | 'system';
 
-interface ThemeContextType {
-    theme: Theme;
+interface ThemeContextValue {
+    theme: ThemeMode;
+    setTheme: (mode: ThemeMode) => void;
+    /** The actual resolved theme ('light' | 'dark') */
     resolvedTheme: 'light' | 'dark';
-    setTheme: (theme: Theme) => void;
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const STORAGE_KEY = 'mf-theme';
+const BROADCAST_CHANNEL = 'mf-theme-sync';
 
-export function ThemeProvider({
-    children,
-    defaultTheme = 'system',
-    storageKey = 'medflow-theme',
-    value,
-    onThemeChange
-}: {
-    children: ReactNode;
-    defaultTheme?: Theme;
-    storageKey?: string;
-    value?: Theme;
-    onThemeChange?: (theme: Theme) => void;
-}) {
-    const [theme, setThemeState] = useState<Theme>(() => {
-        return value || (localStorage.getItem(storageKey) as Theme) || defaultTheme;
+// ── Context ────────────────────────────────────────────────
+const ThemeContext = createContext<ThemeContextValue | null>(null);
+
+// ── Helper: apply to document ──────────────────────────────
+function applyTheme(mode: ThemeMode): 'light' | 'dark' {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = mode === 'dark' || (mode === 'system' && prefersDark);
+    document.documentElement.classList.toggle('dark', isDark);
+    return isDark ? 'dark' : 'light';
+}
+
+// ── Provider ───────────────────────────────────────────────
+export function ThemeProvider({ children }: { children: ReactNode }) {
+    const [theme, setThemeState] = useState<ThemeMode>(() => {
+        try {
+            return (localStorage.getItem(STORAGE_KEY) as ThemeMode) ?? 'system';
+        } catch {
+            return 'system';
+        }
     });
 
-    const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
+    const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>(() =>
+        applyTheme((localStorage.getItem(STORAGE_KEY) as ThemeMode) ?? 'system')
+    );
 
-    const setTheme = (newTheme: Theme) => {
-        setThemeState(newTheme);
-        localStorage.setItem(storageKey, newTheme);
-        if (onThemeChange) onThemeChange(newTheme);
-    };
+    // Persist + apply on change
+    function setTheme(mode: ThemeMode) {
+        try {
+            localStorage.setItem(STORAGE_KEY, mode);
+        } catch { /* ignore in SSR/private browsing */ }
 
-    // Sync with value prop (e.g. from DB)
+        setThemeState(mode);
+        const resolved = applyTheme(mode);
+        setResolvedTheme(resolved);
+
+        // Broadcast to other tabs
+        try {
+            const channel = new BroadcastChannel(BROADCAST_CHANNEL);
+            channel.postMessage(mode);
+            channel.close();
+        } catch { /* BroadcastChannel not available */ }
+    }
+
+    // Listen for OS preference changes (only relevant in 'system' mode)
     useEffect(() => {
-        if (value && value !== theme) {
-            setThemeState(value);
-        }
-    }, [value, theme]);
-
-    useEffect(() => {
-        const root = window.document.documentElement;
-
-        const applyTheme = () => {
-            root.classList.remove('light', 'dark');
-
-            let effectiveTheme: 'light' | 'dark' = 'light';
-
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        const handler = () => {
             if (theme === 'system') {
-                effectiveTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-                    ? 'dark'
-                    : 'light';
-            } else {
-                effectiveTheme = theme;
-            }
-
-            root.classList.add(effectiveTheme);
-            setResolvedTheme(effectiveTheme);
-
-            // Update color scheme for browser elements
-            root.style.colorScheme = effectiveTheme;
-        };
-
-        applyTheme();
-
-        // Listen for system theme changes
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = () => {
-            if (theme === 'system') applyTheme();
-        };
-
-        mediaQuery.addEventListener('change', handleChange);
-
-        // Listen for cross-tab sync
-        const handleStorageChange = (e: StorageEvent) => {
-            if (e.key === storageKey && e.newValue) {
-                setThemeState(e.newValue as Theme);
+                const resolved = applyTheme('system');
+                setResolvedTheme(resolved);
             }
         };
-        window.addEventListener('storage', handleStorageChange);
+        mq.addEventListener('change', handler);
+        return () => mq.removeEventListener('change', handler);
+    }, [theme]);
 
-        return () => {
-            mediaQuery.removeEventListener('change', handleChange);
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, [theme, storageKey]);
+    // Listen for changes from other tabs
+    useEffect(() => {
+        let channel: BroadcastChannel;
+        try {
+            channel = new BroadcastChannel(BROADCAST_CHANNEL);
+            channel.onmessage = (e: MessageEvent<ThemeMode>) => {
+                const incoming = e.data;
+                setThemeState(incoming);
+                const resolved = applyTheme(incoming);
+                setResolvedTheme(resolved);
+                try { localStorage.setItem(STORAGE_KEY, incoming); } catch { /* ignore */ }
+            };
+        } catch { /* not available */ }
+        return () => channel?.close();
+    }, []);
 
     return (
-        <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>
+        <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme }}>
             {children}
         </ThemeContext.Provider>
     );
 }
 
-export const useTheme = () => {
-    const context = useContext(ThemeContext);
-    if (!context) throw new Error('useTheme must be used within a ThemeProvider');
-    return context;
-};
+// ── Internal hook (for useTheme.ts) ───────────────────────
+export function useThemeContext() {
+    const ctx = useContext(ThemeContext);
+    if (!ctx) throw new Error('useTheme must be used inside <ThemeProvider>');
+    return ctx;
+}

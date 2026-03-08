@@ -28,14 +28,14 @@ export function SaleDetailDrawer({ transaction: tx, isOpen, onClose, onRefund }:
             />
 
             {/* Drawer */}
-            <div className="fixed right-0 top-0 h-full w-full max-w-lg bg-white shadow-2xl z-50 flex flex-col overflow-hidden">
+            <div className="fixed right-0 top-0 h-full w-full max-w-lg bg-card shadow-2xl z-50 flex flex-col overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-border-dim">
                     <div>
                         <p className="text-xs font-semibold text-blue-600 font-mono uppercase tracking-widest">
                             {tx.invoice_number}
                         </p>
-                        <p className="text-gray-400 text-xs mt-0.5">
+                        <p className="text-text-dim text-xs mt-0.5">
                             {format(new Date(tx.created_at), 'MMMM d, yyyy · HH:mm')}
                         </p>
                     </div>
@@ -52,11 +52,11 @@ export function SaleDetailDrawer({ transaction: tx, isOpen, onClose, onRefund }:
                     {/* Staff & Payment */}
                     <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1">Processed By</p>
-                            <p className="font-semibold text-gray-900">{tx.seller?.full_name ?? '—'}</p>
+                            <p className="text-xs text-text-dim font-medium uppercase tracking-wide mb-1">Processed By</p>
+                            <p className="font-semibold text-text-main">{tx.seller?.full_name ?? '—'}</p>
                         </div>
                         <div>
-                            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1">Payment Method</p>
+                            <p className="text-xs text-text-dim font-medium uppercase tracking-wide mb-1">Payment Method</p>
                             <span className={clsx(
                                 'inline-block text-xs font-bold px-2.5 py-1 rounded-full capitalize',
                                 tx.payment_method === 'cash' ? 'bg-green-50 text-green-700' :
@@ -70,25 +70,25 @@ export function SaleDetailDrawer({ transaction: tx, isOpen, onClose, onRefund }:
 
                     {/* Line Items */}
                     <div>
-                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Items</h3>
+                        <h3 className="text-xs font-semibold text-text-sub uppercase tracking-wide mb-3">Items</h3>
                         <div className="space-y-2">
                             {(tx.items ?? []).map(item => (
-                                <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                <div key={item.id} className="flex items-center justify-between p-3 bg-surface-dim rounded-xl">
                                     <div>
-                                        <p className="text-sm font-semibold text-gray-900">{item.item_name}</p>
-                                        <p className="text-xs text-gray-400 font-mono mt-0.5">
+                                        <p className="text-sm font-semibold text-text-main">{item.item_name}</p>
+                                        <p className="text-xs text-text-dim font-mono mt-0.5">
                                             {item.item_sku} · {item.quantity} × ${item.unit_price.toFixed(2)}
                                         </p>
                                     </div>
-                                    <p className="text-sm font-bold text-gray-900">${item.subtotal.toFixed(2)}</p>
+                                    <p className="text-sm font-bold text-text-main">${item.subtotal.toFixed(2)}</p>
                                 </div>
                             ))}
                         </div>
                     </div>
 
                     {/* Order Summary */}
-                    <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
-                        <div className="flex justify-between text-gray-500">
+                    <div className="bg-surface-dim rounded-xl p-4 space-y-2 text-sm">
+                        <div className="flex justify-between text-text-sub">
                             <span>Subtotal</span>
                             <span>${tx.subtotal.toFixed(2)}</span>
                         </div>
@@ -99,12 +99,12 @@ export function SaleDetailDrawer({ transaction: tx, isOpen, onClose, onRefund }:
                             </div>
                         )}
                         {tx.tax_amount > 0 && (
-                            <div className="flex justify-between text-gray-500">
+                            <div className="flex justify-between text-text-sub">
                                 <span>Tax ({tx.tax_rate}%)</span>
                                 <span>${tx.tax_amount.toFixed(2)}</span>
                             </div>
                         )}
-                        <div className="flex justify-between font-bold text-gray-900 text-base pt-2 border-t border-gray-200">
+                        <div className="flex justify-between font-bold text-text-main text-base pt-2 border-t border-border-main">
                             <span>Total</span>
                             <span>${tx.total.toFixed(2)}</span>
                         </div>
@@ -113,15 +113,15 @@ export function SaleDetailDrawer({ transaction: tx, isOpen, onClose, onRefund }:
                     {/* Notes */}
                     {tx.notes && (
                         <div>
-                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Notes</p>
-                            <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-xl italic">"{tx.notes}"</p>
+                            <p className="text-xs font-semibold text-text-sub uppercase tracking-wide mb-1">Notes</p>
+                            <p className="text-sm text-text-sub bg-surface-dim p-3 rounded-xl italic">"{tx.notes}"</p>
                         </div>
                     )}
 
                     {/* Refund History */}
                     {(tx.refunds ?? []).length > 0 && (
                         <div>
-                            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Refunds</h3>
+                            <h3 className="text-xs font-semibold text-text-sub uppercase tracking-wide mb-3">Refunds</h3>
                             {(tx.refunds ?? []).map(refund => (
                                 <div key={refund.id} className="p-3 bg-red-50 rounded-xl border border-red-100">
                                     <div className="flex items-center justify-between">
@@ -131,7 +131,7 @@ export function SaleDetailDrawer({ transaction: tx, isOpen, onClose, onRefund }:
                                     <p className="text-xs text-red-600 mt-1">
                                         <span className="font-medium">Reason:</span> {refund.reason}
                                     </p>
-                                    <p className="text-xs text-gray-400 mt-1">
+                                    <p className="text-xs text-text-dim mt-1">
                                         {format(new Date(refund.created_at), 'MMM d, yyyy · HH:mm')}
                                         {refund.performer && ` · by ${refund.performer.full_name}`}
                                     </p>
@@ -142,7 +142,7 @@ export function SaleDetailDrawer({ transaction: tx, isOpen, onClose, onRefund }:
                 </div>
 
                 {/* Footer Actions */}
-                <div className="px-6 py-4 border-t border-gray-100 flex gap-3">
+                <div className="px-6 py-4 border-t border-border-dim flex gap-3">
                     <PermissionGuard permission={PERMISSIONS.SALES_REFUND}>
                         {canRefund && (
                             <Button
@@ -156,7 +156,7 @@ export function SaleDetailDrawer({ transaction: tx, isOpen, onClose, onRefund }:
                         )}
                     </PermissionGuard>
                     {!canRefund && (
-                        <div className="flex-1 flex items-center gap-2 text-sm text-gray-500">
+                        <div className="flex-1 flex items-center gap-2 text-sm text-text-sub">
                             <CheckCircle size={16} className="text-gray-300" />
                             Fully refunded
                         </div>

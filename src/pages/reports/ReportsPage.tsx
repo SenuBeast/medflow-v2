@@ -21,16 +21,16 @@ function KpiCard({
 }: { label: string; value: string; sub?: string; icon: React.ElementType; iconBg: string; accent?: boolean }) {
     return (
         <div className={clsx(
-            'flex items-center gap-4 bg-white border rounded-2xl p-5 transition-shadow hover:shadow-sm',
-            accent ? 'border-amber-200 bg-amber-50/30' : 'border-gray-100'
+            'flex items-center gap-4 bg-card border rounded-2xl p-5 transition-shadow hover:shadow-sm',
+            accent ? 'border-amber-200 bg-amber-50/30' : 'border-border-dim'
         )}>
             <div className={clsx('w-11 h-11 rounded-xl flex items-center justify-center shrink-0', iconBg)}>
                 <Icon size={20} className="text-white" />
             </div>
             <div className="min-w-0">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</p>
-                <p className="text-2xl font-bold text-gray-900 mt-0.5">{value}</p>
-                {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+                <p className="text-xs font-semibold text-text-sub uppercase tracking-wide">{label}</p>
+                <p className="text-2xl font-bold text-text-main mt-0.5">{value}</p>
+                {sub && <p className="text-xs text-text-dim mt-0.5">{sub}</p>}
             </div>
         </div>
     );
@@ -83,8 +83,8 @@ export function ReportsPage() {
         <div className="max-w-[1400px] mx-auto space-y-5">
             {/* ── Header ─────────────────────────────────────────────────── */}
             <div>
-                <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
-                <p className="text-gray-500 text-sm mt-0.5">Analytics, compliance & data exports</p>
+                <h1 className="text-2xl font-bold text-text-main">Reports</h1>
+                <p className="text-text-sub text-sm mt-0.5">Analytics, compliance & data exports</p>
             </div>
 
             {/* ── KPI Cards ──────────────────────────────────────────────── */}
@@ -104,30 +104,31 @@ export function ReportsPage() {
             />
 
             {/* ── Tabs ───────────────────────────────────────────────────── */}
-            <div>
-                <div className="flex gap-1 bg-gray-100 p-1.5 rounded-2xl overflow-x-auto">
-                    {TABS.map(({ id, label, icon: Icon, badge }) => (
-                        <button
-                            key={id}
-                            onClick={() => setActiveTab(id)}
-                            className={clsx(
-                                'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all relative',
-                                activeTab === id
-                                    ? id === 'controlled'
-                                        ? 'bg-red-600 text-white shadow-sm'
-                                        : 'bg-white text-gray-900 shadow-sm'
-                                    : 'text-gray-500 hover:text-gray-700'
-                            )}
-                        >
-                            <Icon size={15} />
-                            {label}
-                            {badge && (
-                                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                                    {badge}
-                                </span>
-                            )}
-                        </button>
-                    ))}
+            <div className="border-b border-border-main">
+                <div className="flex gap-8 overflow-x-auto pb-px">
+                    {TABS.map(({ id, label, icon: Icon, badge }) => {
+                        const isActive = activeTab === id;
+                        return (
+                            <button
+                                key={id}
+                                onClick={() => setActiveTab(id)}
+                                className={clsx(
+                                    'flex items-center gap-2.5 pb-4 px-1 rounded-none text-sm font-semibold whitespace-nowrap transition-all relative border-b-2',
+                                    isActive
+                                        ? 'border-brand text-brand'
+                                        : 'border-transparent text-text-sub hover:text-text-main hover:border-border-main'
+                                )}
+                            >
+                                <Icon size={16} className={clsx('transition-colors', isActive ? 'text-brand' : 'text-text-dim')} />
+                                <span>{label}</span>
+                                {badge && (
+                                    <span className="ml-1 w-4 h-4 bg-danger text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                                        {badge}
+                                    </span>
+                                )}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 

@@ -136,7 +136,7 @@ export function OTPVerification({ email, onVerified, onBack }: OTPVerificationPr
                     }
                 </div>
                 <h2 className="text-white font-bold text-xl">Two-Factor Verification</h2>
-                <p className="text-gray-400 text-sm mt-1">
+                <p className="text-text-dim text-sm mt-1">
                     We sent a 6-digit code to<br />
                     <span className="text-white font-medium">{maskEmail(email)}</span>
                 </p>
@@ -158,7 +158,7 @@ export function OTPVerification({ email, onVerified, onBack }: OTPVerificationPr
                         disabled={loading || verified}
                         aria-label={`OTP digit ${i + 1}`}
                         className={`w-11 h-14 text-center text-xl font-bold rounded-xl border transition-all focus:outline-none
-                            ${d ? 'bg-blue-600/20 border-blue-500/60 text-white' : 'bg-white/5 border-white/10 text-white'}
+                            ${d ? 'bg-blue-600/20 border-blue-500/60 text-white' : 'bg-card/5 border-white/10 text-white'}
                             ${error ? 'border-red-500/60 bg-red-500/10' : ''}
                             ${verified ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-300' : ''}
                             focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/50
@@ -193,7 +193,7 @@ export function OTPVerification({ email, onVerified, onBack }: OTPVerificationPr
 
             {/* Resend + Back */}
             <div className="flex items-center justify-between text-sm">
-                <button onClick={onBack} className="text-gray-500 hover:text-gray-300 transition-colors">
+                <button onClick={onBack} className="text-text-sub hover:text-gray-300 transition-colors">
                     ← Back
                 </button>
                 <button

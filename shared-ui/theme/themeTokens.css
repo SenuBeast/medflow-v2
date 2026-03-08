@@ -1,47 +1,160 @@
-@theme {
-  /* Semantic Tokens for MedFlow Design System */
-  --color-bg-primary: var(--bg-primary);
-  --color-bg-secondary: var(--bg-secondary);
-  --color-text-primary: var(--text-primary);
-  --color-text-secondary: var(--text-secondary);
-  --color-border-subtle: var(--border-subtle);
-  --color-accent-primary: var(--accent-primary);
-  
-  /* Status Colors (Accessible) */
-  --color-status-success: var(--status-success);
-  --color-status-warning: var(--status-warning);
-  --color-status-danger: var(--status-danger);
-  --color-status-info: var(--status-info);
-}
+/*
+ * MedFlow / MedFlow-POS — Shared Semantic Theme Tokens
+ * Imported by both apps. `.dark` class toggled on <html>.
+ */
 
+/* ── Light Theme (default) ──────────────────────────────── */
 :root {
-  /* Light Theme Palette */
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #F7F9FC;
-  --text-primary: #111827;
-  --text-secondary: #4B5563;
-  --border-subtle: #E5E7EB;
-  
-  --accent-primary: #2563EB;
-  
-  --status-success: #10B981;
-  --status-warning: #F59E0B;
-  --status-danger: #EF4444;
-  --status-info: #3B82F6;
+    color-scheme: light;
+
+    /* Surfaces */
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f7f8fa;
+    --color-bg-tertiary: #eef0f4;
+    --color-bg-elevated: #ffffff;
+    --color-bg-overlay: rgba(0, 0, 0, 0.40);
+
+    /* Text */
+    --color-text-primary: #111827;
+    --color-text-secondary: #4b5563;
+    --color-text-muted: #9ca3af;
+    --color-text-inverse: #ffffff;
+
+    /* Borders */
+    --color-border: #e5e7eb;
+    --color-border-strong: #d1d5db;
+
+    /* Accent / Brand */
+    --color-accent: #2563eb;
+    --color-accent-hover: #1d4ed8;
+    --color-accent-subtle: #eff6ff;
+    --color-accent-text: #1e40af;
+
+    /* Semantic — Medical Alerts (WCAG AA compliant) */
+    --color-success: #16a34a;
+    --color-success-bg: #f0fdf4;
+    --color-success-border: #bbf7d0;
+
+    --color-warning: #d97706;
+    --color-warning-bg: #fffbeb;
+    --color-warning-border: #fde68a;
+
+    --color-danger: #dc2626;
+    --color-danger-bg: #fef2f2;
+    --color-danger-border: #fecaca;
+
+    --color-info: #0284c7;
+    --color-info-bg: #f0f9ff;
+    --color-info-border: #bae6fd;
+
+    /* Critical patient alert — must be unmistakable in both themes */
+    --color-critical: #b91c1c;
+    --color-critical-bg: #fff1f2;
+    --color-critical-border: #fda4af;
+
+    /* Charts */
+    --chart-bg: #ffffff;
+    --chart-grid: #e5e7eb;
+    --chart-label: #6b7280;
+    --chart-series-1: #2563eb;
+    --chart-series-2: #16a34a;
+    --chart-series-3: #d97706;
+    --chart-series-4: #7c3aed;
+    --chart-series-5: #0891b2;
+
+    /* Input */
+    --color-input-bg: #ffffff;
+    --color-input-border: #d1d5db;
+    --color-input-focus: #2563eb;
+
+    /* Shadow */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10);
+
+    /* Sidebar (MedFlow) */
+    --sidebar-bg: #111827;
+    --sidebar-border: #1f2937;
+    --sidebar-text: #9ca3af;
+    --sidebar-text-active: #ffffff;
+    --sidebar-item-active: #2563eb;
+    --sidebar-item-hover: #1f2937;
 }
 
-.dark {
-  /* Dark Theme Palette */
-  --bg-primary: #0F172A;
-  --bg-secondary: #1E293B;
-  --text-primary: #F9FAFB;
-  --text-secondary: #9CA3AF;
-  --border-subtle: #334155;
-  
-  --accent-primary: #3B82F6;
-  
-  --status-success: #059669;
-  --status-warning: #D97706;
-  --status-danger: #DC2626;
-  --status-info: #2563EB;
+/* ── Dark Theme ─────────────────────────────────────────── */
+html.dark {
+    color-scheme: dark;
+
+    /* Surfaces */
+    --color-bg-primary: #0f1117;
+    --color-bg-secondary: #161b26;
+    --color-bg-tertiary: #1e2435;
+    --color-bg-elevated: #1a1f2e;
+    --color-bg-overlay: rgba(0, 0, 0, 0.60);
+
+    /* Text */
+    --color-text-primary: #f3f4f6;
+    --color-text-secondary: #9ca3af;
+    --color-text-muted: #6b7280;
+    --color-text-inverse: #111827;
+
+    /* Borders */
+    --color-border: #2a3044;
+    --color-border-strong: #374151;
+
+    /* Accent / Brand */
+    --color-accent: #3b82f6;
+    --color-accent-hover: #2563eb;
+    --color-accent-subtle: #1e3a5f;
+    --color-accent-text: #93c5fd;
+
+    /* Semantic — Medical Alerts — enhanced for dark bg readability */
+    --color-success: #22c55e;
+    --color-success-bg: #052e16;
+    --color-success-border: #15803d;
+
+    --color-warning: #f59e0b;
+    --color-warning-bg: #1c1205;
+    --color-warning-border: #b45309;
+
+    --color-danger: #f87171;
+    --color-danger-bg: #1c0505;
+    --color-danger-border: #b91c1c;
+
+    --color-info: #38bdf8;
+    --color-info-bg: #012842;
+    --color-info-border: #0369a1;
+
+    /* Critical patient alert */
+    --color-critical: #fca5a5;
+    --color-critical-bg: #3b0404;
+    --color-critical-border: #dc2626;
+
+    /* Charts */
+    --chart-bg: #161b26;
+    --chart-grid: #2a3044;
+    --chart-label: #6b7280;
+    --chart-series-1: #60a5fa;
+    --chart-series-2: #34d399;
+    --chart-series-3: #fbbf24;
+    --chart-series-4: #a78bfa;
+    --chart-series-5: #22d3ee;
+
+    /* Input */
+    --color-input-bg: #1e2435;
+    --color-input-border: #374151;
+    --color-input-focus: #3b82f6;
+
+    /* Shadow (subtler on dark) */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.30);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.40);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.50);
+
+    /* Sidebar */
+    --sidebar-bg: #0b0e17;
+    --sidebar-border: #1a1f2e;
+    --sidebar-text: #6b7280;
+    --sidebar-text-active: #f3f4f6;
+    --sidebar-item-active: #2563eb;
+    --sidebar-item-hover: #1e2435;
 }

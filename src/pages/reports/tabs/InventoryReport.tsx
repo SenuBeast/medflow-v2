@@ -32,7 +32,7 @@ export function InventoryReport({ filters }: InventoryReportProps) {
         else { setSortKey(key); setSortDir('asc'); }
     };
     const renderSortIcon = (k: typeof sortKey) => (
-        <span className="ml-1 text-gray-400">{sortKey === k ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span>
+        <span className="ml-1 text-text-dim">{sortKey === k ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span>
     );
 
     const exportRows = displayed.map(r => [r.name, r.sku, r.category, r.total_stock, r.unit, r.minimum_order_quantity, r.cost_price, r.selling_price, r.total_value.toFixed(2), r.status]);
@@ -46,13 +46,13 @@ export function InventoryReport({ filters }: InventoryReportProps) {
                     { label: 'Low Stock', value: lowCount, icon: TrendingDown, color: 'bg-amber-500' },
                     { label: 'Out of Stock', value: outCount, icon: AlertCircle, color: 'bg-red-500' },
                 ].map(({ label, value, icon: Icon, color }) => (
-                    <div key={label} className="flex items-center gap-3 bg-white border border-gray-100 rounded-xl p-4">
+                    <div key={label} className="flex items-center gap-3 bg-card border border-border-dim rounded-xl p-4">
                         <div className={`w-9 h-9 rounded-xl ${color} flex items-center justify-center`}>
                             <Icon size={16} className="text-white" />
                         </div>
                         <div>
-                            <p className="text-xs text-gray-500 font-medium">{label}</p>
-                            <p className="text-xl font-bold text-gray-900">{value}</p>
+                            <p className="text-xs text-text-sub font-medium">{label}</p>
+                            <p className="text-xl font-bold text-text-main">{value}</p>
                         </div>
                     </div>
                 ))}
@@ -60,14 +60,24 @@ export function InventoryReport({ filters }: InventoryReportProps) {
 
             {/* Sub-filter + Export */}
             <div className="flex items-center justify-between gap-3">
-                <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
-                    {(['all', 'low', 'out'] as StockFilter[]).map(f => (
-                        <button key={f} onClick={() => setStockFilter(f)}
-                            className={clsx('px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all',
-                                stockFilter === f ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700')}>
-                            {f === 'all' ? 'All Items' : f === 'low' ? 'Low Stock' : 'Out of Stock'}
-                        </button>
-                    ))}
+                <div className="flex gap-1 bg-surface-dim/50 border border-border-dim/50 p-1 rounded-2xl">
+                    {(['all', 'low', 'out'] as StockFilter[]).map(f => {
+                        const isActive = stockFilter === f;
+                        return (
+                            <button
+                                key={f}
+                                onClick={() => setStockFilter(f)}
+                                className={clsx(
+                                    'px-4 py-2 rounded-xl text-xs font-bold capitalize transition-all duration-200',
+                                    isActive
+                                        ? 'bg-text-main text-text-inverse shadow-sm scale-[1.02]'
+                                        : 'text-text-dim hover:text-text-main hover:bg-surface-elevated/50'
+                                )}
+                            >
+                                {f === 'all' ? 'All Items' : f === 'low' ? 'Low Stock' : 'Out of Stock'}
+                            </button>
+                        );
+                    })}
                 </div>
                 <ExportButton
                     filename="medflow-inventory-report"
@@ -77,23 +87,23 @@ export function InventoryReport({ filters }: InventoryReportProps) {
             </div>
 
             {/* Table */}
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+            <div className="bg-card rounded-2xl border border-border-dim overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                        <thead className="bg-gray-50 border-b border-gray-100 sticky top-0">
+                        <thead className="bg-surface-dim border-b border-border-dim sticky top-0">
                             <tr>
-                                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide cursor-pointer" onClick={() => toggleSort('name')}>
+                                <th className="text-left px-5 py-3.5 text-xs font-semibold text-text-sub uppercase tracking-wide cursor-pointer" onClick={() => toggleSort('name')}>
                                     Product {renderSortIcon('name')}
                                 </th>
-                                <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Category</th>
-                                <th className="text-right px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide cursor-pointer" onClick={() => toggleSort('total_stock')}>
+                                <th className="text-left px-5 py-3.5 text-xs font-semibold text-text-sub uppercase tracking-wide">Category</th>
+                                <th className="text-right px-5 py-3.5 text-xs font-semibold text-text-sub uppercase tracking-wide cursor-pointer" onClick={() => toggleSort('total_stock')}>
                                     Stock {renderSortIcon('total_stock')}
                                 </th>
-                                <th className="text-right px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Reorder At</th>
-                                <th className="text-right px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide cursor-pointer" onClick={() => toggleSort('total_value')}>
+                                <th className="text-right px-5 py-3.5 text-xs font-semibold text-text-sub uppercase tracking-wide">Reorder At</th>
+                                <th className="text-right px-5 py-3.5 text-xs font-semibold text-text-sub uppercase tracking-wide cursor-pointer" onClick={() => toggleSort('total_value')}>
                                     Value {renderSortIcon('total_value')}
                                 </th>
-                                <th className="text-center px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
+                                <th className="text-center px-5 py-3.5 text-xs font-semibold text-text-sub uppercase tracking-wide">Status</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
@@ -102,21 +112,21 @@ export function InventoryReport({ filters }: InventoryReportProps) {
                                     <tr key={i}><td colSpan={6} className="px-5 py-3.5"><div className="h-4 bg-gray-100 rounded animate-pulse" /></td></tr>
                                 ))
                             ) : displayed.length === 0 ? (
-                                <tr><td colSpan={6} className="px-5 py-12 text-center text-gray-400 text-sm">No items match the current filters</td></tr>
+                                <tr><td colSpan={6} className="px-5 py-12 text-center text-text-dim text-sm">No items match the current filters</td></tr>
                             ) : (
                                 displayed.map(row => (
-                                    <tr key={row.id} className={clsx('hover:bg-gray-50/60 transition-colors', row.status === 'out' && 'bg-red-50/40', row.status === 'low' && 'bg-amber-50/40')}>
+                                    <tr key={row.id} className={clsx('hover:bg-surface-dim/60 transition-colors', row.status === 'out' && 'bg-red-50/40', row.status === 'low' && 'bg-amber-50/40')}>
                                         <td className="px-5 py-3.5">
                                             <div className="flex items-center gap-2">
-                                                <span className="font-medium text-gray-900">{row.name}</span>
+                                                <span className="font-medium text-text-main">{row.name}</span>
                                                 {row.is_controlled && <span className="text-[10px] font-bold px-1.5 py-0.5 bg-red-100 text-red-700 rounded">CD</span>}
                                             </div>
-                                            {row.sku && <p className="text-xs text-gray-400 font-mono">{row.sku}</p>}
+                                            {row.sku && <p className="text-xs text-text-dim font-mono">{row.sku}</p>}
                                         </td>
-                                        <td className="px-5 py-3.5 text-gray-500 text-xs">{row.category ?? '—'}</td>
-                                        <td className="px-5 py-3.5 text-right font-semibold text-gray-900">{row.total_stock} <span className="text-gray-400 font-normal text-xs">{row.unit}</span></td>
-                                        <td className="px-5 py-3.5 text-right text-gray-500">{row.minimum_order_quantity}</td>
-                                        <td className="px-5 py-3.5 text-right font-semibold text-gray-900">${row.total_value.toFixed(2)}</td>
+                                        <td className="px-5 py-3.5 text-text-sub text-xs">{row.category ?? '—'}</td>
+                                        <td className="px-5 py-3.5 text-right font-semibold text-text-main">{row.total_stock} <span className="text-text-dim font-normal text-xs">{row.unit}</span></td>
+                                        <td className="px-5 py-3.5 text-right text-text-sub">{row.minimum_order_quantity}</td>
+                                        <td className="px-5 py-3.5 text-right font-semibold text-text-main">${row.total_value.toFixed(2)}</td>
                                         <td className="px-5 py-3.5 text-center">
                                             <span className={clsx('text-xs font-semibold px-2.5 py-1 rounded-full',
                                                 row.status === 'ok' ? 'bg-green-100 text-green-700' :
@@ -130,10 +140,10 @@ export function InventoryReport({ filters }: InventoryReportProps) {
                             )}
                         </tbody>
                         {displayed.length > 0 && (
-                            <tfoot className="bg-gray-50 border-t border-gray-100">
+                            <tfoot className="bg-surface-dim border-t border-border-dim">
                                 <tr>
-                                    <td colSpan={4} className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Total Inventory Value</td>
-                                    <td className="px-5 py-3 text-right font-bold text-gray-900">${totalValue.toFixed(2)}</td>
+                                    <td colSpan={4} className="px-5 py-3 text-xs font-semibold text-text-sub uppercase">Total Inventory Value</td>
+                                    <td className="px-5 py-3 text-right font-bold text-text-main">${totalValue.toFixed(2)}</td>
                                     <td />
                                 </tr>
                             </tfoot>

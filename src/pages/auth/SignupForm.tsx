@@ -62,7 +62,7 @@ export function SignupForm({ onSignedUp, onSwitchToLogin }: SignupFormProps) {
             <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1.5" htmlFor="signup-name">Full Name</label>
                 <div className="relative">
-                    <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                    <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-sub" />
                     <input
                         id="signup-name"
                         type="text"
@@ -70,7 +70,7 @@ export function SignupForm({ onSignedUp, onSwitchToLogin }: SignupFormProps) {
                         onChange={e => setFullName(e.target.value)}
                         placeholder="Dr. Jane Smith"
                         autoComplete="name"
-                        className="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-sm transition"
+                        className="w-full pl-9 pr-4 py-2.5 bg-card/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-sm transition"
                     />
                 </div>
             </div>
@@ -79,7 +79,7 @@ export function SignupForm({ onSignedUp, onSwitchToLogin }: SignupFormProps) {
             <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1.5" htmlFor="signup-email">Email Address</label>
                 <div className="relative">
-                    <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                    <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-sub" />
                     <input
                         id="signup-email"
                         type="email"
@@ -87,7 +87,7 @@ export function SignupForm({ onSignedUp, onSwitchToLogin }: SignupFormProps) {
                         onChange={e => setEmail(e.target.value)}
                         placeholder="you@medflow.com"
                         autoComplete="email"
-                        className={`w-full pl-9 pr-4 py-2.5 bg-white/5 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm transition
+                        className={`w-full pl-9 pr-4 py-2.5 bg-card/5 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm transition
                             ${email && !emailValid ? 'border-red-500/50' : 'border-white/10 focus:border-blue-500/50'}`}
                     />
                 </div>
@@ -106,7 +106,7 @@ export function SignupForm({ onSignedUp, onSwitchToLogin }: SignupFormProps) {
                 autoComplete="new-password"
             />
             {password && passwordErrors.length > 0 && (
-                <ul className="text-xs text-gray-500 space-y-0.5 -mt-2 pl-1">
+                <ul className="text-xs text-text-sub space-y-0.5 -mt-2 pl-1">
                     {passwordErrors.map(e => (
                         <li key={e} className="flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block shrink-0" />
@@ -150,7 +150,7 @@ export function SignupForm({ onSignedUp, onSwitchToLogin }: SignupFormProps) {
                 }
             </button>
 
-            <p className="text-center text-sm text-gray-500">
+            <p className="text-center text-sm text-text-sub">
                 Already have an account?{' '}
                 <button type="button" onClick={onSwitchToLogin} className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
                     Sign in

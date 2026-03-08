@@ -24,7 +24,6 @@ export interface User {
     full_name: string | null;
     role_id: string;
     tenant_id: string;
-    theme_preference: 'light' | 'dark' | 'system';
     is_active: boolean;
     created_at: string;
     role?: Role;

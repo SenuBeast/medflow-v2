@@ -19,8 +19,8 @@ export default function PaymentSelector() {
                     className={`
                         py-3 border uppercase tracking-widest text-xs font-bold transition-all
                         ${paymentMethod === method.id
-                            ? 'bg-pos-primary border-pos-primary text-pos-bg'
-                            : 'bg-pos-bg border-pos-border text-pos-text hover:border-pos-text'
+                            ? 'bg-brand border-brand text-white'
+                            : 'bg-background border-border-main text-text-main hover:border-brand'
                         }
                     `}
                 >

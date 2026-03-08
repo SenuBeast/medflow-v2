@@ -67,13 +67,13 @@ export function ProductSearch({ onAddToCart, cartItemIds }: ProductSearchProps) 
     return (
         <div className="flex flex-col h-full">
             {/* Search Bar */}
-            <div className="p-4 border-b border-gray-100">
+            <div className="p-4 border-b border-border-dim">
                 <div className="relative">
-                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-dim" />
                     <input
                         ref={searchRef}
                         type="text"
-                        className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all"
+                        className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border-main text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all"
                         placeholder="Search by name, SKU, barcode…"
                         value={search}
                         onChange={e => setSearch(e.target.value)}
@@ -88,7 +88,7 @@ export function ProductSearch({ onAddToCart, cartItemIds }: ProductSearchProps) 
                         <div key={i} className="h-28 rounded-xl bg-gray-100 animate-pulse" />
                     ))
                 ) : filtered.length === 0 ? (
-                    <div className="col-span-full py-16 text-center text-gray-400">
+                    <div className="col-span-full py-16 text-center text-text-dim">
                         <Package size={40} className="mx-auto mb-3 text-gray-200" />
                         <p className="text-sm font-medium">No products found</p>
                         <p className="text-xs mt-1">Try a different search term</p>
@@ -116,7 +116,7 @@ export function ProductSearch({ onAddToCart, cartItemIds }: ProductSearchProps) 
                                     'relative text-left p-3 rounded-xl border-2 transition-all duration-150 group',
                                     isAlreadyInCart
                                         ? 'border-blue-400 bg-blue-50/60 ring-1 ring-blue-200'
-                                        : 'border-gray-100 bg-white hover:border-blue-300 hover:shadow-md',
+                                        : 'border-border-dim bg-card hover:border-blue-300 hover:shadow-md',
                                     totalStock === 0 && 'opacity-50 cursor-not-allowed'
                                 )}
                             >
@@ -139,14 +139,14 @@ export function ProductSearch({ onAddToCart, cartItemIds }: ProductSearchProps) 
                                     )}
                                 </div>
 
-                                <p className="text-sm font-semibold text-gray-900 leading-tight mb-1 line-clamp-2">{item.name}</p>
-                                {item.sku && <p className="text-xs text-gray-400 font-mono mb-2">{item.sku}</p>}
+                                <p className="text-sm font-semibold text-text-main leading-tight mb-1 line-clamp-2">{item.name}</p>
+                                {item.sku && <p className="text-xs text-text-dim font-mono mb-2">{item.sku}</p>}
 
                                 <div className="flex items-center justify-between mt-auto">
                                     <span className={clsx('text-xs font-semibold px-2 py-0.5 rounded-full', stockColor)}>
                                         {totalStock} {item.unit}
                                     </span>
-                                    <span className="text-sm font-bold text-gray-900">
+                                    <span className="text-sm font-bold text-text-main">
                                         ${(item.selling_price ?? 0).toFixed(2)}
                                     </span>
                                 </div>

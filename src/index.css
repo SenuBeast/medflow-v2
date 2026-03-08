@@ -1,6 +1,54 @@
 @import "tailwindcss";
 @import "../shared-ui/theme/themeTokens.css";
 
+@theme {
+  --color-background: var(--color-bg-primary);
+  --color-surface-dim: var(--color-bg-secondary);
+  --color-surface: var(--color-bg-tertiary);
+  --color-surface-elevated: var(--color-bg-tertiary);
+  /* Alignment for hover states */
+  --color-card: var(--color-bg-elevated);
+
+  --color-text-main: var(--color-text-primary);
+  --color-text-sub: var(--color-text-secondary);
+  --color-text-dim: var(--color-text-muted);
+  --color-text-inverse: var(--color-text-inverse);
+
+  --color-border-main: var(--color-border);
+  --color-border-dim: var(--color-border-strong);
+
+  --color-brand: var(--color-accent);
+  --color-brand-hover: var(--color-accent-hover);
+  --color-brand-subtle: var(--color-accent-subtle);
+
+  --color-success: var(--color-success);
+  --color-success-bg: var(--color-success-bg);
+  --color-success-border: var(--color-success-border);
+
+  --color-warning: var(--color-warning);
+  --color-warning-bg: var(--color-warning-bg);
+  --color-warning-border: var(--color-warning-border);
+
+  --color-danger: var(--color-danger);
+  --color-danger-bg: var(--color-danger-bg);
+  --color-danger-border: var(--color-danger-border);
+
+  --color-info: var(--color-info);
+  --color-info-bg: var(--color-info-bg);
+  --color-info-border: var(--color-info-border);
+
+  --color-critical: var(--color-critical);
+  --color-critical-bg: var(--color-critical-bg);
+
+  --color-chart-1: var(--chart-series-1);
+  --color-chart-2: var(--chart-series-2);
+  --color-chart-3: var(--chart-series-3);
+  --color-chart-4: var(--chart-series-4);
+  --color-chart-5: var(--chart-series-5);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-label: var(--chart-label);
+}
+
 html {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -9,7 +57,7 @@ html {
 body {
   background-color: var(--color-bg-secondary);
   color: var(--color-text-primary);
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 * {
@@ -44,21 +92,20 @@ body {
 .error-boundary {
   padding: 32px;
   font-family: monospace;
-  background: var(--color-bg-primary);
-  min-height: 100vh;
+  background: var(--color-danger-bg);
   color: var(--color-text-primary);
+  min-height: 100vh;
 }
 
 .error-boundary h2 {
-  color: var(--color-status-danger);
+  color: var(--color-danger);
   margin-bottom: 16px;
 }
 
 .error-boundary pre {
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-primary);
   padding: 12px;
   border-radius: 6px;
-  border: 1px solid var(--color-border-subtle);
   overflow: auto;
   font-size: 12px;
 }

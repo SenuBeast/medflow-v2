@@ -79,7 +79,7 @@ export function AuthCallbackPage() {
             <div className="flex flex-col items-center gap-4 text-center">
                 <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
                 <p className="text-white font-semibold text-lg">Completing sign-in…</p>
-                <p className="text-gray-500 text-sm">Sending your verification code</p>
+                <p className="text-text-sub text-sm">Sending your verification code</p>
             </div>
         </div>
     );

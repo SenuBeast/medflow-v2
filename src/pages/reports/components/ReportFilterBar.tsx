@@ -8,18 +8,18 @@ interface ReportFilterBarProps {
     showExpiryWindow?: boolean;
 }
 
-const inputCls = 'px-3 py-2 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all';
+const inputCls = 'px-3 py-2 rounded-xl border border-border-main text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all';
 
 export function ReportFilterBar({ filters, onChange, categories = [], showExpiryWindow }: ReportFilterBarProps) {
     const set = (partial: Partial<ReportFilters>) => onChange({ ...filters, ...partial });
     const hasActive = !!(filters.dateFrom || filters.dateTo || filters.search || filters.category || filters.controlledOnly);
 
     return (
-        <div className="bg-white border border-gray-100 rounded-2xl p-4 space-y-3">
+        <div className="bg-card border border-border-dim rounded-2xl p-4 space-y-3">
             {/* Row 1: Search + Date range */}
             <div className="flex flex-wrap gap-3 items-center">
                 <div className="relative flex-1 min-w-[200px]">
-                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-dim" />
                     <input
                         type="text"
                         className={`${inputCls} pl-8 w-full`}
@@ -36,7 +36,7 @@ export function ReportFilterBar({ filters, onChange, categories = [], showExpiry
                         onChange={e => set({ dateFrom: e.target.value || undefined })}
                         title="From date"
                     />
-                    <span className="text-gray-400 text-sm">—</span>
+                    <span className="text-text-dim text-sm">—</span>
                     <input
                         type="date"
                         className={inputCls}
@@ -50,7 +50,7 @@ export function ReportFilterBar({ filters, onChange, categories = [], showExpiry
             {/* Row 2: Category + Controlled toggle + Expiry window */}
             <div className="flex flex-wrap gap-3 items-center">
                 <div className="flex items-center gap-2">
-                    <Filter size={14} className="text-gray-400" />
+                    <Filter size={14} className="text-text-dim" />
                     {categories.length > 0 && (
                         <select
                             className={inputCls}
@@ -73,9 +73,9 @@ export function ReportFilterBar({ filters, onChange, categories = [], showExpiry
                             onChange={e => set({ controlledOnly: e.target.checked || undefined })}
                         />
                         <div className={`w-9 h-5 rounded-full transition-colors ${filters.controlledOnly ? 'bg-red-500' : 'bg-gray-200'}`} />
-                        <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${filters.controlledOnly ? 'translate-x-4' : 'translate-x-0'}`} />
+                        <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-card shadow transition-transform ${filters.controlledOnly ? 'translate-x-4' : 'translate-x-0'}`} />
                     </div>
-                    <span className="text-sm text-gray-600 font-medium">Controlled only</span>
+                    <span className="text-sm text-text-sub font-medium">Controlled only</span>
                 </label>
 
                 {showExpiryWindow && (
@@ -85,8 +85,8 @@ export function ReportFilterBar({ filters, onChange, categories = [], showExpiry
                                 key={w}
                                 onClick={() => set({ expiryWindow: w })}
                                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${(filters.expiryWindow ?? 30) === w
-                                        ? 'bg-white text-gray-900 shadow-sm'
-                                        : 'text-gray-500 hover:text-gray-700'
+                                        ? 'bg-card text-text-main shadow-sm'
+                                        : 'text-text-sub hover:text-gray-700'
                                     }`}
                             >
                                 {w === 'expired' ? 'Expired' : `${w}d`}
@@ -98,7 +98,7 @@ export function ReportFilterBar({ filters, onChange, categories = [], showExpiry
                 {hasActive && (
                     <button
                         onClick={() => onChange({})}
-                        className="ml-auto flex items-center gap-1 text-xs text-gray-400 hover:text-gray-700 transition-colors"
+                        className="ml-auto flex items-center gap-1 text-xs text-text-dim hover:text-gray-700 transition-colors"
                     >
                         <X size={12} /> Clear filters
                     </button>

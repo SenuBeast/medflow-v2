@@ -13,12 +13,6 @@
       "vite/client"
     ],
     "skipLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@shared-ui/*": [
-        "../shared-ui/*"
-      ]
-    },
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

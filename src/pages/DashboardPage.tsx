@@ -39,25 +39,25 @@ export function DashboardPage() {
             {/* Header / Quick Actions */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                    <h1 className="text-2xl font-bold text-text-main tracking-tight">
                         Dashboard
                     </h1>
-                    <p className="text-slate-500 text-sm mt-1 flex items-center gap-2">
-                        <span className="font-medium text-slate-700">{user?.full_name ?? 'User'}</span>
-                        <span className="w-1 h-1 rounded-full bg-slate-300" />
+                    <p className="text-text-dim text-sm mt-1 flex items-center gap-2">
+                        <span className="font-semibold text-text-sub">{user?.full_name ?? 'User'}</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-border-dim" />
                         <span>{today}</span>
                     </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-3">
                     {hasPermission(PERMISSIONS.INVENTORY_ADD) && (
-                        <Link to="/inventory" className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm">
-                            <Plus size={14} /> Add Item
+                        <Link to="/inventory" className="inline-flex items-center gap-2 px-6 py-2.5 bg-brand text-white text-sm font-bold rounded-full hover:bg-brand-hover transition-all shadow-lg shadow-brand/20 active:scale-95">
+                            <Plus size={18} /> Add Item
                         </Link>
                     )}
                     {hasPermission(PERMISSIONS.SALES_CREATE) && (
-                        <Link to="/sales" className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-600/20">
-                            <ShoppingCart size={14} /> New Sale
+                        <Link to="/sales" className="inline-flex items-center gap-2 px-6 py-2.5 bg-success text-white text-sm font-bold rounded-full hover:brightness-110 transition-all shadow-lg shadow-success/20 active:scale-95">
+                            <ShoppingCart size={18} /> New Sale
                         </Link>
                     )}
                 </div>

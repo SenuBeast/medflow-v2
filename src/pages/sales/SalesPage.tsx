@@ -17,11 +17,11 @@ export function SalesPage() {
     return (
         <div className="max-w-[1600px] mx-auto min-h-[calc(100vh-8rem)]">
             <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900">Sales Dashboard</h1>
-                <p className="text-gray-500 text-sm mt-1">Analytics, reporting, and management interface</p>
+                <h1 className="text-2xl font-bold text-text-main">Sales Dashboard</h1>
+                <p className="text-text-sub text-sm mt-1">Analytics, reporting, and management interface</p>
             </div>
 
-            <div className="flex border-b border-gray-200 mb-8 overflow-x-auto">
+            <div className="flex border-b border-border-main mb-8 overflow-x-auto">
                 <div className="flex gap-6 pb-px">
                     {tabs.map(({ path, label, icon: Icon }) => {
                         const isActive = location.pathname.includes(`/sales/${path}`);
@@ -33,7 +33,7 @@ export function SalesPage() {
                                     'whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors',
                                     isActive
                                         ? 'border-blue-600 text-blue-600'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                        : 'border-transparent text-text-sub hover:text-gray-700 hover:border-gray-300'
                                 )}
                             >
                                 <Icon size={16} />

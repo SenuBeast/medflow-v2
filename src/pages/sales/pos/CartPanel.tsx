@@ -35,10 +35,10 @@ export function CartPanel({
     ];
 
     return (
-        <div className="flex flex-col h-full bg-white border-l border-gray-100">
+        <div className="flex flex-col h-full bg-card border-l border-border-dim">
             {/* Header */}
-            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h2 className="font-bold text-gray-900 text-base">Cart</h2>
+            <div className="px-5 py-4 border-b border-border-dim flex items-center justify-between">
+                <h2 className="font-bold text-text-main text-base">Cart</h2>
                 <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
                     {cart.length} {cart.length === 1 ? 'item' : 'items'}
                 </span>
@@ -47,7 +47,7 @@ export function CartPanel({
             {/* Cart Items */}
             <div className="flex-1 overflow-y-auto divide-y divide-gray-50">
                 {cart.length === 0 ? (
-                    <div className="py-16 text-center text-gray-400">
+                    <div className="py-16 text-center text-text-dim">
                         <p className="text-sm font-medium">Cart is empty</p>
                         <p className="text-xs mt-1">Search and click a product to add it</p>
                     </div>
@@ -57,7 +57,7 @@ export function CartPanel({
                             <div className="flex items-start justify-between gap-2">
                                 <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-1.5 flex-wrap">
-                                        <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
+                                        <p className="text-sm font-semibold text-text-main truncate">{item.name}</p>
                                         {item.is_controlled && (
                                             <span title="Controlled Drug">
                                                 <ShieldAlert size={12} className="text-red-500 shrink-0" />
@@ -69,8 +69,8 @@ export function CartPanel({
                                             </span>
                                         )}
                                     </div>
-                                    {item.sku && <p className="text-xs text-gray-400 font-mono">{item.sku}</p>}
-                                    <p className="text-xs text-gray-500 mt-0.5">
+                                    {item.sku && <p className="text-xs text-text-dim font-mono">{item.sku}</p>}
+                                    <p className="text-xs text-text-sub mt-0.5">
                                         ${item.unit_price.toFixed(2)} / {item.unit}
                                     </p>
                                 </div>
@@ -89,24 +89,24 @@ export function CartPanel({
                                     <button
                                         onClick={() => onUpdateQuantity(item.item_id, item.quantity - 1)}
                                         disabled={item.quantity <= 1}
-                                        className="p-1.5 rounded-md hover:bg-white transition disabled:opacity-40"
+                                        className="p-1.5 rounded-md hover:bg-card transition disabled:opacity-40"
                                         title="Decrease quantity"
                                     >
                                         <Minus size={12} />
                                     </button>
-                                    <span className="px-3 text-sm font-bold text-gray-900 min-w-[2rem] text-center">
+                                    <span className="px-3 text-sm font-bold text-text-main min-w-[2rem] text-center">
                                         {item.quantity}
                                     </span>
                                     <button
                                         onClick={() => onUpdateQuantity(item.item_id, item.quantity + 1)}
                                         disabled={item.quantity >= item.max_quantity}
-                                        className="p-1.5 rounded-md hover:bg-white transition disabled:opacity-40"
+                                        className="p-1.5 rounded-md hover:bg-card transition disabled:opacity-40"
                                         title="Increase quantity"
                                     >
                                         <Plus size={12} />
                                     </button>
                                 </div>
-                                <span className="text-sm font-bold text-gray-900">
+                                <span className="text-sm font-bold text-text-main">
                                     ${item.subtotal.toFixed(2)}
                                 </span>
                             </div>
@@ -123,13 +123,13 @@ export function CartPanel({
             </div>
 
             {/* Order Summary & Checkout */}
-            <div className="p-4 border-t border-gray-100 space-y-3">
+            <div className="p-4 border-t border-border-dim space-y-3">
                 {/* Discount input */}
                 {canApplyDiscount && (
                     <div className="flex items-center gap-2">
-                        <Tag size={14} className="text-gray-400 shrink-0" />
+                        <Tag size={14} className="text-text-dim shrink-0" />
                         <div className="flex-1 relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-dim text-sm">$</span>
                             <input
                                 type="number"
                                 min={0}
@@ -138,17 +138,17 @@ export function CartPanel({
                                 placeholder="0.00"
                                 value={discountAmount || ''}
                                 onChange={e => onDiscountChange(parseFloat(e.target.value) || 0)}
-                                className="w-full pl-7 pr-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                className="w-full pl-7 pr-3 py-1.5 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                                 title="Discount amount"
                             />
                         </div>
-                        <span className="text-xs text-gray-400 shrink-0">Discount</span>
+                        <span className="text-xs text-text-dim shrink-0">Discount</span>
                     </div>
                 )}
 
                 {/* Totals */}
                 <div className="space-y-1.5 text-sm">
-                    <div className="flex justify-between text-gray-500">
+                    <div className="flex justify-between text-text-sub">
                         <span>Subtotal</span>
                         <span>${subtotal.toFixed(2)}</span>
                     </div>
@@ -159,12 +159,12 @@ export function CartPanel({
                         </div>
                     )}
                     {taxRate > 0 && (
-                        <div className="flex justify-between text-gray-500">
+                        <div className="flex justify-between text-text-sub">
                             <span>Tax ({taxRate}%)</span>
                             <span>${taxAmount.toFixed(2)}</span>
                         </div>
                     )}
-                    <div className="flex justify-between font-bold text-gray-900 text-base pt-1 border-t border-gray-100">
+                    <div className="flex justify-between font-bold text-text-main text-base pt-1 border-t border-border-dim">
                         <span>Total</span>
                         <span>${total.toFixed(2)}</span>
                     </div>
@@ -172,7 +172,7 @@ export function CartPanel({
 
                 {/* Payment Method */}
                 <div>
-                    <p className="text-xs text-gray-500 mb-1.5 font-medium">Payment Method</p>
+                    <p className="text-xs text-text-sub mb-1.5 font-medium">Payment Method</p>
                     <div className="grid grid-cols-3 gap-1.5">
                         {PAYMENT_METHODS.map(pm => (
                             <button
@@ -182,7 +182,7 @@ export function CartPanel({
                                     'py-2 rounded-lg text-xs font-semibold transition-all border',
                                     paymentMethod === pm.id
                                         ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                        : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
+                                        : 'bg-card text-text-sub border-border-main hover:border-blue-300'
                                 )}
                             >
                                 {pm.label}

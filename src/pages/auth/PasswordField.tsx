@@ -32,7 +32,7 @@ export function PasswordStrengthBar({ password }: { password: string }) {
                 {Array.from({ length: 5 }).map((_, i) => (
                     <div
                         key={i}
-                        className={`h-1 flex-1 rounded-full transition-all duration-300 ${i < score ? color : 'bg-white/10'}`}
+                        className={`h-1 flex-1 rounded-full transition-all duration-300 ${i < score ? color : 'bg-card/10'}`}
                     />
                 ))}
             </div>
@@ -69,13 +69,13 @@ export function PasswordField({
                     onChange={e => onChange(e.target.value)}
                     placeholder={placeholder}
                     autoComplete={autoComplete}
-                    className="w-full pl-4 pr-10 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500
+                    className="w-full pl-4 pr-10 py-2.5 bg-card/5 border border-white/10 rounded-xl text-white placeholder-gray-500
                         focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 text-sm transition"
                 />
                 <button
                     type="button"
                     onClick={() => setShow(s => !s)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-sub hover:text-gray-300 transition-colors"
                     aria-label={show ? 'Hide password' : 'Show password'}
                 >
                     {show ? <EyeOff size={15} /> : <Eye size={15} />}

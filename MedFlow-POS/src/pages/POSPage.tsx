@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { ThemeToggle } from '@shared-ui/theme/ThemeToggle';
 import { useAuth } from '../hooks/useAuth';
 import { useProducts } from '../hooks/useProducts';
 import { useCartStore } from '../store/cartStore';
@@ -69,7 +68,6 @@ export default function POSPage() {
                     </div>
                     <div className="flex items-center gap-6 text-sm">
                         <span className="text-pos-text-muted font-mono">{user?.full_name || user?.email}</span>
-                        <ThemeToggle />
                         <button
                             onClick={signOut}
                             className="bg-pos-bg border border-pos-border px-4 py-1.5 text-xs hover:border-pos-accent hover:text-pos-accent transition-colors uppercase tracking-widest"

@@ -5,24 +5,9 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>medflow-pos</title>
-  <script>
-    (function () {
-      const storageKey = 'medflow-theme';
-      const theme = localStorage.getItem(storageKey) || 'system';
-      const root = document.documentElement;
-
-      let effectiveTheme = 'light';
-      if (theme === 'system') {
-        effectiveTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      } else {
-        effectiveTheme = theme;
-      }
-
-      root.classList.add(effectiveTheme);
-      root.style.colorScheme = effectiveTheme;
-    })();
-  </script>
+  <title>MedFlow POS</title>
+  <!-- Anti-flicker: apply theme class before React renders -->
+  <script>(function () { try { var s = localStorage.getItem('mf-theme'); var d = window.matchMedia('(prefers-color-scheme: dark)').matches; if (s === 'dark' || (s === 'system' || !s) && d) document.documentElement.classList.add('dark'); } catch (e) { } })()</script>
 </head>
 
 <body>

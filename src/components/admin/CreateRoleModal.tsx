@@ -10,7 +10,7 @@ export function CreateRoleModal({ onClose }: { onClose: () => void }) {
     const [sourceId, setSourceId] = useState('');
     const [error, setError] = useState<string | null>(null);
 
-    const inputCls = "w-full px-3 py-2 rounded-lg border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/30";
+    const inputCls = "w-full px-3 py-2 rounded-lg border border-border-main text-sm bg-card text-text-main placeholder:text-text-dim focus:outline-none focus:ring-2 focus:ring-brand/30 transition-all font-medium";
 
     const handleCreate = async () => {
         if (!name.trim()) { setError('Role name is required'); return; }
@@ -30,15 +30,15 @@ export function CreateRoleModal({ onClose }: { onClose: () => void }) {
     return (
         <div className="space-y-4">
             <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Role Name *</label>
+                <label className="block text-xs font-semibold text-text-sub mb-1.5 uppercase tracking-wide">Role Name *</label>
                 <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Senior Pharmacist" />
             </div>
             <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Description</label>
+                <label className="block text-xs font-semibold text-text-sub mb-1.5 uppercase tracking-wide">Description</label>
                 <textarea className={inputCls} rows={2} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What does this role do?" />
             </div>
             <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Copy Permissions From (optional)</label>
+                <label className="block text-xs font-semibold text-text-sub mb-1.5 uppercase tracking-wide">Copy Permissions From (optional)</label>
                 <select className={inputCls} title="Copy permissions from" aria-label="Copy permissions from" value={sourceId} onChange={(e) => setSourceId(e.target.value)}>
                     <option value="">Start empty</option>
                     {roles.map((r) => (
@@ -46,8 +46,8 @@ export function CreateRoleModal({ onClose }: { onClose: () => void }) {
                     ))}
                 </select>
             </div>
-            {error && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
-            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+            {error && <p className="text-sm text-danger bg-danger/10 px-3 py-2 rounded-lg">{error}</p>}
+            <div className="flex justify-end gap-3 pt-4 border-t border-border-dim">
                 <Button variant="secondary" onClick={onClose}>Cancel</Button>
                 <Button variant="primary" loading={createRole.isPending} onClick={handleCreate}>Create Role</Button>
             </div>

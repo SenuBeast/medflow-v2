@@ -1,48 +1,34 @@
-import { Moon, Sun, Monitor } from 'lucide-react';
-import { useTheme } from './ThemeProvider';
-import { clsx } from 'clsx';
+import { Sun, Moon } from 'lucide-react';
+import { useTheme } from './useTheme';
 
-export function ThemeToggle() {
+interface ThemeToggleProps {
+    className?: string;
+}
+
+export function ThemeToggle({ className = '' }: ThemeToggleProps) {
     const { theme, setTheme } = useTheme();
+    const isDark = theme === 'dark';
+    const Icon = isDark ? Moon : Sun;
 
     return (
-        <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl w-fit border border-gray-200 dark:border-gray-700 transition-colors">
-            <button
-                onClick={() => setTheme('light')}
-                className={clsx(
-                    'p-2 rounded-lg transition-all',
-                    theme === 'light'
-                        ? 'bg-white text-blue-600 shadow-sm'
-                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
-                )}
-                title="Light Mode"
-            >
-                <Sun size={14} />
-            </button>
-            <button
-                onClick={() => setTheme('dark')}
-                className={clsx(
-                    'p-2 rounded-lg transition-all',
-                    theme === 'dark'
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
-                )}
-                title="Dark Mode"
-            >
-                <Moon size={14} />
-            </button>
-            <button
-                onClick={() => setTheme('system')}
-                className={clsx(
-                    'p-2 rounded-lg transition-all',
-                    theme === 'system'
-                        ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
-                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
-                )}
-                title="System Setting"
-            >
-                <Monitor size={14} />
-            </button>
-        </div>
+        <button
+            title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+            onClick={() => setTheme(isDark ? 'light' : 'dark')}
+            className={`
+                flex items-center justify-center p-2.5 rounded-xl
+                transition-all duration-200
+                bg-[var(--color-bg-tertiary)] border border-[var(--color-border)]
+                text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
+                hover:bg-[var(--color-bg-primary)] hover:border-[var(--color-accent)]
+                hover:shadow-sm group
+                ${className}
+            `}
+            aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+        >
+            <Icon
+                size={18}
+                className="transition-transform duration-300 group-hover:rotate-12"
+            />
+        </button>
     );
 }

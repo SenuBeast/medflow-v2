@@ -172,7 +172,7 @@ export function PermissionEditor({ role, onClose }: PermissionEditorProps) {
                             variant="ghost"
                             onClick={handleResetToDefault}
                             icon={<RotateCcw size={14} />}
-                            className="mr-auto text-gray-500"
+                            className="mr-auto text-text-sub"
                         >
                             Reset to Default
                         </Button>
@@ -192,12 +192,12 @@ export function PermissionEditor({ role, onClose }: PermissionEditorProps) {
             <div className="flex items-center gap-3 mb-6">
                 {role.is_system && (
                     <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
-                        <Lock size={16} className="text-gray-500" />
+                        <Lock size={16} className="text-text-sub" />
                     </div>
                 )}
                 <div>
-                    <h2 className="text-lg font-bold text-gray-900">{role.name}</h2>
-                    <p className="text-sm text-gray-400">
+                    <h2 className="text-lg font-bold text-text-main">{role.name}</h2>
+                    <p className="text-sm text-text-dim">
                         {isSuperAdmin ? 'Super Admin has all permissions' : `${selected.size} of ${allPermissions.length} permissions selected`}
                     </p>
                 </div>
@@ -217,7 +217,7 @@ export function PermissionEditor({ role, onClose }: PermissionEditorProps) {
                     {PERMISSION_CATEGORIES.map((category) => {
                         const perms = grouped[category] ?? [];
                         if (perms.length === 0) return null;
-                        const catStyle = categoryColors[category] ?? 'text-gray-600 bg-gray-50 border-gray-100';
+                        const catStyle = categoryColors[category] ?? 'text-text-sub bg-surface-dim border-border-dim';
                         const allSelected = perms.every((p) => selected.has(p.id));
                         return (
                             <div key={category}>
@@ -226,7 +226,7 @@ export function PermissionEditor({ role, onClose }: PermissionEditorProps) {
                                         {category}
                                     </span>
                                     <button
-                                        className="text-xs text-gray-400 hover:text-blue-600 transition"
+                                        className="text-xs text-text-dim hover:text-blue-600 transition"
                                         onClick={() => {
                                             const next = new Set(selected);
                                             if (allSelected) {
@@ -253,7 +253,7 @@ export function PermissionEditor({ role, onClose }: PermissionEditorProps) {
                                                         ? critical
                                                             ? 'bg-amber-50 border-amber-200'
                                                             : 'bg-blue-50 border-blue-100'
-                                                        : 'bg-white border-gray-100 hover:border-gray-200 hover:bg-gray-50'
+                                                        : 'bg-card border-border-dim hover:border-border-main hover:bg-surface-dim'
                                                 )}
                                             >
                                                 <input
@@ -264,7 +264,7 @@ export function PermissionEditor({ role, onClose }: PermissionEditorProps) {
                                                 />
                                                 <div className="min-w-0">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-sm font-medium text-gray-900 font-mono text-xs">
+                                                        <span className="text-sm font-medium text-text-main font-mono text-xs">
                                                             {perm.key}
                                                         </span>
                                                         {critical && (
@@ -274,7 +274,7 @@ export function PermissionEditor({ role, onClose }: PermissionEditorProps) {
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <p className="text-xs text-gray-500 mt-0.5">{perm.description}</p>
+                                                    <p className="text-xs text-text-sub mt-0.5">{perm.description}</p>
                                                 </div>
                                             </label>
                                         );

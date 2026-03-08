@@ -37,15 +37,15 @@ export function StockAdjustmentModal({
     return (
         <Modal title={`Adjust Stock: ${item.name}`} onClose={onClose}>
             <div className="space-y-4">
-                <div className="p-3 bg-gray-50 rounded-xl text-sm">
-                    <span className="text-gray-500">Total item stock:</span>{' '}
-                    <span className="font-bold text-gray-900">{item.quantity} {item.unit}</span>
+                <div className="p-3 bg-surface-dim rounded-xl text-sm">
+                    <span className="text-text-sub">Total item stock:</span>{' '}
+                    <span className="font-bold text-text-main">{item.quantity} {item.unit}</span>
                 </div>
                 <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Target Batch</label>
+                    <label className="block text-xs font-medium text-text-sub mb-1">Target Batch</label>
                     <select
                         title="Select batch"
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                        className="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                         value={batchId}
                         onChange={(e) => setBatchId(e.target.value)}
                     >
@@ -60,7 +60,7 @@ export function StockAdjustmentModal({
                     </select>
                 </div>
                 <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Adjustment Type</label>
+                    <label className="block text-xs font-medium text-text-sub mb-1">Adjustment Type</label>
                     <div className="flex gap-2">
                         {(['add', 'remove', 'set'] as const).map((t) => (
                             <button
@@ -70,7 +70,7 @@ export function StockAdjustmentModal({
                                     'flex-1 py-2 rounded-lg text-xs font-medium transition',
                                     type === t
                                         ? 'bg-blue-600 text-white'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                        : 'bg-gray-100 text-text-sub hover:bg-gray-200'
                                 )}
                             >
                                 {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -79,22 +79,22 @@ export function StockAdjustmentModal({
                     </div>
                 </div>
                 <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                    <label className="block text-xs font-medium text-text-sub mb-1">
                         Quantity to {type === 'set' ? 'set' : type}
                     </label>
                     <input
                         type="number"
                         placeholder="1"
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                        className="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                         value={qty}
                         onChange={(e) => setQty(Number(e.target.value))}
                         min={0}
                     />
                 </div>
                 <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Reason</label>
+                    <label className="block text-xs font-medium text-text-sub mb-1">Reason</label>
                     <input
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                        className="w-full px-3 py-2 rounded-lg border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
                         value={reason}
                         onChange={(e) => setReason(e.target.value)}
                         placeholder="Stock count, received shipment, etc."

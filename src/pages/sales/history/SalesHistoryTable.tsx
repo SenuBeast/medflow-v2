@@ -32,7 +32,7 @@ export function SalesHistoryTable({ transactions, isLoading, onViewDetail, onFil
         });
     };
 
-    const inputCls = 'px-3 py-2 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30';
+    const inputCls = 'px-3 py-2 rounded-xl border border-border-main text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500/30';
 
     // Client-side search on invoice number and seller name
     const filtered = transactions.filter(tx => {
@@ -47,9 +47,9 @@ export function SalesHistoryTable({ transactions, isLoading, onViewDetail, onFil
     return (
         <div className="flex flex-col gap-4">
             {/* Filters */}
-            <div className="flex flex-wrap items-center gap-3 p-4 bg-white rounded-xl border border-gray-100">
+            <div className="flex flex-wrap items-center gap-3 p-4 bg-card rounded-xl border border-border-dim">
                 <div className="relative flex-1 min-w-[200px]">
-                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-dim" />
                     <input
                         type="text"
                         className={`${inputCls} pl-8 w-full`}
@@ -63,7 +63,7 @@ export function SalesHistoryTable({ transactions, isLoading, onViewDetail, onFil
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <Filter size={14} className="text-gray-400" />
+                    <Filter size={14} className="text-text-dim" />
                     <select
                         className={inputCls}
                         value={paymentMethod}
@@ -85,7 +85,7 @@ export function SalesHistoryTable({ transactions, isLoading, onViewDetail, onFil
                         onChange={e => { setDateFrom(e.target.value); applyFilters({ dateFrom: e.target.value }); }}
                         title="From date"
                     />
-                    <span className="text-gray-400 text-sm">–</span>
+                    <span className="text-text-dim text-sm">–</span>
                     <input
                         type="date"
                         className={inputCls}
@@ -97,13 +97,13 @@ export function SalesHistoryTable({ transactions, isLoading, onViewDetail, onFil
             </div>
 
             {/* Table */}
-            <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+            <div className="bg-card rounded-xl border border-border-dim overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                        <thead className="bg-gray-50 border-b border-gray-100">
+                        <thead className="bg-surface-dim border-b border-border-dim">
                             <tr>
                                 {['Invoice #', 'Date & Time', 'Staff', 'Items', 'Payment', 'Total', 'Status', ''].map(h => (
-                                    <th key={h} className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3.5">
+                                    <th key={h} className="text-left text-xs font-semibold text-text-sub uppercase tracking-wide px-5 py-3.5">
                                         {h}
                                     </th>
                                 ))}
@@ -122,26 +122,26 @@ export function SalesHistoryTable({ transactions, isLoading, onViewDetail, onFil
                                 <tr>
                                     <td colSpan={8} className="px-5 py-16 text-center">
                                         <Receipt size={36} className="text-gray-200 mx-auto mb-3" />
-                                        <p className="text-gray-400 text-sm">No transactions found</p>
+                                        <p className="text-text-dim text-sm">No transactions found</p>
                                     </td>
                                 </tr>
                             ) : (
                                 filtered.map(tx => (
                                     <tr
                                         key={tx.id}
-                                        className="hover:bg-gray-50/60 transition-colors cursor-pointer"
+                                        className="hover:bg-surface-dim/60 transition-colors cursor-pointer"
                                         onClick={() => onViewDetail(tx)}
                                     >
                                         <td className="px-5 py-3.5 font-mono text-xs font-semibold text-blue-600">
                                             {tx.invoice_number}
                                         </td>
-                                        <td className="px-5 py-3.5 text-gray-600 whitespace-nowrap">
+                                        <td className="px-5 py-3.5 text-text-sub whitespace-nowrap">
                                             {format(new Date(tx.created_at), 'MMM d, yyyy · HH:mm')}
                                         </td>
-                                        <td className="px-5 py-3.5 text-gray-600">
+                                        <td className="px-5 py-3.5 text-text-sub">
                                             {tx.seller?.full_name ?? '—'}
                                         </td>
-                                        <td className="px-5 py-3.5 text-gray-500">
+                                        <td className="px-5 py-3.5 text-text-sub">
                                             {tx.items?.length ?? 0} item{(tx.items?.length ?? 0) !== 1 ? 's' : ''}
                                         </td>
                                         <td className="px-5 py-3.5">
@@ -154,7 +154,7 @@ export function SalesHistoryTable({ transactions, isLoading, onViewDetail, onFil
                                                 {tx.payment_method}
                                             </span>
                                         </td>
-                                        <td className="px-5 py-3.5 font-bold text-gray-900">
+                                        <td className="px-5 py-3.5 font-bold text-text-main">
                                             ${tx.total.toFixed(2)}
                                         </td>
                                         <td className="px-5 py-3.5">

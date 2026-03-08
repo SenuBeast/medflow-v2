@@ -8,10 +8,10 @@ export function ChartsSection() {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
             {/* Inventory Overview (Bar Chart) */}
-            <Card className="col-span-1 lg:col-span-2 flex flex-col hover:shadow-md transition-shadow">
+            <Card className="col-span-1 lg:col-span-2 flex flex-col bg-card border-border-main">
                 <div className="mb-6">
-                    <h3 className="text-base font-bold text-slate-900 tracking-tight">Inventory Overview</h3>
-                    <p className="text-xs text-slate-500 mt-1">Stock levels across major categories</p>
+                    <h3 className="text-base font-bold text-text-main tracking-tight">Inventory Overview</h3>
+                    <p className="text-xs text-text-dim mt-1">Stock levels across major categories</p>
                 </div>
 
                 <div className="flex-1 flex items-end gap-2 sm:gap-4 h-[200px] mt-auto">
@@ -25,19 +25,19 @@ export function ChartsSection() {
                     ].map((item) => (
                         <div key={item.label} className="group flex-1 flex flex-col items-center justify-end h-full relative cursor-pointer">
                             {/* Tooltip */}
-                            <div className="absolute -top-10 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                            <div className="absolute -top-10 bg-surface-elevated text-text-main text-[10px] font-bold px-2 py-1 rounded border border-border-main opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
                                 {item.value}% Filled
                             </div>
 
-                            {/* Bar */}
-                            <div className="w-full relative bg-slate-100 rounded-t-sm h-full flex items-end overflow-hidden group-hover:bg-slate-200 transition-colors">
+                            {/* Bar Container (Removed white background) */}
+                            <div className="w-full relative rounded-t-sm h-full flex items-end overflow-hidden">
                                 <div
                                     className={`w-full rounded-t-sm ${item.color} ${item.hClass} group-hover:brightness-110 transition-all duration-500`}
                                 />
                             </div>
 
                             {/* Label */}
-                            <p className="text-[10px] sm:text-xs font-semibold text-slate-500 mt-2 truncate w-full text-center px-1">
+                            <p className="text-[10px] sm:text-xs font-semibold text-text-sub mt-2 truncate w-full text-center px-1">
                                 {item.label}
                             </p>
                         </div>
@@ -46,10 +46,10 @@ export function ChartsSection() {
             </Card>
 
             {/* Sales Trend (Line/Area Chart abstract) */}
-            <Card className="flex flex-col hover:shadow-md transition-shadow">
+            <Card className="flex flex-col bg-card border-border-main">
                 <div className="mb-4">
-                    <h3 className="text-base font-bold text-slate-900 tracking-tight">Sales Trend</h3>
-                    <p className="text-xs text-slate-500 mt-1">Last 7 days performance</p>
+                    <h3 className="text-base font-bold text-text-main tracking-tight">Sales Trend</h3>
+                    <p className="text-xs text-text-dim mt-1">Last 7 days performance</p>
                 </div>
 
                 <div className="flex-1 flex flex-col justify-center">
@@ -85,14 +85,14 @@ export function ChartsSection() {
                         ))}
                     </svg>
 
-                    <div className="flex justify-between items-center w-full mt-4 border-t border-slate-100 pt-3">
+                    <div className="flex justify-between items-center w-full mt-4 border-t border-border-dim pt-3">
                         <div className="text-center">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">This Week</p>
-                            <p className="text-lg font-bold text-slate-900">$4,250</p>
+                            <p className="text-[10px] font-bold text-text-dim uppercase tracking-wider">This Week</p>
+                            <p className="text-lg font-extrabold text-text-main">$4,250</p>
                         </div>
                         <div className="text-center">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Growth</p>
-                            <p className="text-lg font-bold text-emerald-600">+12%</p>
+                            <p className="text-[10px] font-bold text-text-dim uppercase tracking-wider">Growth</p>
+                            <p className="text-lg font-extrabold text-success">+12%</p>
                         </div>
                     </div>
                 </div>
