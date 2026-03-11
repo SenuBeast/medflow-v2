@@ -79,8 +79,8 @@ export function OverviewDashboard() {
                             <div className="w-8 h-8 rounded-full border-4 border-brand border-t-transparent animate-spin"></div>
                         </div>
                     ) : (
-                        <div className="flex-1 min-h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
+                        <div style={{ height: 284 }}>
+                            <ResponsiveContainer width="100%" height={284}>
                                 <LineChart data={monthlyRevenue.data || []} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid)" />
                                     <XAxis

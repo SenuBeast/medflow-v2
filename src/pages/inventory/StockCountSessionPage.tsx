@@ -85,7 +85,7 @@ export function StockCountSessionPage() {
                 <div className="flex items-start gap-4">
                     <button
                         title="Back to Stock Counts"
-                        onClick={() => navigate('/inventory/stock-counts')}
+                        onClick={() => navigate('/stock-counts')}
                         className="p-2 hover:bg-gray-100 rounded-xl transition text-text-sub mt-1"
                     >
                         <ArrowLeft size={20} />

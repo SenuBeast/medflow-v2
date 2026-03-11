@@ -29,7 +29,7 @@ interface NavItem {
 const navItems: NavItem[] = [
     { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard, permission: null },
     { label: 'Inventory', to: '/inventory', icon: Package, permission: PERMISSIONS.INVENTORY_VIEW, exact: true },
-    { label: 'Stock Counts', to: '/inventory/stock-counts', icon: ClipboardCheck, permission: PERMISSIONS.STOCK_COUNTS_PERFORM },
+    { label: 'Stock Counts', to: '/stock-counts', icon: ClipboardCheck, permission: PERMISSIONS.STOCK_COUNTS_PERFORM },
     { label: 'Sales', to: '/sales', icon: ShoppingCart, permission: PERMISSIONS.SALES_VIEW },
     { label: 'Reports', to: '/reports', icon: FileText, permission: PERMISSIONS.REPORTS_VIEW },
     { label: 'Admin', to: '/admin', icon: ShieldAlert, permission: PERMISSIONS.ADMIN_ACCESS_PANEL },
@@ -103,23 +103,36 @@ export function Sidebar() {
                 <ThemeToggle className="w-full" />
             </div>
 
-            {/* User info */}
+            {/* User info — links to Profile */}
             <div className="px-4 py-4 border-t border-[var(--sidebar-border)]">
-                <div className="flex items-start gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-600/30 border border-blue-500/30 flex items-center justify-center shrink-0">
-                        <span className="text-blue-400 text-xs font-bold">
-                            {(user?.full_name ?? user?.email ?? 'U').charAt(0).toUpperCase()}
-                        </span>
-                    </div>
-                    <div className="min-w-0">
-                        <p className="text-xs font-medium truncate text-[var(--sidebar-text-active)]">
+                <button
+                    onClick={() => navigate('/profile')}
+                    className="flex items-center gap-3 mb-3 w-full hover:bg-[var(--sidebar-item-hover)] p-2 rounded-xl transition-colors group"
+                    title="View profile"
+                >
+                    {/* Avatar — shows Google photo or initials */}
+                    {user?.avatar_url ? (
+                        <img
+                            src={user.avatar_url}
+                            alt={user.full_name ?? 'Avatar'}
+                            className="w-8 h-8 rounded-full object-cover ring-2 ring-border-dim shrink-0"
+                        />
+                    ) : (
+                        <div className="w-8 h-8 rounded-full bg-brand/20 border border-brand/30 flex items-center justify-center shrink-0">
+                            <span className="text-brand text-xs font-bold">
+                                {(user?.full_name ?? user?.email ?? 'U').charAt(0).toUpperCase()}
+                            </span>
+                        </div>
+                    )}
+                    <div className="min-w-0 text-left">
+                        <p className="text-xs font-medium truncate text-[var(--sidebar-text-active)] group-hover:text-brand transition-colors">
                             {user?.full_name ?? user?.email}
                         </p>
-                        <div className="mt-1">
+                        <div className="mt-0.5">
                             <RoleBadge roleName={user?.role?.name ?? 'Viewer'} size="sm" />
                         </div>
                     </div>
-                </div>
+                </button>
                 <button
                     onClick={handleSignOut}
                     className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs transition-colors hover:bg-[var(--sidebar-item-hover)] hover:text-[var(--sidebar-text-active)] text-[var(--sidebar-text)]"

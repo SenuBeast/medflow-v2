@@ -133,7 +133,7 @@ export function StockCountsPage() {
                                             <Button
                                                 variant="secondary"
                                                 size="sm"
-                                                onClick={() => navigate(`/inventory/stock-counts/${session.id}`)}
+                                                onClick={() => navigate(`/stock-counts/${session.id}`)}
                                             >
                                                 View Details
                                             </Button>

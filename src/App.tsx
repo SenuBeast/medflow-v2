@@ -19,6 +19,7 @@ import { RefundsReturns } from './pages/sales/RefundsReturns';
 import { SalesReports } from './pages/sales/SalesReports';
 import { ReportsPage } from './pages/reports/ReportsPage';
 import { AdminPage } from './pages/admin/AdminPage';
+import { ProfilePage } from './pages/profile/ProfilePage';
 import { ToastProvider } from './components/ui/Toast';
 import { PERMISSIONS } from './lib/constants';
 
@@ -68,12 +69,12 @@ function App() {
                   <ControlledSubstancesPage />
                 </RouteGuard>
               } />
-              <Route path="inventory/stock-counts" element={
+              <Route path="stock-counts" element={
                 <RouteGuard permission={PERMISSIONS.STOCK_COUNTS_PERFORM}>
                   <StockCountsPage />
                 </RouteGuard>
               } />
-              <Route path="inventory/stock-counts/:id" element={
+              <Route path="stock-counts/:id" element={
                 <RouteGuard permission={PERMISSIONS.STOCK_COUNTS_PERFORM}>
                   <StockCountSessionPage />
                 </RouteGuard>
@@ -109,6 +110,8 @@ function App() {
                   </RouteGuard>
                 }
               />
+
+              <Route path="/profile" element={<ProfilePage />} />
 
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>

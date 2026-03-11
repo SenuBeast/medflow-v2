@@ -42,7 +42,7 @@ export function AuditLogTable() {
                             <th className="px-6 py-4 text-xs font-semibold text-text-sub tracking-wider">Details</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100/50">
+                    <tbody className="divide-y divide-border-dim/30">
                         {logs.length === 0 ? (
                             <tr>
                                 <td colSpan={5} className="px-6 py-8 text-center text-text-sub text-sm">
@@ -77,7 +77,7 @@ export function AuditLogTable() {
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-2">
                                             {getEntityIcon(log.entity_type)}
-                                            <span className="text-sm text-gray-700 capitalize">
+                                            <span className="text-sm text-text-main capitalize">
                                                 {log.entity_type.replace('_', ' ')}
                                             </span>
                                         </div>

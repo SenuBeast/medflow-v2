@@ -40,24 +40,54 @@ async function fetchUserProfile(userId: string): Promise<User | null> {
     return { ...user, role: { ...role, permissions } } as User;
 }
 
-async function ensureUserRecord(userId: string, email: string): Promise<void> {
+async function ensureUserRecord(userId: string, email: string, userMetadata?: Record<string, unknown>, appMetadata?: Record<string, unknown>): Promise<void> {
+    console.log('[AUTH DEBUG] ensureUserRecord called for', email);
+    console.log('[AUTH DEBUG] raw appMetadata:', JSON.stringify(appMetadata));
+    console.log('[AUTH DEBUG] raw userMetadata:', JSON.stringify(userMetadata));
+
     const { data, error } = await supabase
-        .from('users').select('id').eq('id', userId).maybeSingle();
+        .from('users').select('id, full_name, avatar_url').eq('id', userId).maybeSingle();
 
-    if (error || data) return;
+    // The primary 'provider' might be 'email', but if they linked Google, it will be in the 'providers' array.
+    const providersArray = (appMetadata?.providers as string[]) ?? [];
+    const isGoogleLinked = providersArray.includes('google');
 
-    // Use maybeSingle to avoid 406 if RLS blocks the roles table
-    const { data: viewerRole } = await supabase
-        .from('roles').select('id').eq('name', 'Viewer').maybeSingle();
+    // Determine the normalized provider string for our DB ('email', 'google', or 'email+google')
+    const provider = isGoogleLinked && providersArray.includes('email')
+        ? 'email+google'
+        : isGoogleLinked
+            ? 'google'
+            : 'email';
 
-    if (viewerRole) {
-        await supabase.from('users').insert({
-            id: userId,
-            email,
-            full_name: email.split('@')[0],
-            role_id: viewerRole.id,
-            is_active: true,
-        });
+    // Extract Google-supplied fields
+    const googleName = (userMetadata?.full_name ?? userMetadata?.name ?? null) as string | null;
+    const googleAvatar = (userMetadata?.avatar_url ?? null) as string | null;
+
+    if (error || !data) {
+        // New user — insert with defaults
+        const { data: viewerRole } = await supabase
+            .from('roles').select('id').eq('name', 'Viewer').maybeSingle();
+
+        if (viewerRole) {
+            await supabase.from('users').insert({
+                id: userId,
+                email,
+                full_name: googleName ?? email.split('@')[0],
+                avatar_url: googleAvatar,
+                provider,
+                role_id: viewerRole.id,
+                is_active: true,
+            });
+        }
+    } else {
+        // Existing user — only patch the 'provider' field if they linked Google, so we know they have Google linked.
+        // We DO NOT auto-patch full_name or avatar_url here anymore, to avoid reverting user's manual changes or deletions.
+        if (isGoogleLinked) {
+            await supabase.from('users').update({
+                provider: provider,
+                updated_at: new Date().toISOString(),
+            }).eq('id', userId);
+        }
     }
 }
 
@@ -72,7 +102,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 
 let _loadingUser = false;
 
-async function initUser(userId: string, email: string, forceRefresh = false) {
+async function initUser(userId: string, email: string, forceRefresh = false, userMetadata?: Record<string, unknown>, appMetadata?: Record<string, unknown>) {
     if (_loadingUser) return;
 
     // Skip if already loaded for this exact user
@@ -83,7 +113,7 @@ async function initUser(userId: string, email: string, forceRefresh = false) {
     if (!forceRefresh) useAuthStore.getState().setLoading(true);
 
     try {
-        await withTimeout(ensureUserRecord(userId, email), 10000);
+        await withTimeout(ensureUserRecord(userId, email, userMetadata, appMetadata), 10000);
         const profile = await withTimeout(fetchUserProfile(userId), 10000);
 
         if (profile) {
@@ -160,9 +190,15 @@ function startGlobalAuthListener() {
         if (event === 'SIGNED_OUT') {
             cleanupRealtimeSync();
             useAuthStore.getState().reset();
-        } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+        } else if (['SIGNED_IN', 'USER_UPDATED', 'IDENTITY_LINKED'].includes(event as string)) {
             if (session?.user) {
-                initUser(session.user.id, session.user.email ?? '');
+                initUser(
+                    session.user.id,
+                    session.user.email ?? '',
+                    true,
+                    session.user.user_metadata,
+                    session.user.app_metadata
+                );
                 setupRealtimeSync(session.user.id, session.user.email ?? '');
             }
         }
@@ -198,5 +234,22 @@ export function useAuth() {
         useAuthStore.getState().reset();
     };
 
-    return { user, permissions, isLoading, isInitialized, hasPermission, useHasPermission, signIn, signInWithGoogle, signOut };
+    const linkGoogleAccount = async () => {
+        const { error } = await supabase.auth.linkIdentity({ provider: 'google' });
+        if (error) throw error;
+    };
+
+    const updateProfile = async (data: { full_name?: string; avatar_url?: string }) => {
+        const { user: currentUser } = useAuthStore.getState();
+        if (!currentUser) throw new Error('Not authenticated');
+        const { error } = await supabase
+            .from('users')
+            .update({ ...data, updated_at: new Date().toISOString() })
+            .eq('id', currentUser.id);
+        if (error) throw error;
+        // Optimistically update the store
+        useAuthStore.getState().setUser({ ...currentUser, ...data });
+    };
+
+    return { user, permissions, isLoading, isInitialized, hasPermission, useHasPermission, signIn, signInWithGoogle, signOut, linkGoogleAccount, updateProfile };
 }

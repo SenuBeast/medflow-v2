@@ -1,3 +1,4 @@
+import { clsx } from 'clsx';
 import { Card } from '../ui/Card';
 
 // Using a simple mock implementation since 'recharts' might not be installed based on package.json
@@ -57,8 +58,8 @@ export function ChartsSection() {
                     <svg viewBox="0 0 200 100" className="w-full h-32 overflow-visible drop-shadow-sm">
                         <defs>
                             <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
-                                <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+                                <stop offset="0%" className="stop-brand" stopOpacity="0.2" />
+                                <stop offset="100%" className="stop-brand" stopOpacity="0" />
                             </linearGradient>
                         </defs>
                         <path
@@ -68,7 +69,7 @@ export function ChartsSection() {
                         <path
                             d="M 0,80 Q 20,70 40,50 T 80,40 T 120,60 T 160,20 T 200,30"
                             fill="none"
-                            stroke="#3b82f6"
+                            className="stroke-brand"
                             strokeWidth="3"
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -81,7 +82,7 @@ export function ChartsSection() {
                             { cx: 160, cy: 20, origin: 'origin-[160px_20px]' },
                             { cx: 200, cy: 30, origin: 'origin-[200px_30px]' }
                         ].map((pt, i) => (
-                            <circle key={i} cx={pt.cx} cy={pt.cy} r="4" fill="white" stroke="#3b82f6" strokeWidth="2" className={`cursor-pointer hover:scale-150 transition-transform ${pt.origin}`} />
+                            <circle key={i} cx={pt.cx} cy={pt.cy} r="4" className={clsx("cursor-pointer hover:scale-150 transition-transform fill-white dark:fill-brand stroke-brand", pt.origin)} strokeWidth="2" />
                         ))}
                     </svg>
 

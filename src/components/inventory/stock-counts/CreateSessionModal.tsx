@@ -20,7 +20,7 @@ export function CreateSessionModal({ isOpen, onClose }: CreateSessionModalProps)
             const session = await createSession.mutateAsync({ type, notes });
             onClose();
             // Automatically navigate to the new session page
-            navigate(`/inventory/stock-counts/${session.id}`);
+            navigate(`/stock-counts/${session.id}`);
         } catch (error) {
             console.error("Failed to create session:", error);
             // Ideally should show a toast notification here

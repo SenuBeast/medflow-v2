@@ -22,10 +22,13 @@ export interface User {
     id: string;
     email: string;
     full_name: string | null;
+    avatar_url: string | null;
+    provider: 'email' | 'google' | 'email+google';
     role_id: string;
     tenant_id: string;
     is_active: boolean;
     created_at: string;
+    updated_at?: string;
     role?: Role;
 }
 

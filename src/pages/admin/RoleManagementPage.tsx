@@ -23,7 +23,7 @@ export function RoleManagementPage() {
     if (!canManageRoles) {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-                <Shield className="w-12 h-12 text-gray-200 mb-4" />
+                <Shield className="w-12 h-12 text-text-dim/20 mb-4" />
                 <h2 className="text-lg font-bold text-text-main mb-1">Access Denied</h2>
                 <p className="text-sm text-text-sub">You do not have permission to manage roles and permissions.</p>
             </div>

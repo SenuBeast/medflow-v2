@@ -183,7 +183,7 @@ export function UsersPage() {
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-50">
+                            <tbody className="divide-y divide-border-dim/30">
                                 {isLoading ? (
                                     Array.from({ length: 4 }).map((_, i) => (
                                         <tr key={i}><td colSpan={6} className="px-5 py-3.5"><div className="h-4 bg-gray-100 rounded animate-pulse" /></td></tr>
@@ -191,7 +191,7 @@ export function UsersPage() {
                                 ) : filtered.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} className="px-5 py-16 text-center">
-                                            <Users2 size={36} className="text-gray-200 mx-auto mb-3" />
+                                            <Users2 size={36} className="text-text-dim/20 mx-auto mb-3" />
                                             <p className="text-text-dim text-sm">{search ? 'No users match your search' : 'No users found'}</p>
                                         </td>
                                     </tr>
@@ -200,17 +200,25 @@ export function UsersPage() {
                                         <tr key={user.id} className="hover:bg-surface-dim/60 transition-colors">
                                             <td className="px-5 py-3.5">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center shrink-0">
-                                                        <span className="text-white text-xs font-bold">
-                                                            {(user.full_name ?? user.email).charAt(0).toUpperCase()}
-                                                        </span>
-                                                    </div>
+                                                    {user.avatar_url ? (
+                                                        <img
+                                                            src={user.avatar_url}
+                                                            alt={user.full_name ?? 'Avatar'}
+                                                            className="w-8 h-8 rounded-full object-cover ring-2 ring-border-dim shrink-0"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-8 h-8 rounded-full bg-brand/20 border border-brand/30 flex items-center justify-center shrink-0">
+                                                            <span className="text-brand text-xs font-bold">
+                                                                {(user.full_name ?? user.email).charAt(0).toUpperCase()}
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                     <span className="font-semibold text-text-main">{user.full_name ?? '—'}</span>
                                                 </div>
                                             </td>
                                             <td className="px-5 py-3.5 text-text-sub">{user.email}</td>
                                             <td className="px-5 py-3.5">
-                                                {user.role ? <RoleBadge roleName={user.role.name} /> : <span className="text-gray-300 text-xs">No role</span>}
+                                                {user.role ? <RoleBadge roleName={user.role.name} /> : <span className="text-text-dim/40 text-xs italic">No role</span>}
                                             </td>
                                             <td className="px-5 py-3.5">
                                                 <StatusBadge status={user.is_active ? 'active' : 'inactive'} />

@@ -55,7 +55,7 @@ export function SystemSettingsPage() {
     const set = <K extends keyof SettingsState>(key: K, value: SettingsState[K]) =>
         setSettings(prev => ({ ...prev, [key]: value }));
 
-    const inputCls = 'w-full px-3 py-2 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-card transition-all';
+    const inputCls = 'w-full px-3 py-2 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-brand/20 bg-card text-text-main placeholder:text-text-dim transition-all';
 
     const handleSave = async () => {
         setSaving(true);

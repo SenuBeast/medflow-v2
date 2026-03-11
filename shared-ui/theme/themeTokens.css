@@ -15,9 +15,12 @@
     --color-bg-overlay: rgba(0, 0, 0, 0.40);
 
     /* Text */
-    --color-text-primary: #111827;
-    --color-text-secondary: #4b5563;
-    --color-text-muted: #9ca3af;
+    --color-text-primary: #0f172a;
+    /* Slate 900 */
+    --color-text-secondary: #475569;
+    /* Slate 600 */
+    --color-text-muted: #64748b;
+    /* Slate 500 - Passes WCAG AA on white */
     --color-text-inverse: #ffffff;
 
     /* Borders */
@@ -86,21 +89,26 @@ html.dark {
     color-scheme: dark;
 
     /* Surfaces */
-    --color-bg-primary: #0f1117;
-    --color-bg-secondary: #161b26;
-    --color-bg-tertiary: #1e2435;
-    --color-bg-elevated: #1a1f2e;
-    --color-bg-overlay: rgba(0, 0, 0, 0.60);
+    --color-bg-primary: #080a0f;
+    /* Deeper midnight */
+    --color-bg-secondary: #0f1219;
+    --color-bg-tertiary: #161a23;
+    --color-bg-elevated: #1c222d;
+    --color-bg-overlay: rgba(0, 0, 0, 0.70);
 
     /* Text */
-    --color-text-primary: #f3f4f6;
-    --color-text-secondary: #9ca3af;
-    --color-text-muted: #6b7280;
-    --color-text-inverse: #111827;
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #94a3b8;
+    /* Slate 400 - Better visibility */
+    --color-text-muted: #64748b;
+    /* Slate 500 */
+    --color-text-inverse: #020617;
 
     /* Borders */
-    --color-border: #2a3044;
-    --color-border-strong: #374151;
+    --color-border: #1e293b;
+    /* Slate 800 */
+    --color-border-strong: #334155;
+    /* Slate 700 */
 
     /* Accent / Brand */
     --color-accent: #3b82f6;
@@ -157,4 +165,13 @@ html.dark {
     --sidebar-text-active: #f3f4f6;
     --sidebar-item-active: #2563eb;
     --sidebar-item-hover: #1e2435;
+}
+
+/* ── Custom Utilities for SVGs ──────────────────────────── */
+.stop-brand {
+    stop-color: var(--color-accent);
+}
+
+.dark .stop-brand {
+    stop-color: var(--color-accent);
 }
