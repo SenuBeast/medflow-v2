@@ -60,6 +60,16 @@ body {
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
+/* Global contrast resets for native form elements */
+select, input, textarea, button {
+  color-scheme: inherit;
+}
+
+select option {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+}
+
 * {
   box-sizing: border-box;
 }

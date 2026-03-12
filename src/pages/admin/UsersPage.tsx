@@ -9,6 +9,8 @@ import { useUsers, useUpdateUserRole, useDeactivateUser, useActivateUser, useCre
 import { useRoles } from '../../hooks/useRoles';
 import { useToast } from '../../components/ui/Toast';
 import type { Role } from '../../lib/types';
+import { Input } from '../../components/ui/Input';
+import { Select } from '../../components/ui/Select';
 import { clsx } from 'clsx';
 import { format } from 'date-fns';
 
@@ -19,7 +21,6 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
     const { success, error } = useToast();
     const [form, setForm] = useState({ full_name: '', email: '', password: '', role_id: '' });
 
-    const inputCls = 'w-full px-3 py-2 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30';
 
     const handleSubmit = async () => {
         if (!form.email || !form.password || !form.role_id) return;
@@ -34,25 +35,37 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
 
     return (
         <div className="space-y-4">
-            <div>
-                <label className="block text-xs font-semibold text-text-sub uppercase tracking-wide mb-1">Full Name</label>
-                <input type="text" className={inputCls} placeholder="John Doe" value={form.full_name} onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} />
-            </div>
-            <div>
-                <label className="block text-xs font-semibold text-text-sub uppercase tracking-wide mb-1">Email <span className="text-red-500">*</span></label>
-                <input type="email" className={inputCls} placeholder="user@medflow.com" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
-            </div>
-            <div>
-                <label className="block text-xs font-semibold text-text-sub uppercase tracking-wide mb-1">Password <span className="text-red-500">*</span></label>
-                <input type="password" className={inputCls} placeholder="Min. 8 characters" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} />
-            </div>
-            <div>
-                <label className="block text-xs font-semibold text-text-sub uppercase tracking-wide mb-1">Role <span className="text-red-500">*</span></label>
-                <select className={inputCls} value={form.role_id} onChange={e => setForm(f => ({ ...f, role_id: e.target.value }))} title="Select role">
-                    <option value="">Select a role…</option>
-                    {roles.map((r: Role) => <option key={r.id} value={r.id}>{r.name}</option>)}
-                </select>
-            </div>
+            <Input
+                label="Full Name"
+                placeholder="John Doe"
+                value={form.full_name}
+                onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))}
+            />
+            <Input
+                label="Email"
+                type="email"
+                required
+                placeholder="user@medflow.com"
+                value={form.email}
+                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+            />
+            <Input
+                label="Password"
+                type="password"
+                required
+                placeholder="Min. 8 characters"
+                value={form.password}
+                onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+            />
+            <Select
+                label="Role"
+                required
+                value={form.role_id}
+                onChange={e => setForm(f => ({ ...f, role_id: e.target.value }))}
+            >
+                <option value="">Select a role…</option>
+                {roles.map((r: Role) => <option key={r.id} value={r.id}>{r.name}</option>)}
+            </Select>
             <div className="flex justify-end gap-3 pt-1">
                 <Button variant="secondary" onClick={onClose}>Cancel</Button>
                 <Button variant="primary" loading={createUser.isPending} disabled={!form.email || !form.password || !form.role_id} onClick={handleSubmit}>
@@ -82,14 +95,14 @@ function AssignRoleModal({ userId, currentRoleId, onClose }: { userId: string; c
 
     return (
         <div className="space-y-4">
-            <select
-                className="w-full px-3 py-2 rounded-xl border border-border-main text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+            <Select
+                label="Role"
                 title="Select role"
                 value={roleId}
                 onChange={e => setRoleId(e.target.value)}
             >
                 {roles.map((r: Role) => <option key={r.id} value={r.id}>{r.name}</option>)}
-            </select>
+            </Select>
             <div className="flex justify-end gap-3">
                 <Button variant="secondary" onClick={onClose}>Cancel</Button>
                 <Button variant="primary" loading={updateRole.isPending} onClick={handleSave}>Assign Role</Button>
