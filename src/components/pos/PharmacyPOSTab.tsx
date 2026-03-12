@@ -45,6 +45,10 @@ export function PharmacyPOSTab() {
             if (cleanEventOrigin !== cleanPosOrigin) return;
 
             switch (event.data?.type) {
+                case 'POS_WANT_TOKEN':
+                    console.log('[MedFlow] POS requested token, sending...');
+                    sendToken();
+                    break;
                 case 'SALE_COMPLETED':
                     // Could invalidate billing queries, show toast, etc.
                     console.log('[MedFlow] POS sale completed:', event.data);
