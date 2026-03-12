@@ -276,24 +276,10 @@ export interface AuditLog {
 
 // ─── Integration Types ────────────────────────────────────────────────────────
 
-export interface TenantSubscription {
-    id: string;
-    tenant_id: string;
-    product: 'medflow' | 'pos';
-    plan: 'trial' | 'standard' | 'professional' | 'enterprise';
-    status: 'active' | 'suspended' | 'cancelled' | 'expired';
-    starts_at: string;
-    expires_at: string | null;
-    metadata: Record<string, unknown>;
-    created_at: string;
-    updated_at: string;
-}
-
 // ─── Medical Domain Types ─────────────────────────────────────────────────────
 
 export interface Patient {
     id: string;
-    tenant_id: string;
     full_name: string;
     phone: string | null;
     email: string | null;
@@ -311,7 +297,6 @@ export type PrescriptionStatus = 'pending' | 'dispensed' | 'partially_dispensed'
 
 export interface Prescription {
     id: string;
-    tenant_id: string;
     patient_id: string;
     prescribed_by: string | null;
     status: PrescriptionStatus;
@@ -346,7 +331,6 @@ export type MedicalRecordType = 'consultation' | 'lab_result' | 'imaging' | 'pro
 
 export interface MedicalRecord {
     id: string;
-    tenant_id: string;
     patient_id: string;
     record_type: MedicalRecordType;
     title: string;
@@ -361,7 +345,6 @@ export type BillingStatus = 'pending' | 'paid' | 'partial' | 'refunded' | 'writt
 
 export interface BillingRecord {
     id: string;
-    tenant_id: string;
     patient_id: string | null;
     transaction_id: string | null;
     prescription_id: string | null;
