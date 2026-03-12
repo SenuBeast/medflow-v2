@@ -23,6 +23,19 @@ export const ProtectedRoute = ({ requiredPermission = 'sales.create' }: Protecte
     }
 
     if (!user) {
+        // When embedded, we should NOT redirect to /login
+        // We wait for the parent to send the token via postMessage
+        const embedded = window.self !== window.top;
+        if (embedded) {
+            return (
+                <div className="flex h-screen items-center justify-center bg-pos-bg text-pos-text">
+                    <div className="animate-pulse flex flex-col items-center">
+                        <div className="w-12 h-12 border-4 border-pos-accent border-t-transparent rounded-full animate-spin mb-4"></div>
+                        <p>Authenticating with MedFlow...</p>
+                    </div>
+                </div>
+            );
+        }
         return <Navigate to="/login" replace />;
     }
 

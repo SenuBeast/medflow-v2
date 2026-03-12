@@ -38,7 +38,11 @@ export function PharmacyPOSTab() {
     // Listen for events from POS
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            if (event.origin !== POS_URL) return;
+            // Normalize origins for comparison
+            const cleanEventOrigin = event.origin.replace(/\/$/, '');
+            const cleanPosOrigin = POS_URL.replace(/\/$/, '');
+
+            if (cleanEventOrigin !== cleanPosOrigin) return;
 
             switch (event.data?.type) {
                 case 'SALE_COMPLETED':

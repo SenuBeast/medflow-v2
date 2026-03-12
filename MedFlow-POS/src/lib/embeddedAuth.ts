@@ -9,7 +9,17 @@ const MEDFLOW_ORIGIN = import.meta.env.VITE_MEDFLOW_URL || 'http://localhost:517
  */
 export function listenForParentAuth() {
     window.addEventListener('message', async (event) => {
-        if (event.origin !== MEDFLOW_ORIGIN) return;
+        // Normalize origins: remove trailing slashes for comparison
+        const cleanEventOrigin = event.origin.replace(/\/$/, '');
+        const cleanMedflowOrigin = MEDFLOW_ORIGIN.replace(/\/$/, '');
+
+        if (cleanEventOrigin !== cleanMedflowOrigin) {
+            if (event.data?.type === 'MEDFLOW_AUTH_TOKEN') {
+                console.warn('[POS] Blocked auth message from untrusted origin:', event.origin, 'Expected:', MEDFLOW_ORIGIN);
+            }
+            return;
+        }
+
         if (event.data?.type !== 'MEDFLOW_AUTH_TOKEN') return;
 
         const { accessToken, refreshToken } = event.data;
