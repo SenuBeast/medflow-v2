@@ -35,10 +35,10 @@ export function CartPanel({
     ];
 
     return (
-        <div className="flex flex-col h-full bg-card border-l border-border-dim">
+        <div className="flex flex-col h-full bg-card border-l-0 md:border-l border-border-dim">
             {/* Header */}
-            <div className="px-5 py-4 border-b border-border-dim flex items-center justify-between">
-                <h2 className="font-bold text-text-main text-base">Cart</h2>
+            <div className="px-4 md:px-5 py-3 md:py-4 border-b border-border-dim flex items-center justify-between">
+                <h2 className="font-bold text-text-main text-sm md:text-base">Cart</h2>
                 <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
                     {cart.length} {cart.length === 1 ? 'item' : 'items'}
                 </span>
@@ -47,13 +47,13 @@ export function CartPanel({
             {/* Cart Items */}
             <div className="flex-1 overflow-y-auto divide-y divide-gray-50">
                 {cart.length === 0 ? (
-                    <div className="py-16 text-center text-text-dim">
+                    <div className="py-10 md:py-16 text-center text-text-dim">
                         <p className="text-sm font-medium">Cart is empty</p>
                         <p className="text-xs mt-1">Search and click a product to add it</p>
                     </div>
                 ) : (
                     cart.map(item => (
-                        <div key={item.item_id} className="px-4 py-3 group">
+                        <div key={item.item_id} className="px-3 md:px-4 py-2.5 md:py-3 group">
                             <div className="flex items-start justify-between gap-2">
                                 <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-1.5 flex-wrap">
@@ -194,7 +194,7 @@ export function CartPanel({
                 {/* Process Sale */}
                 <Button
                     variant="primary"
-                    className="w-full py-3 text-base font-bold"
+                    className="w-full py-3 text-sm md:text-base font-bold min-h-[44px]"
                     onClick={onCheckout}
                     loading={isProcessing}
                     disabled={cart.length === 0 || isProcessing}

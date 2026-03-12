@@ -21,6 +21,7 @@ import { ReportsPage } from './pages/reports/ReportsPage';
 import { AdminPage } from './pages/admin/AdminPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
 import { ToastProvider } from './components/ui/Toast';
+import { PharmacyPOSTab } from './components/pos/PharmacyPOSTab';
 import { PERMISSIONS } from './lib/constants';
 
 const queryClient = new QueryClient({
@@ -112,6 +113,16 @@ function App() {
               />
 
               <Route path="/profile" element={<ProfilePage />} />
+
+              {/* Pharmacy POS — embedded iframe, visible only when POS subscription active */}
+              <Route
+                path="/pharmacy-pos"
+                element={
+                  <RouteGuard permission={PERMISSIONS.POS_ACCESS}>
+                    <PharmacyPOSTab />
+                  </RouteGuard>
+                }
+              />
 
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>

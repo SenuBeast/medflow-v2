@@ -38,11 +38,11 @@ export function DashboardPage() {
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6 pb-12">
+        <div className="max-w-7xl mx-auto space-y-4 md:space-y-6 pb-12">
             {/* Header / Quick Actions */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-text-main tracking-tight flex items-center gap-2">
+                    <h1 className="text-xl md:text-2xl font-bold text-text-main tracking-tight flex items-center gap-2">
                         <span>Dashboard</span>
                         <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success/10 text-success text-xs font-bold border border-success/20">
                             <span className="relative flex h-2 w-2">
@@ -80,7 +80,7 @@ export function DashboardPage() {
             ) : (
                 <>
                     {/* KPI Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-5">
                         <PermissionGuard permission={PERMISSIONS.INVENTORY_VIEW}>
                             <KpiCard
                                 title="Low Stock"
@@ -115,37 +115,37 @@ export function DashboardPage() {
 
                     {/* Live Analytics Dashboard (Middle & Right Sections) */}
                     <PermissionGuard permission={PERMISSIONS.SALES_VIEW}>
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-5">
                             {/* Live Chart */}
-                            <div className="lg:col-span-2 flex flex-col min-h-[350px]">
+                            <div className="lg:col-span-2 flex flex-col min-h-[280px] md:min-h-[350px]">
                                 <HourlyRevenueChart data={chartData} />
                             </div>
 
                             {/* Live Feed */}
-                            <div className="lg:col-span-1 flex flex-col h-[350px]">
+                            <div className="lg:col-span-1 flex flex-col h-[300px] md:h-[350px]">
                                 <LiveSalesFeed sales={recentSales} />
                             </div>
                         </div>
                     </PermissionGuard>
 
                     {/* Bottom Row: Alerts, Top Products, Activity */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5">
                         {/* Alerts & Inventory logic */}
-                        <div className="lg:col-span-1 h-[400px]">
+                        <div className="lg:col-span-1 min-h-[300px] md:min-h-[350px] lg:h-[400px]">
                             <PermissionGuard permission={PERMISSIONS.INVENTORY_VIEW}>
                                 <AlertsPanel />
                             </PermissionGuard>
                         </div>
 
                         {/* Top Selling Products */}
-                        <div className="lg:col-span-1 h-[400px]">
+                        <div className="lg:col-span-1 min-h-[300px] md:min-h-[350px] lg:h-[400px]">
                             <PermissionGuard permission={PERMISSIONS.SALES_VIEW}>
                                 <TopProductsList />
                             </PermissionGuard>
                         </div>
 
                         {/* Audit Log / General Activity */}
-                        <div className="lg:col-span-1 h-[400px]">
+                        <div className="md:col-span-2 lg:col-span-1 min-h-[300px] md:min-h-[350px] lg:h-[400px]">
                             <PermissionGuard permission={PERMISSIONS.ADMIN_AUDIT_VIEW} fallback={
                                 <Card className="h-full flex flex-col items-center justify-center text-center p-8 border-dashed border-2 border-border-dim bg-surface-dim/30 hover:bg-surface-dim/50 transition-colors">
                                     <Shield className="w-12 h-12 text-text-dim/30 mb-3" />

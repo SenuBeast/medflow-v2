@@ -37,6 +37,26 @@ export const PERMISSIONS = {
     SALES_REFUND: 'sales.refund',
     SALES_DISCOUNT: 'sales.discount',
 
+    // POS
+    POS_ACCESS: 'pos.access',
+
+    // Patients
+    PATIENTS_VIEW: 'patients.view',
+    PATIENTS_MANAGE: 'patients.manage',
+
+    // Prescriptions
+    PRESCRIPTIONS_VIEW: 'prescriptions.view',
+    PRESCRIPTIONS_CREATE: 'prescriptions.create',
+    PRESCRIPTIONS_DISPENSE: 'prescriptions.dispense',
+
+    // Medical Records
+    MEDICAL_RECORDS_VIEW: 'medical_records.view',
+    MEDICAL_RECORDS_MANAGE: 'medical_records.manage',
+
+    // Billing
+    BILLING_VIEW: 'billing.view',
+    BILLING_MANAGE: 'billing.manage',
+
     // Reports
     REPORTS_VIEW: 'reports.view',
     REPORTS_EXPORT: 'reports.export',
@@ -121,6 +141,8 @@ export const PERMISSION_CATEGORIES = [
     'Admin',
     'Inventory',
     'Medical',
+    'POS',
     'Sales',
+    'Billing',
     'Reports',
 ] as const;

@@ -7,7 +7,7 @@ import { Card } from '../ui/Card';
 
 export function ChartsSection() {
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-5 mb-8">
             {/* Inventory Overview (Bar Chart) */}
             <Card className="col-span-1 lg:col-span-2 flex flex-col bg-card border-border-main">
                 <div className="mb-6">
@@ -15,7 +15,7 @@ export function ChartsSection() {
                     <p className="text-xs text-text-dim mt-1">Stock levels across major categories</p>
                 </div>
 
-                <div className="flex-1 flex items-end gap-2 sm:gap-4 h-[200px] mt-auto">
+                <div className="flex-1 flex items-end gap-1.5 sm:gap-2 md:gap-4 h-[160px] sm:h-[200px] mt-auto">
                     {[
                         { label: 'Antibiotics', value: 85, hClass: 'h-[85%]', color: 'bg-emerald-400' },
                         { label: 'Painkillers', value: 65, hClass: 'h-[65%]', color: 'bg-blue-400' },
@@ -38,7 +38,7 @@ export function ChartsSection() {
                             </div>
 
                             {/* Label */}
-                            <p className="text-[10px] sm:text-xs font-semibold text-text-sub mt-2 truncate w-full text-center px-1">
+                            <p className="text-[8px] sm:text-[10px] md:text-xs font-semibold text-text-sub mt-1.5 sm:mt-2 truncate w-full text-center px-0.5">
                                 {item.label}
                             </p>
                         </div>
@@ -55,7 +55,7 @@ export function ChartsSection() {
 
                 <div className="flex-1 flex flex-col justify-center">
                     {/* Abstract SVG line chart */}
-                    <svg viewBox="0 0 200 100" className="w-full h-32 overflow-visible drop-shadow-sm">
+                    <svg viewBox="0 0 200 100" className="w-full h-24 sm:h-32 overflow-visible drop-shadow-sm">
                         <defs>
                             <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0%" className="stop-brand" stopOpacity="0.2" />

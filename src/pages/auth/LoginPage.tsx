@@ -321,7 +321,7 @@ export function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-slate-900 flex items-center justify-center p-3 sm:p-4 relative overflow-hidden">
             {/* Ambient glows */}
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute -top-60 -left-40 w-[500px] h-[500px] bg-blue-700/15 rounded-full blur-3xl" />
@@ -331,15 +331,15 @@ export function LoginPage() {
 
             <div className="relative w-full max-w-[420px]">
                 {/* Glass card */}
-                <div className="bg-card/[0.03] backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-8 shadow-2xl">
+                <div className="bg-card/[0.03] backdrop-blur-2xl border border-white/[0.08] rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl">
                     {/* Logo — always visible */}
                     {step !== 'otp' && (
-                        <div className="flex flex-col items-center mb-8">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-4 shadow-lg shadow-blue-500/25">
-                                <Activity size={26} className="text-white" />
+                        <div className="flex flex-col items-center mb-6 sm:mb-8">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-3 sm:mb-4 shadow-lg shadow-blue-500/25">
+                                <Activity size={22} className="text-white sm:w-[26px] sm:h-[26px]" />
                             </div>
-                            <h1 className="text-2xl font-bold text-white tracking-tight">MedFlow</h1>
-                            <p className="text-text-sub text-sm mt-1">Medical Inventory System</p>
+                            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">MedFlow</h1>
+                            <p className="text-text-sub text-xs sm:text-sm mt-1">Medical Inventory System</p>
                         </div>
                     )}
 

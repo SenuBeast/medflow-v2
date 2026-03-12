@@ -7,7 +7,7 @@ export interface Permission {
     description: string;
 }
 
-export type PermissionCategory = 'Admin' | 'Inventory' | 'Medical' | 'Sales' | 'Reports';
+export type PermissionCategory = 'Admin' | 'Inventory' | 'Medical' | 'POS' | 'Sales' | 'Billing' | 'Reports';
 
 export interface Role {
     id: string;
@@ -272,4 +272,104 @@ export interface AuditLog {
         full_name: string | null;
         email: string;
     };
+}
+
+// ─── Integration Types ────────────────────────────────────────────────────────
+
+export interface TenantSubscription {
+    id: string;
+    tenant_id: string;
+    product: 'medflow' | 'pos';
+    plan: 'trial' | 'standard' | 'professional' | 'enterprise';
+    status: 'active' | 'suspended' | 'cancelled' | 'expired';
+    starts_at: string;
+    expires_at: string | null;
+    metadata: Record<string, unknown>;
+    created_at: string;
+    updated_at: string;
+}
+
+// ─── Medical Domain Types ─────────────────────────────────────────────────────
+
+export interface Patient {
+    id: string;
+    tenant_id: string;
+    full_name: string;
+    phone: string | null;
+    email: string | null;
+    dob: string | null;
+    gender: 'male' | 'female' | 'other' | null;
+    address: string | null;
+    allergies: string | null;
+    notes: string | null;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+export type PrescriptionStatus = 'pending' | 'dispensed' | 'partially_dispensed' | 'cancelled' | 'expired';
+
+export interface Prescription {
+    id: string;
+    tenant_id: string;
+    patient_id: string;
+    prescribed_by: string | null;
+    status: PrescriptionStatus;
+    diagnosis: string | null;
+    notes: string | null;
+    prescribed_at: string;
+    expires_at: string | null;
+    created_at: string;
+    // Joined
+    patient?: Pick<Patient, 'id' | 'full_name' | 'phone'>;
+    prescriber?: Pick<User, 'id' | 'full_name' | 'email'>;
+    items?: PrescriptionItem[];
+}
+
+export interface PrescriptionItem {
+    id: string;
+    prescription_id: string;
+    item_id: string | null;
+    drug_name: string;
+    quantity: number;
+    dosage: string | null;
+    frequency: string | null;
+    duration: string | null;
+    instructions: string | null;
+    is_dispensed: boolean;
+    dispensed_at: string | null;
+    // Joined
+    inventory_item?: Pick<InventoryItem, 'id' | 'name' | 'quantity' | 'unit'>;
+}
+
+export type MedicalRecordType = 'consultation' | 'lab_result' | 'imaging' | 'procedure' | 'note';
+
+export interface MedicalRecord {
+    id: string;
+    tenant_id: string;
+    patient_id: string;
+    record_type: MedicalRecordType;
+    title: string;
+    data: Record<string, unknown>;
+    created_by: string | null;
+    created_at: string;
+    // Joined
+    creator?: Pick<User, 'id' | 'full_name' | 'email'>;
+}
+
+export type BillingStatus = 'pending' | 'paid' | 'partial' | 'refunded' | 'written_off';
+
+export interface BillingRecord {
+    id: string;
+    tenant_id: string;
+    patient_id: string | null;
+    transaction_id: string | null;
+    prescription_id: string | null;
+    amount: number;
+    status: BillingStatus;
+    description: string | null;
+    created_at: string;
+    // Joined
+    patient?: Pick<Patient, 'id' | 'full_name'>;
+    transaction?: Pick<SaleTransaction, 'id' | 'invoice_number' | 'total'>;
 }

@@ -4,10 +4,10 @@ import type { HourlySales } from '../../hooks/useLiveSalesDashboard';
 
 export function HourlyRevenueChart({ data }: { data: HourlySales[] }) {
     return (
-        <Card className="p-5 flex-1">
-            <h3 className="text-base font-bold text-text-main mb-4">Today's Revenue Trend</h3>
-            <div className="w-full" style={{ height: 300 }}>
-                <ResponsiveContainer width="100%" height={300}>
+        <Card className="p-3 md:p-5 flex-1">
+            <h3 className="text-sm md:text-base font-bold text-text-main mb-3 md:mb-4">Today's Revenue Trend</h3>
+            <div className="w-full h-[220px] sm:h-[260px] md:h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                         <defs>
                             <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">

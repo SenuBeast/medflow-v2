@@ -7,10 +7,10 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
     return (
-        <div className="flex h-screen overflow-hidden bg-surface">
+        <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-surface">
             <Sidebar />
             <main className="flex-1 overflow-y-auto text-text-main">
-                <div className="min-h-full p-6 md:p-8">
+                <div className="min-h-full p-4 md:p-6 lg:p-8">
                     {children}
                 </div>
             </main>

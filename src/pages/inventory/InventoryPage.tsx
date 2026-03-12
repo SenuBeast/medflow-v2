@@ -59,7 +59,7 @@ function ItemForm({
 
     return (
         <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                     label="Name *"
                     placeholder="e.g. Paracetamol 500mg"
@@ -147,7 +147,7 @@ function ItemForm({
                 </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2">
                 <Button variant="secondary" onClick={onClose}>Cancel</Button>
                 <Button
                     variant="primary"
@@ -158,6 +158,123 @@ function ItemForm({
                 </Button>
             </div>
         </div>
+    );
+}
+
+// ─── Mobile Card View for Inventory Items ─────────────────────────────────────
+function InventoryMobileCard({
+    item,
+    isLow,
+    isExpiring,
+    in30,
+    onExpand,
+    isExpanded,
+    onAdjust,
+    onEdit,
+    onDelete,
+}: {
+    item: InventoryItem;
+    isLow: boolean;
+    isExpiring: boolean;
+    in30: Date;
+    onExpand: () => void;
+    isExpanded: boolean;
+    onAdjust: () => void;
+    onEdit: () => void;
+    onDelete: () => void;
+}) {
+    return (
+        <Card className="p-4">
+            <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {item.is_controlled && (
+                            <ShieldAlert size={13} className="text-danger shrink-0" />
+                        )}
+                        <span className="text-sm font-semibold text-text-main">{item.name}</span>
+                    </div>
+                    {item.sku && <p className="text-xs text-text-dim font-mono mt-0.5">{item.sku}</p>}
+                </div>
+                <span className={clsx(
+                    'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0',
+                    isLow ? 'bg-warning-bg text-warning' : 'bg-success-bg text-success'
+                )}>
+                    {isLow ? 'Low Stock' : 'In Stock'}
+                </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-3 text-sm">
+                <div>
+                    <span className="text-xs text-text-dim">Category</span>
+                    <p className="text-text-sub font-medium">{item.category ?? '—'}</p>
+                </div>
+                <div>
+                    <span className="text-xs text-text-dim">Stock</span>
+                    <div className="flex items-center gap-1.5">
+                        <span className={clsx('font-semibold', isLow ? 'text-warning' : 'text-text-main')}>
+                            {item.quantity}
+                        </span>
+                        <span className="text-xs text-text-dim">{item.unit}</span>
+                        {isLow && <AlertTriangle size={12} className="text-warning" />}
+                    </div>
+                </div>
+                <div>
+                    <span className="text-xs text-text-dim">Price</span>
+                    <p className="text-text-sub font-medium">
+                        {item.selling_price ? `$${item.selling_price.toFixed(2)}` : '—'}
+                    </p>
+                </div>
+                <div>
+                    <span className="text-xs text-text-dim">Expiry</span>
+                    {item.expiry_date ? (
+                        <p className={clsx('text-xs font-medium', isExpiring ? 'text-warning' : 'text-text-sub')}>
+                            {isExpiring && <Calendar size={10} className="inline mr-1" />}
+                            {new Date(item.expiry_date).toLocaleDateString()}
+                        </p>
+                    ) : (
+                        <p className="text-xs text-text-dim/50">—</p>
+                    )}
+                </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border-dim/50">
+                <PermissionGuard permission={PERMISSIONS.INVENTORY_ADJUST}>
+                    <button
+                        onClick={onAdjust}
+                        className="flex-1 flex items-center justify-center gap-1.5 p-2 text-xs font-medium text-text-dim hover:text-brand hover:bg-brand-subtle rounded-lg transition min-h-[40px]"
+                        title="Adjust stock"
+                    >
+                        <ArrowUpDown size={14} /> Adjust
+                    </button>
+                </PermissionGuard>
+                <PermissionGuard permission={PERMISSIONS.INVENTORY_EDIT}>
+                    <button
+                        onClick={onEdit}
+                        className="flex-1 flex items-center justify-center gap-1.5 p-2 text-xs font-medium text-text-dim hover:text-brand hover:bg-brand-subtle rounded-lg transition min-h-[40px]"
+                        title="Edit item"
+                    >
+                        <Edit size={14} /> Edit
+                    </button>
+                </PermissionGuard>
+                <PermissionGuard permission={PERMISSIONS.INVENTORY_EDIT}>
+                    <button
+                        onClick={onDelete}
+                        className="flex-1 flex items-center justify-center gap-1.5 p-2 text-xs font-medium text-text-dim hover:text-danger hover:bg-danger-bg rounded-lg transition min-h-[40px]"
+                        title="Delete item"
+                    >
+                        <Trash2 size={14} /> Delete
+                    </button>
+                </PermissionGuard>
+                <button
+                    onClick={onExpand}
+                    className="p-2 text-text-dim hover:text-text-main rounded-lg transition min-h-[40px]"
+                    title="View batches"
+                >
+                    {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+            </div>
+        </Card>
     );
 }
 
@@ -193,29 +310,31 @@ export function InventoryPage() {
     });
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-bold text-text-main">Inventory</h1>
+                    <h1 className="text-xl md:text-2xl font-bold text-text-main">Inventory</h1>
                     <p className="text-text-sub text-sm mt-0.5">{items.length} items total</p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-2 sm:gap-3">
                     <PermissionGuard permission={PERMISSIONS.INVENTORY_BULK_IMPORT}>
                         <Button variant="secondary" icon={<Upload size={16} />} onClick={() => setShowImport(true)}>
-                            Import CSV
+                            <span className="hidden sm:inline">Import CSV</span>
+                            <span className="sm:hidden">Import</span>
                         </Button>
                     </PermissionGuard>
                     <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
                         <Button variant="primary" icon={<Plus size={16} />} onClick={() => setShowAdd(true)}>
-                            Add Item
+                            <span className="hidden sm:inline">Add Item</span>
+                            <span className="sm:hidden">Add</span>
                         </Button>
                     </PermissionGuard>
                 </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-                <div className="relative flex-1 min-w-60">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3">
+                <div className="relative flex-1 min-w-0 sm:min-w-60">
                     <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-dim" />
                     <input
                         className="w-full pl-9 pr-4 py-2 rounded-xl border border-border-main text-sm bg-card text-text-main focus:outline-none focus:ring-2 focus:ring-brand/10 focus:border-brand"
@@ -224,7 +343,7 @@ export function InventoryPage() {
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
-                <div className="flex gap-1 bg-surface-dim/50 border border-border-dim/50 p-1 rounded-2xl">
+                <div className="flex gap-1 bg-surface-dim/50 border border-border-dim/50 p-1 rounded-2xl overflow-x-auto">
                     {([
                         { key: 'all', label: 'All Items' },
                         { key: 'low', label: 'Low Stock' },
@@ -237,7 +356,7 @@ export function InventoryPage() {
                                 key={key}
                                 onClick={() => setFilter(key)}
                                 className={clsx(
-                                    'px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all duration-200 whitespace-nowrap',
+                                    'px-3 sm:px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all duration-200 whitespace-nowrap',
                                     isActive
                                         ? 'bg-text-main text-text-inverse shadow-md scale-[1.05]'
                                         : 'text-text-dim hover:text-text-main hover:bg-surface-elevated/50'
@@ -250,8 +369,124 @@ export function InventoryPage() {
                 </div>
             </div>
 
-            {/* Table */}
-            <Card padding="none">
+            {/* ─── Mobile Card View ──────────────────────────────────────── */}
+            <div className="md:hidden space-y-3">
+                {isLoading ? (
+                    <div className="py-12 text-center text-text-dim text-sm">Loading inventory...</div>
+                ) : filtered.length === 0 ? (
+                    <div className="py-12 text-center">
+                        <PackageOpen size={36} className="text-gray-200 mx-auto mb-2" />
+                        <p className="text-text-dim text-sm">No items found</p>
+                    </div>
+                ) : (
+                    filtered.map((item) => {
+                        const isLow = item.quantity <= item.minimum_order_quantity;
+                        const isExpiring = !!(item.expiry_date && new Date(item.expiry_date) <= in30);
+                        const isExpanded = expandedItemId === item.id;
+                        return (
+                            <div key={item.id}>
+                                <InventoryMobileCard
+                                    item={item}
+                                    isLow={isLow}
+                                    isExpiring={isExpiring}
+                                    in30={in30}
+                                    onExpand={() => setExpandedItemId(isExpanded ? null : item.id)}
+                                    isExpanded={isExpanded}
+                                    onAdjust={() => setAdjustItem(item)}
+                                    onEdit={() => setEditItem(item)}
+                                    onDelete={() => deleteItem.mutate(item.id)}
+                                />
+                                {/* Expanded Batches */}
+                                {isExpanded && (
+                                    <Card className="mt-1 p-4 bg-card/30 border-t-0 rounded-t-none">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h4 className="text-[10px] font-bold text-text-dim uppercase tracking-widest">Item Batches</h4>
+                                            <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                <Button variant="outline" size="sm" onClick={() => setShowAddBatch(item.id)}>
+                                                    + Add Batch
+                                                </Button>
+                                            </PermissionGuard>
+                                        </div>
+                                        {(!item.batches || item.batches.length === 0) ? (
+                                            <p className="text-sm text-text-dim py-4 text-center border border-dashed border-border-main rounded-xl bg-card">No batches recorded.</p>
+                                        ) : (
+                                            <div className="space-y-2">
+                                                {item.batches.map(batch => (
+                                                    <div key={batch.id} className="p-3 rounded-xl bg-surface border border-border-dim/30 space-y-2">
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="font-mono text-xs text-text-main font-semibold">{batch.batch_number}</span>
+                                                            <span className={clsx('px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider',
+                                                                batch.status === 'active' ? 'bg-success-bg text-success' :
+                                                                    batch.status === 'quarantined' ? 'bg-warning-bg text-warning' :
+                                                                        'bg-surface text-text-dim'
+                                                            )}>
+                                                                {batch.status}
+                                                            </span>
+                                                        </div>
+                                                        <div className="grid grid-cols-3 gap-2 text-xs">
+                                                            <div>
+                                                                <span className="text-text-dim">Qty</span>
+                                                                <p className="font-bold text-text-main">{batch.quantity}</p>
+                                                            </div>
+                                                            <div>
+                                                                <span className="text-text-dim">Supplier</span>
+                                                                <p className="text-text-sub">{batch.supplier || '—'}</p>
+                                                            </div>
+                                                            <div>
+                                                                <span className="text-text-dim">Expiry</span>
+                                                                <p className="text-text-sub">{new Date(batch.expiry_date).toLocaleDateString()}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 pt-1">
+                                                            {batch.status === 'active' && (
+                                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_EXPIRY_MANAGE}>
+                                                                    <button
+                                                                        onClick={() => updateBatchStatus.mutate({ id: batch.id, status: 'quarantined' })}
+                                                                        className="text-[10px] font-bold text-warning hover:text-warning/80 bg-warning-bg px-2.5 py-1.5 rounded-lg transition uppercase tracking-wider min-h-[32px]"
+                                                                    >
+                                                                        Quarantine
+                                                                    </button>
+                                                                </PermissionGuard>
+                                                            )}
+                                                            {batch.status === 'quarantined' && (
+                                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_EXPIRY_MANAGE}>
+                                                                    <button
+                                                                        onClick={() => updateBatchStatus.mutate({ id: batch.id, status: 'active' })}
+                                                                        className="text-[10px] font-bold text-success hover:text-success/80 bg-success-bg px-2.5 py-1.5 rounded-lg transition uppercase tracking-wider min-h-[32px]"
+                                                                    >
+                                                                        Restore
+                                                                    </button>
+                                                                </PermissionGuard>
+                                                            )}
+                                                            {batch.status !== 'disposed' && (
+                                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_EXPIRY_DISPOSE}>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            if (window.confirm(`Dispose of batch ${batch.batch_number}? This cannot be undone.`)) {
+                                                                                updateBatchStatus.mutate({ id: batch.id, status: 'disposed' });
+                                                                            }
+                                                                        }}
+                                                                        className="text-[10px] font-bold text-danger hover:text-danger/80 bg-danger-bg px-2.5 py-1.5 rounded-lg transition uppercase tracking-wider min-h-[32px]"
+                                                                    >
+                                                                        Dispose
+                                                                    </button>
+                                                                </PermissionGuard>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </Card>
+                                )}
+                            </div>
+                        );
+                    })
+                )}
+            </div>
+
+            {/* ─── Desktop Table View ────────────────────────────────────── */}
+            <Card padding="none" className="hidden md:block">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>

@@ -135,16 +135,16 @@ export function ProfilePage() {
     };
 
     return (
-        <div className="max-w-3xl mx-auto space-y-6 pb-12">
+        <div className="max-w-3xl mx-auto space-y-4 md:space-y-6 pb-12">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-text-main tracking-tight">My Profile</h1>
-                <p className="text-sm text-text-dim mt-1">Manage your account information and security settings.</p>
+                <h1 className="text-xl md:text-2xl font-bold text-text-main tracking-tight">My Profile</h1>
+                <p className="text-xs md:text-sm text-text-dim mt-1">Manage your account information and security settings.</p>
             </div>
 
             {/* Profile Header Card */}
-            <Card className="p-6">
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+            <Card className="p-4 md:p-6">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 md:gap-6">
                     {/* Avatar with Dropdown Menu */}
                     <div className="relative shrink-0 group">
                         <UserAvatar url={displayAvatar} name={fullName || user.full_name} size="lg" />
@@ -212,8 +212,8 @@ export function ProfilePage() {
 
                     {/* Identity info */}
                     <div className="flex-1 text-center sm:text-left space-y-1">
-                        <h2 className="text-xl font-bold text-text-main">{user.full_name || 'Unnamed User'}</h2>
-                        <p className="text-sm text-text-dim flex items-center justify-center sm:justify-start gap-1.5">
+                        <h2 className="text-lg md:text-xl font-bold text-text-main">{user.full_name || 'Unnamed User'}</h2>
+                        <p className="text-xs md:text-sm text-text-dim flex items-center justify-center sm:justify-start gap-1.5">
                             <Mail size={14} /> {user.email}
                         </p>
                         <div className="flex items-center justify-center sm:justify-start gap-2 pt-1">
@@ -231,8 +231,8 @@ export function ProfilePage() {
             </Card>
 
             {/* Edit Profile */}
-            <Card className="p-6 space-y-5">
-                <h3 className="text-base font-bold text-text-main flex items-center gap-2">
+            <Card className="p-4 md:p-6 space-y-4 md:space-y-5">
+                <h3 className="text-sm md:text-base font-bold text-text-main flex items-center gap-2">
                     <User size={16} className="text-brand" /> Edit Profile
                 </h3>
 
@@ -295,12 +295,12 @@ export function ProfilePage() {
             </Card>
 
             {/* Connected Accounts */}
-            <Card className="p-6 space-y-4">
-                <h3 className="text-base font-bold text-text-main flex items-center gap-2">
+            <Card className="p-4 md:p-6 space-y-4">
+                <h3 className="text-sm md:text-base font-bold text-text-main flex items-center gap-2">
                     <LinkIcon size={16} className="text-brand" /> Connected Accounts
                 </h3>
 
-                <div className="flex items-center justify-between p-4 rounded-xl bg-surface-dim border border-border-dim">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 md:p-4 rounded-xl bg-surface-dim border border-border-dim">
                     <div className="flex items-center gap-3">
                         {/* Google logo */}
                         <div className="w-9 h-9 rounded-full bg-white shadow-sm border border-border-dim flex items-center justify-center shrink-0">
@@ -331,11 +331,11 @@ export function ProfilePage() {
 
             {/* Security (email users only) */}
             {isEmailOnly && (
-                <Card className="p-6 space-y-4">
-                    <h3 className="text-base font-bold text-text-main flex items-center gap-2">
+                <Card className="p-4 md:p-6 space-y-4">
+                    <h3 className="text-sm md:text-base font-bold text-text-main flex items-center gap-2">
                         <Lock size={16} className="text-brand" /> Security
                     </h3>
-                    <div className="flex items-center justify-between p-4 rounded-xl bg-surface-dim border border-border-dim">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 md:p-4 rounded-xl bg-surface-dim border border-border-dim">
                         <div>
                             <p className="text-sm font-semibold text-text-main">Password</p>
                             <p className="text-xs text-text-dim">Send a password reset link to your email.</p>

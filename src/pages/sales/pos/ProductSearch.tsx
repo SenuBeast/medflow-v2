@@ -82,7 +82,7 @@ export function ProductSearch({ onAddToCart, cartItemIds }: ProductSearchProps) 
             </div>
 
             {/* Product Grid */}
-            <div className="flex-1 overflow-y-auto p-4 grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
+            <div className="flex-1 overflow-y-auto p-2 sm:p-4 grid grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(170px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-2 sm:gap-3">
                 {isLoading ? (
                     Array.from({ length: 8 }).map((_, i) => (
                         <div key={i} className="h-28 rounded-xl bg-gray-100 animate-pulse" />
@@ -113,7 +113,7 @@ export function ProductSearch({ onAddToCart, cartItemIds }: ProductSearchProps) 
                                 onClick={() => handleAdd(item)}
                                 disabled={totalStock === 0}
                                 className={clsx(
-                                    'relative text-left p-3 rounded-xl border-2 transition-all duration-150 group',
+                                    'relative text-left p-2.5 sm:p-3 rounded-xl border-2 transition-all duration-150 group',
                                     isAlreadyInCart
                                         ? 'border-blue-400 bg-blue-50/60 ring-1 ring-blue-200'
                                         : 'border-border-dim bg-card hover:border-blue-300 hover:shadow-md',
@@ -139,8 +139,8 @@ export function ProductSearch({ onAddToCart, cartItemIds }: ProductSearchProps) 
                                     )}
                                 </div>
 
-                                <p className="text-sm font-semibold text-text-main leading-tight mb-1 line-clamp-2">{item.name}</p>
-                                {item.sku && <p className="text-xs text-text-dim font-mono mb-2">{item.sku}</p>}
+                                <p className="text-xs sm:text-sm font-semibold text-text-main leading-tight mb-1 line-clamp-2">{item.name}</p>
+                                {item.sku && <p className="text-[10px] sm:text-xs text-text-dim font-mono mb-2">{item.sku}</p>}
 
                                 <div className="flex items-center justify-between mt-auto">
                                     <span className={clsx('text-xs font-semibold px-2 py-0.5 rounded-full', stockColor)}>

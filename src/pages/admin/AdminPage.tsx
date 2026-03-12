@@ -65,12 +65,13 @@ function NavItemVisible({ item, activeSection, setActiveSection }: { item: NavIt
         <button
             onClick={() => setActiveSection(id)}
             className={clsx(
-                'relative flex items-center gap-2 px-4 py-4 text-sm font-bold transition-all whitespace-nowrap group',
+                'relative flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-3 md:py-4 text-xs md:text-sm font-bold transition-all whitespace-nowrap group',
                 isActive ? 'text-brand' : 'text-text-dim hover:text-text-main'
             )}
         >
-            <Icon size={16} className={clsx('transition-colors', isActive ? 'text-brand' : 'text-text-dim group-hover:text-text-main')} />
-            {label}
+            <Icon size={14} className={clsx('transition-colors md:w-4 md:h-4', isActive ? 'text-brand' : 'text-text-dim group-hover:text-text-main')} />
+            <span className="hidden sm:inline">{label}</span>
+            <span className="sm:hidden">{label.split(' ')[0]}</span>
             {isActive && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand rounded-t-full shadow-[0_-2px_6px_rgba(20,110,245,0.3)] animate-in fade-in slide-in-from-bottom-1 duration-300" />
             )}
@@ -84,16 +85,16 @@ export function AdminPage() {
     const currentNav = NAV_ITEMS.find(n => n.id === activeSection);
 
     return (
-        <div className="max-w-[1400px] mx-auto space-y-6">
+        <div className="max-w-[1400px] mx-auto space-y-4 md:space-y-6">
             <header className="flex flex-col gap-1">
-                <div className="flex items-center gap-2 text-sm text-text-sub">
+                <div className="flex items-center gap-2 text-xs md:text-sm text-text-sub">
                     <span className="font-medium">Admin Panel</span>
                     <ChevronRight size={13} />
                     <span className="text-text-main font-semibold">{currentNav?.label}</span>
                 </div>
             </header>
 
-            <div className="flex flex-col border-b border-border-dim overflow-x-auto no-scrollbar">
+            <div className="flex flex-col border-b border-border-dim overflow-x-auto scrollbar-none">
                 <nav className="flex items-center">
                     {NAV_ITEMS.map(item => (
                         <NavItemVisible
@@ -108,9 +109,9 @@ export function AdminPage() {
 
             {/* Section Content */}
             <main className="min-w-0">
-                <div className="mb-6">
-                    <h2 className="text-xl font-bold text-text-main">{currentNav?.label}</h2>
-                    <p className="text-sm text-text-sub mt-1">{currentNav?.description}</p>
+                <div className="mb-4 md:mb-6">
+                    <h2 className="text-lg md:text-xl font-bold text-text-main">{currentNav?.label}</h2>
+                    <p className="text-xs md:text-sm text-text-sub mt-1">{currentNav?.description}</p>
                 </div>
 
                 <PermissionGuard
