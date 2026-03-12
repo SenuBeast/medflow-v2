@@ -107,7 +107,7 @@ function POSNavItem({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
 }
 
 // ─── Mobile Top Bar ───────────────────────────────────────────────────────────
-export function MobileTopBar({ onToggle, cartCount }: { onToggle: () => void; cartCount?: number }) {
+export function MobileTopBar({ onToggle }: { onToggle: () => void }) {
     return (
         <div className="md:hidden flex items-center justify-between px-4 py-3 bg-[var(--sidebar-bg)] border-b border-[var(--sidebar-border)] sticky top-0 z-40">
             <div className="flex items-center gap-2">

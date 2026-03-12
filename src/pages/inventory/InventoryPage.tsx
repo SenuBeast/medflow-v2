@@ -166,7 +166,6 @@ function InventoryMobileCard({
     item,
     isLow,
     isExpiring,
-    in30,
     onExpand,
     isExpanded,
     onAdjust,
@@ -176,7 +175,6 @@ function InventoryMobileCard({
     item: InventoryItem;
     isLow: boolean;
     isExpiring: boolean;
-    in30: Date;
     onExpand: () => void;
     isExpanded: boolean;
     onAdjust: () => void;
@@ -389,7 +387,6 @@ export function InventoryPage() {
                                     item={item}
                                     isLow={isLow}
                                     isExpiring={isExpiring}
-                                    in30={in30}
                                     onExpand={() => setExpandedItemId(isExpanded ? null : item.id)}
                                     isExpanded={isExpanded}
                                     onAdjust={() => setAdjustItem(item)}
