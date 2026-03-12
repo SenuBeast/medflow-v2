@@ -3,6 +3,7 @@ import { Settings, Bell, Calendar, Building2, Save, ToggleLeft, ToggleRight } fr
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { useToast } from '../../components/ui/Toast';
+import { notificationService } from '../../lib/notificationService';
 
 interface SettingsState {
     company_name: string;
@@ -41,7 +42,7 @@ function SettingRow({ label, description, children }: { label: string; descripti
 }
 
 export function SystemSettingsPage() {
-    const { success } = useToast();
+    const { success, error } = useToast();
     const [saving, setSaving] = useState(false);
     const [settings, setSettings] = useState<SettingsState>({
         company_name: 'MedFlow Healthcare',
@@ -110,7 +111,25 @@ export function SystemSettingsPage() {
                     <Bell size={15} className="text-amber-500" /> Alerts & Notifications
                 </h3>
                 <SettingRow label="Enable Alerts" description="Show system notifications for critical events">
-                    <Toggle on={settings.enable_alerts} onToggle={() => set('enable_alerts', !settings.enable_alerts)} label="Enable Alerts" />
+                    <Toggle 
+                        on={settings.enable_alerts} 
+                        onToggle={async () => {
+                            if (!settings.enable_alerts) {
+                                // Requesting permission when turning ON
+                                const permission = await notificationService.requestPermission();
+                                if (permission === 'denied') {
+                                    error('Notification permission denied. Please enable it in your browser settings.');
+                                    return;
+                                }
+                                if (permission === 'default') {
+                                    return; // User dismissed, don't toggle
+                                }
+                                success('Notifications enabled!');
+                            }
+                            set('enable_alerts', !settings.enable_alerts);
+                        }} 
+                        label="Enable Alerts" 
+                    />
                 </SettingRow>
                 <SettingRow label="Expiry Warnings" description="Warn when batches are close to expiry">
                     <Toggle on={settings.enable_expiry_warnings} onToggle={() => set('enable_expiry_warnings', !settings.enable_expiry_warnings)} label="Expiry Warnings" />
