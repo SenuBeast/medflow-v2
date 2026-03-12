@@ -24,8 +24,8 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     }
 
     if (!isTwoFactorVerified) {
-        // Force them back to the login screen to properly restart the flow if they are unverified
-        return <Navigate to="/login" replace />;
+        const next = `${location.pathname}${location.search}`;
+        return <Navigate to={`/verify-2fa?next=${encodeURIComponent(next)}`} replace state={{ from: location }} />;
     }
 
     return <>{children}</>;

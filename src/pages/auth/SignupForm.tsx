@@ -45,7 +45,7 @@ export function SignupForm({ onSignedUp, onSwitchToLogin }: SignupFormProps) {
                 options: { data: { full_name: fullName } },
             });
             if (signUpError) throw signUpError;
-            success('Account created! Check your email for the verification code.');
+            success('Account created. You can now sign in.');
             onSignedUp(email);
         } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : 'Sign up failed';

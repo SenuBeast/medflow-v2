@@ -1,19 +1,18 @@
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { hasPermission, useHasPermission } from '../lib/permissionUtils';
+import { getMfaAssuranceState } from '../lib/mfa';
 import type { User } from '../lib/types';
 
 async function fetchUserProfile(userId: string): Promise<User | null> {
-    // Step 1: fetch the user row (no joins — avoid PostgREST FK ambiguity)
     const { data: user, error: userError } = await supabase
         .from('users')
         .select('*')
         .eq('id', userId)
-        .maybeSingle();  // maybeSingle avoids 406 when 0 rows returned
+        .maybeSingle();
 
     if (userError || !user) return null;
 
-    // Step 2: fetch the role row separately
     let role = null;
     if (user.role_id) {
         const { data: roleData } = await supabase
@@ -24,7 +23,6 @@ async function fetchUserProfile(userId: string): Promise<User | null> {
         role = roleData;
     }
 
-    // Step 3: fetch permissions for this role
     let permissions: unknown[] = [];
     if (user.role_id) {
         const { data: rpData } = await supabase
@@ -40,33 +38,36 @@ async function fetchUserProfile(userId: string): Promise<User | null> {
     return { ...user, role: { ...role, permissions } } as User;
 }
 
-async function ensureUserRecord(userId: string, email: string, userMetadata?: Record<string, unknown>, appMetadata?: Record<string, unknown>): Promise<void> {
-    console.log('[AUTH DEBUG] ensureUserRecord called for', email);
-    console.log('[AUTH DEBUG] raw appMetadata:', JSON.stringify(appMetadata));
-    console.log('[AUTH DEBUG] raw userMetadata:', JSON.stringify(userMetadata));
-
+async function ensureUserRecord(
+    userId: string,
+    email: string,
+    userMetadata?: Record<string, unknown>,
+    appMetadata?: Record<string, unknown>
+): Promise<void> {
     const { data, error } = await supabase
-        .from('users').select('id, full_name, avatar_url').eq('id', userId).maybeSingle();
+        .from('users')
+        .select('id')
+        .eq('id', userId)
+        .maybeSingle();
 
-    // The primary 'provider' might be 'email', but if they linked Google, it will be in the 'providers' array.
     const providersArray = (appMetadata?.providers as string[]) ?? [];
     const isGoogleLinked = providersArray.includes('google');
 
-    // Determine the normalized provider string for our DB ('email', 'google', or 'email+google')
     const provider = isGoogleLinked && providersArray.includes('email')
         ? 'email+google'
         : isGoogleLinked
             ? 'google'
             : 'email';
 
-    // Extract Google-supplied fields
     const googleName = (userMetadata?.full_name ?? userMetadata?.name ?? null) as string | null;
     const googleAvatar = (userMetadata?.avatar_url ?? null) as string | null;
 
     if (error || !data) {
-        // New user — insert with defaults
         const { data: viewerRole } = await supabase
-            .from('roles').select('id').eq('name', 'Viewer').maybeSingle();
+            .from('roles')
+            .select('id')
+            .eq('name', 'Viewer')
+            .maybeSingle();
 
         if (viewerRole) {
             await supabase.from('users').insert({
@@ -79,37 +80,43 @@ async function ensureUserRecord(userId: string, email: string, userMetadata?: Re
                 is_active: true,
             });
         }
-    } else {
-        // Existing user — only patch the 'provider' field if they linked Google, so we know they have Google linked.
-        // We DO NOT auto-patch full_name or avatar_url here anymore, to avoid reverting user's manual changes or deletions.
-        if (isGoogleLinked) {
-            await supabase.from('users').update({
-                provider: provider,
+        return;
+    }
+
+    if (isGoogleLinked) {
+        await supabase
+            .from('users')
+            .update({
+                provider,
                 updated_at: new Date().toISOString(),
-            }).eq('id', userId);
-        }
+            })
+            .eq('id', userId);
     }
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
     return Promise.race([
         promise,
-        new Promise<T>((_, reject) =>
-            setTimeout(() => reject(new Error(`Timed out after ${ms}ms`)), ms)
-        ),
+        new Promise<T>((_, reject) => setTimeout(() => reject(new Error(`Timed out after ${ms}ms`)), ms)),
     ]);
 }
 
-let _loadingUser = false;
+let loadingUser = false;
 
-async function initUser(userId: string, email: string, forceRefresh = false, userMetadata?: Record<string, unknown>, appMetadata?: Record<string, unknown>) {
-    if (_loadingUser) return;
+async function initUser(
+    userId: string,
+    email: string,
+    forceRefresh = false,
+    userMetadata?: Record<string, unknown>,
+    appMetadata?: Record<string, unknown>,
+    deferCompletion = false
+) {
+    if (loadingUser) return;
 
-    // Skip if already loaded for this exact user
     const currentUser = useAuthStore.getState().user;
     if (!forceRefresh && currentUser?.id === userId) return;
 
-    _loadingUser = true;
+    loadingUser = true;
     if (!forceRefresh) useAuthStore.getState().setLoading(true);
 
     try {
@@ -120,98 +127,106 @@ async function initUser(userId: string, email: string, forceRefresh = false, use
             useAuthStore.getState().setUser(profile);
             useAuthStore.getState().setPermissions(profile.role?.permissions ?? []);
         } else {
-            // Profile row missing but auth session valid — mark initialized without reset
-            // Resetting here wipes 2FA flag → triggers signOut → SIGNED_IN loops infinitely
             console.warn('[AUTH] Profile not found for user:', userId);
         }
     } catch (err: unknown) {
-        // Log the error but do NOT reset — resetting causes the sign-out loop
         console.error('[AUTH] Failed to initialize user profile:', err instanceof Error ? err.message : String(err));
     } finally {
-        useAuthStore.getState().setLoading(false);
-        useAuthStore.getState().setInitialized(true);
-        _loadingUser = false;
+        if (!deferCompletion) {
+            useAuthStore.getState().setLoading(false);
+            useAuthStore.getState().setInitialized(true);
+        }
+        loadingUser = false;
     }
 }
 
-let _listenerStarted = false;
-let _realtimeChannel: ReturnType<typeof supabase.channel> | null = null;
+async function syncTwoFactorState() {
+    try {
+        const assurance = await getMfaAssuranceState();
+        useAuthStore.getState().setTwoFactorVerified(!assurance.requiresChallenge);
+    } catch (err: unknown) {
+        console.error('[AUTH] Failed to resolve MFA assurance level:', err instanceof Error ? err.message : String(err));
+        useAuthStore.getState().setTwoFactorVerified(false);
+    }
+}
+
+let realtimeChannel: ReturnType<typeof supabase.channel> | null = null;
 
 function setupRealtimeSync(userId: string, email: string) {
-    if (_realtimeChannel) return;
+    if (realtimeChannel) return;
 
-    _realtimeChannel = supabase.channel('admin_sync')
+    realtimeChannel = supabase.channel('admin_sync')
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users', filter: `id=eq.${userId}` }, () => {
-            console.log('[Realtime] User updated by Admin. Syncing...');
-            initUser(userId, email, true);
+            void initUser(userId, email, true);
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'roles' }, () => {
-            console.log('[Realtime] Roles updated. Syncing...');
-            initUser(userId, email, true);
+            void initUser(userId, email, true);
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'role_permissions' }, () => {
-            console.log('[Realtime] Permissions updated. Syncing...');
-            initUser(userId, email, true);
+            void initUser(userId, email, true);
         })
         .subscribe();
 }
 
 function cleanupRealtimeSync() {
-    if (_realtimeChannel) {
-        supabase.removeChannel(_realtimeChannel);
-        _realtimeChannel = null;
+    if (realtimeChannel) {
+        supabase.removeChannel(realtimeChannel);
+        realtimeChannel = null;
     }
 }
 
-function startGlobalAuthListener() {
-    if (_listenerStarted) return;
-    _listenerStarted = true;
+let listenerStarted = false;
 
-    // 1. Boot Sequence: check if we have a trusted (2FA-verified) session or a dangling unverified one
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
+function startGlobalAuthListener() {
+    if (listenerStarted) return;
+    listenerStarted = true;
+
+    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
         if (error || !session?.user) {
-            // No session: reset to clean state
+            cleanupRealtimeSync();
             useAuthStore.getState().reset();
-        } else if (localStorage.getItem('_mf2a') === '1') {
-            // Session exists AND user completed 2FA: restore fully
-            initUser(session.user.id, session.user.email ?? '').then(() => {
-                useAuthStore.getState().setTwoFactorVerified(true);
-                setupRealtimeSync(session.user.id, session.user.email ?? '');
-            });
-        } else {
-            // Dangling unverified session
-            initUser(session.user.id, session.user.email ?? '');
-            setupRealtimeSync(session.user.id, session.user.email ?? '');
+            return;
         }
+
+        await initUser(
+            session.user.id,
+            session.user.email ?? '',
+            false,
+            session.user.user_metadata,
+            session.user.app_metadata,
+            true
+        );
+        setupRealtimeSync(session.user.id, session.user.email ?? '');
+        await syncTwoFactorState();
+        useAuthStore.getState().setLoading(false);
+        useAuthStore.getState().setInitialized(true);
     });
 
-    // 2. Subsequent Auth Events (after the user actively signs in/out)
     supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_OUT') {
             cleanupRealtimeSync();
             useAuthStore.getState().reset();
-        } else if (['SIGNED_IN', 'USER_UPDATED', 'IDENTITY_LINKED'].includes(event as string)) {
-            if (session?.user) {
-                initUser(
-                    session.user.id,
-                    session.user.email ?? '',
-                    true,
-                    session.user.user_metadata,
-                    session.user.app_metadata
-                );
-                setupRealtimeSync(session.user.id, session.user.email ?? '');
-            }
+            return;
+        }
+
+        if (['SIGNED_IN', 'USER_UPDATED', 'IDENTITY_LINKED', 'TOKEN_REFRESHED', 'MFA_CHALLENGE_VERIFIED'].includes(event as string) && session?.user) {
+            void initUser(
+                session.user.id,
+                session.user.email ?? '',
+                true,
+                session.user.user_metadata,
+                session.user.app_metadata
+            );
+            setupRealtimeSync(session.user.id, session.user.email ?? '');
+            void syncTwoFactorState();
         }
     });
 }
 
-// Start listener immediately upon file parse
 startGlobalAuthListener();
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
-
 export function useAuth() {
-    const { user, permissions, isLoading, isInitialized } = useAuthStore();
+    const { user, permissions, isLoading, isInitialized, isTwoFactorVerified } = useAuthStore();
 
     const signIn = async (email: string, password: string) => {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -242,14 +257,33 @@ export function useAuth() {
     const updateProfile = async (data: { full_name?: string; avatar_url?: string }) => {
         const { user: currentUser } = useAuthStore.getState();
         if (!currentUser) throw new Error('Not authenticated');
+
         const { error } = await supabase
             .from('users')
             .update({ ...data, updated_at: new Date().toISOString() })
             .eq('id', currentUser.id);
         if (error) throw error;
-        // Optimistically update the store
+
         useAuthStore.getState().setUser({ ...currentUser, ...data });
     };
 
-    return { user, permissions, isLoading, isInitialized, hasPermission, useHasPermission, signIn, signInWithGoogle, signOut, linkGoogleAccount, updateProfile };
+    const refreshMfaState = async () => {
+        await syncTwoFactorState();
+    };
+
+    return {
+        user,
+        permissions,
+        isLoading,
+        isInitialized,
+        isTwoFactorVerified,
+        hasPermission,
+        useHasPermission,
+        signIn,
+        signInWithGoogle,
+        signOut,
+        linkGoogleAccount,
+        updateProfile,
+        refreshMfaState,
+    };
 }

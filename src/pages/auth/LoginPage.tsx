@@ -1,16 +1,14 @@
-import { useState, useEffect, type FormEvent } from 'react';
-import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, type FormEvent } from 'react';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Activity, Mail, AlertCircle, ArrowRight, KeyRound } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
-import { sendOtp } from '../../lib/otp';
+import { getMfaAssuranceState } from '../../lib/mfa';
 import { PasswordField } from './PasswordField';
 import { SignupForm } from './SignupForm';
-import { OTPVerification } from './OTPVerification';
 import { useToast } from '../../components/ui/Toast';
 
-// Google logo SVG (official brand colours)
 function GoogleLogo() {
     return (
         <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -22,10 +20,8 @@ function GoogleLogo() {
     );
 }
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-type AuthStep = 'login' | 'signup' | 'otp' | 'forgot';
+type AuthStep = 'login' | 'signup' | 'forgot';
 
-// ─── Forgot Password mini-form ────────────────────────────────────────────────
 function ForgotPassword({ onBack }: { onBack: () => void }) {
     const [email, setEmail] = useState('');
     const [sent, setSent] = useState(false);
@@ -41,7 +37,7 @@ function ForgotPassword({ onBack }: { onBack: () => void }) {
             });
             if (error) throw error;
             setSent(true);
-            success('Password reset email sent!');
+            success('Password reset email sent.');
         } catch {
             toastError('Failed to send reset email. Check the address.');
         } finally {
@@ -57,7 +53,7 @@ function ForgotPassword({ onBack }: { onBack: () => void }) {
                 </div>
                 <h2 className="text-white font-bold text-xl">Reset Password</h2>
                 <p className="text-text-dim text-sm mt-1">
-                    {sent ? "We've sent a reset link to your email." : "Enter your email to receive a password reset link."}
+                    {sent ? "We've sent a reset link to your email." : 'Enter your email to receive a password reset link.'}
                 </p>
             </div>
             {!sent && (
@@ -69,7 +65,7 @@ function ForgotPassword({ onBack }: { onBack: () => void }) {
                             required
                             placeholder="your@email.com"
                             value={email}
-                            onChange={e => setEmail(e.target.value)}
+                            onChange={(e) => setEmail(e.target.value)}
                             className="w-full pl-9 pr-4 py-2.5 bg-card/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
                         />
                     </div>
@@ -78,27 +74,33 @@ function ForgotPassword({ onBack }: { onBack: () => void }) {
                         disabled={loading || !email}
                         className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm disabled:opacity-40 flex items-center justify-center gap-2 transition-all"
                     >
-                        {loading
-                            ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Sending…</>
-                            : <><ArrowRight size={15} /> Send Reset Link</>
-                        }
+                        {loading ? (
+                            <>
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                Sending...
+                            </>
+                        ) : (
+                            <>
+                                <ArrowRight size={15} />
+                                Send Reset Link
+                            </>
+                        )}
                     </button>
                 </form>
             )}
             <button onClick={onBack} className="w-full text-center text-sm text-text-sub hover:text-gray-300 transition-colors">
-                ← Back to sign in
+                Back to sign in
             </button>
         </div>
     );
 }
 
-// ─── Login Form ───────────────────────────────────────────────────────────────
 function LoginForm({
     onSuccess,
     onSwitchToSignup,
     onForgotPassword,
 }: {
-    onSuccess: (email: string) => void;
+    onSuccess: () => void;
     onSwitchToSignup: () => void;
     onForgotPassword: () => void;
 }) {
@@ -116,7 +118,6 @@ function LoginForm({
         setGoogleLoading(true);
         try {
             await signInWithGoogle();
-            // Page will redirect to Google — no further action needed here
         } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : 'Google sign-in failed';
             toastError(msg);
@@ -133,16 +134,17 @@ function LoginForm({
         setLoading(true);
         try {
             await signIn(email, password);
-            onSuccess(email);
+            onSuccess();
         } catch (err: unknown) {
             const raw = err instanceof Error ? err.message : 'Authentication failed';
-            const friendly =
-                raw.toLowerCase().includes('invalid') ? 'Incorrect email or password.' :
-                    raw.toLowerCase().includes('network') ? 'Network error. Check your connection.' :
-                        'Authentication failed. Please try again.';
+            const friendly = raw.toLowerCase().includes('invalid')
+                ? 'Incorrect email or password.'
+                : raw.toLowerCase().includes('network')
+                    ? 'Network error. Check your connection.'
+                    : 'Authentication failed. Please try again.';
             setError(friendly);
             toastError(friendly);
-            setAttempts(a => a + 1);
+            setAttempts((a) => a + 1);
         } finally {
             setLoading(false);
         }
@@ -150,7 +152,6 @@ function LoginForm({
 
     return (
         <div className="space-y-5">
-            {/* Google Button */}
             <button
                 type="button"
                 onClick={handleGoogleSignIn}
@@ -161,10 +162,9 @@ function LoginForm({
                     ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     : <GoogleLogo />
                 }
-                {googleLoading ? 'Redirecting…' : 'Continue with Google'}
+                {googleLoading ? 'Redirecting...' : 'Continue with Google'}
             </button>
 
-            {/* Divider */}
             <div className="flex items-center gap-3">
                 <div className="flex-1 h-px bg-card/10" />
                 <span className="text-xs text-text-sub font-medium uppercase tracking-wider">or</span>
@@ -172,7 +172,6 @@ function LoginForm({
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-                {/* Email */}
                 <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1.5" htmlFor="login-email">Email Address</label>
                     <div className="relative">
@@ -181,7 +180,7 @@ function LoginForm({
                             id="login-email"
                             type="email"
                             value={email}
-                            onChange={e => { setEmail(e.target.value); setError(null); }}
+                            onChange={(e) => { setEmail(e.target.value); setError(null); }}
                             required
                             placeholder="admin@medflow.com"
                             autoComplete="email"
@@ -190,7 +189,6 @@ function LoginForm({
                     </div>
                 </div>
 
-                {/* Password */}
                 <PasswordField
                     label="Password"
                     value={password}
@@ -198,13 +196,12 @@ function LoginForm({
                     autoComplete="current-password"
                 />
 
-                {/* Remember me + Forgot */}
                 <div className="flex items-center justify-between">
                     <label className="flex items-center gap-2 cursor-pointer select-none">
                         <input
                             type="checkbox"
                             checked={rememberMe}
-                            onChange={e => setRememberMe(e.target.checked)}
+                            onChange={(e) => setRememberMe(e.target.checked)}
                             className="w-4 h-4 rounded border-white/20 bg-card/5 text-blue-600 focus:ring-blue-500/50"
                         />
                         <span className="text-sm text-text-dim">Remember me</span>
@@ -218,7 +215,6 @@ function LoginForm({
                     </button>
                 </div>
 
-                {/* Rate limit warning */}
                 {attempts >= 3 && attempts < 5 && (
                     <div className="flex items-center gap-2 text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3 text-sm">
                         <AlertCircle size={14} className="shrink-0" />
@@ -226,33 +222,34 @@ function LoginForm({
                     </div>
                 )}
 
-                {/* Error */}
                 {error && (
                     <div className="flex items-center gap-2 text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-sm">
                         <AlertCircle size={14} className="shrink-0" /> {error}
                     </div>
                 )}
 
-                {/* Lock */}
                 {isLocked && (
                     <div className="text-center py-2 px-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
                         Account temporarily locked. Please reset your password.
                     </div>
                 )}
 
-                {/* Submit */}
                 <button
                     type="submit"
                     disabled={!email || !password || loading || isLocked}
-                    className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm
-                    disabled:opacity-40 disabled:cursor-not-allowed
-                    flex items-center justify-center gap-2 transition-all mt-1
-                    focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                    className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 >
-                    {loading
-                        ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Signing in…</>
-                        : <><ArrowRight size={15} /> Sign In</>
-                    }
+                    {loading ? (
+                        <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Signing in...
+                        </>
+                    ) : (
+                        <>
+                            <ArrowRight size={15} />
+                            Sign In
+                        </>
+                    )}
                 </button>
 
                 <p className="text-center text-sm text-text-sub">
@@ -266,63 +263,47 @@ function LoginForm({
     );
 }
 
-// ─── Main AuthPage ────────────────────────────────────────────────────────────
 export function LoginPage() {
-    const { user, isInitialized } = useAuthStore();
+    const { user, isInitialized, isTwoFactorVerified } = useAuthStore();
     const location = useLocation();
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
     const from = location.state?.from?.pathname || '/dashboard';
 
     const [step, setStep] = useState<AuthStep>('login');
-    const [pendingEmail, setPendingEmail] = useState('');
-    const { error: toastError } = useToast();
+    const { success, error: toastError } = useToast();
 
-    // When AuthCallbackPage hands off (after Google OAuth), jump straight to OTP
-    useEffect(() => {
-        const callbackStep = searchParams.get('step');
-        const callbackEmail = searchParams.get('email');
-        if (callbackStep === 'otp' && callbackEmail) {
-            setPendingEmail(decodeURIComponent(callbackEmail));
-            setStep('otp');
-        }
-    }, [searchParams]);
-
-    // If currently authenticated and verified, head straight to dashboard
-    if (isInitialized && user && useAuthStore.getState().isTwoFactorVerified) {
+    if (isInitialized && user && isTwoFactorVerified) {
         return <Navigate to={from} replace />;
     }
 
-    const handleLoginSuccess = async (email: string) => {
-        setPendingEmail(email);
-        setStep('otp');
+    if (isInitialized && user && !isTwoFactorVerified) {
+        return <Navigate to={`/verify-2fa?next=${encodeURIComponent(from)}`} replace state={{ from: location }} />;
+    }
 
-        // 2. Fire the Edge Function in the background
+    const handleLoginSuccess = async () => {
         try {
-            await sendOtp(email);
+            const assurance = await getMfaAssuranceState();
+            if (assurance.requiresChallenge) {
+                useAuthStore.getState().setTwoFactorVerified(false);
+                navigate(`/verify-2fa?next=${encodeURIComponent(from)}`, { replace: true, state: { from: location } });
+                return;
+            }
+
+            useAuthStore.getState().setTwoFactorVerified(true);
+            navigate(from, { replace: true });
         } catch (err: unknown) {
-            const msg = err instanceof Error ? err.message : 'Unknown error';
-            toastError(msg.includes('Too many') ? 'Too many requests, please try again in a few minutes.' : 'Failed to send verification code to your email.');
-            // We leave them on the OTP screen. Even if Resend rate-limited us, 
-            // they might still have a valid code in their inbox from a minute ago!
+            const msg = err instanceof Error ? err.message : 'Failed to evaluate MFA state.';
+            toastError(msg);
         }
     };
 
-    const handleSignedUp = async (email: string) => {
-        setPendingEmail(email);
-        setStep('otp');
-
-        try {
-            await sendOtp(email);
-        } catch (err: unknown) {
-            const msg = err instanceof Error ? err.message : 'Unknown error';
-            toastError(msg.includes('Too many') ? 'Too many requests, please try again in a few minutes.' : 'Failed to send verification code to your email.');
-        }
+    const handleSignedUp = (email: string) => {
+        success(`Account created for ${email}. Sign in to continue.`);
+        setStep('login');
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-slate-900 flex items-center justify-center p-3 sm:p-4 relative overflow-hidden">
-            {/* Ambient glows */}
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute -top-60 -left-40 w-[500px] h-[500px] bg-blue-700/15 rounded-full blur-3xl" />
                 <div className="absolute -bottom-60 -right-40 w-[500px] h-[500px] bg-indigo-700/15 rounded-full blur-3xl" />
@@ -330,31 +311,23 @@ export function LoginPage() {
             </div>
 
             <div className="relative w-full max-w-[420px]">
-                {/* Glass card */}
                 <div className="bg-card/[0.03] backdrop-blur-2xl border border-white/[0.08] rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl">
-                    {/* Logo — always visible */}
-                    {step !== 'otp' && (
-                        <div className="flex flex-col items-center mb-6 sm:mb-8">
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-3 sm:mb-4 shadow-lg shadow-blue-500/25">
-                                <Activity size={22} className="text-white sm:w-[26px] sm:h-[26px]" />
-                            </div>
-                            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">MedFlow</h1>
-                            <p className="text-text-sub text-xs sm:text-sm mt-1">Medical Inventory System</p>
+                    <div className="flex flex-col items-center mb-6 sm:mb-8">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-3 sm:mb-4 shadow-lg shadow-blue-500/25">
+                            <Activity size={22} className="text-white sm:w-[26px] sm:h-[26px]" />
                         </div>
-                    )}
+                        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">MedFlow</h1>
+                        <p className="text-text-sub text-xs sm:text-sm mt-1">Medical Inventory System</p>
+                    </div>
 
-                    {/* ── Login/Signup tabs ──────────────────────────────── */}
                     {(step === 'login' || step === 'signup') && (
                         <>
                             <div className="flex bg-card/5 p-1 rounded-xl mb-6 border border-white/5">
-                                {(['login', 'signup'] as const).map(s => (
+                                {(['login', 'signup'] as const).map((s) => (
                                     <button
                                         key={s}
                                         onClick={() => setStep(s)}
-                                        className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all capitalize ${step === s
-                                            ? 'bg-blue-600 text-white shadow-sm'
-                                            : 'text-text-sub hover:text-gray-300'
-                                            }`}
+                                        className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all capitalize ${step === s ? 'bg-blue-600 text-white shadow-sm' : 'text-text-sub hover:text-gray-300'}`}
                                     >
                                         {s === 'login' ? 'Sign In' : 'Sign Up'}
                                     </button>
@@ -373,34 +346,17 @@ export function LoginPage() {
                         </>
                     )}
 
-                    {/* ── Forgot Password ────────────────────────────────── */}
                     {step === 'forgot' && (
                         <ForgotPassword onBack={() => setStep('login')} />
                     )}
 
-                    {/* ── OTP Verification ──────────────────────────────── */}
-                    {step === 'otp' && (
-                        <OTPVerification
-                            email={pendingEmail}
-                            onVerified={() => {
-                                // Push them into the app now that both factors are verified
-                                navigate(from, { replace: true });
-                            }}
-                            onBack={() => setStep('login')}
-                        />
-                    )}
-
-                    {/* Footer */}
-                    {step !== 'otp' && (
-                        <p className="text-center text-[11px] text-gray-700 mt-6">
-                            Secure · HIPAA-aware · Role-based access
-                        </p>
-                    )}
+                    <p className="text-center text-[11px] text-gray-700 mt-6">
+                        Secure - HIPAA-aware - Role-based access
+                    </p>
                 </div>
 
-                {/* Bottom hint */}
                 <p className="text-center text-xs text-gray-700 mt-4">
-                    © 2026 MedFlow Healthcare Systems
+                    (c) 2026 MedFlow Healthcare Systems
                 </p>
             </div>
         </div>

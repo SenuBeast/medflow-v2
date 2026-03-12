@@ -26,20 +26,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     setPermissions: (permissions) => set({ permissions }),
     setLoading: (isLoading) => set({ isLoading }),
     setInitialized: (isInitialized) => set({ isInitialized }),
-    setTwoFactorVerified: (isTwoFactorVerified) => {
-        console.log('[AuthStore] isTwoFactorVerified changed to:', isTwoFactorVerified);
-        if (isTwoFactorVerified) {
-            localStorage.setItem('_mf2a', '1');
-        } else {
-            localStorage.removeItem('_mf2a');
-        }
-        set({ isTwoFactorVerified });
-    },
+    setTwoFactorVerified: (isTwoFactorVerified) => set({ isTwoFactorVerified }),
 
     reset: () => {
-        console.log('[AuthStore] Global reset() called! Wiping all state including 2FA flag.');
-        console.trace();
-        localStorage.removeItem('_mf2a');
         set({
             user: null,
             permissions: [],

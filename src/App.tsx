@@ -4,6 +4,7 @@ import { AppLayout } from './components/layout/AppLayout';
 import { ProtectedRoute, RouteGuard } from './components/auth/Guards';
 import { LoginPage } from './pages/auth/LoginPage';
 import { AuthCallbackPage } from './pages/auth/AuthCallbackPage';
+import { Verify2FAPage } from './pages/auth/Verify2FAPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { NoAccessPage } from './pages/NoAccessPage';
 import { InventoryPage } from './pages/inventory/InventoryPage';
@@ -53,6 +54,7 @@ function App() {
             {/* Public routes */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
+            <Route path="/verify-2fa" element={<Verify2FAPage />} />
             <Route path="/no-access" element={<NoAccessPage />} />
 
             {/* Protected routes with AppLayout */}
