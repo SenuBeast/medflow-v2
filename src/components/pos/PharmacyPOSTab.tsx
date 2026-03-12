@@ -7,31 +7,36 @@ export function PharmacyPOSTab() {
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    const sendToken = async () => {
+        const { data } = await supabase.auth.getSession();
+        if (data.session && iframeRef.current?.contentWindow) {
+            console.log('[MedFlow] Sending auth token to POS:', POS_URL);
+            iframeRef.current.contentWindow.postMessage(
+                {
+                    type: 'MEDFLOW_AUTH_TOKEN',
+                    accessToken: data.session.access_token,
+                    refreshToken: data.session.refresh_token,
+                },
+                POS_URL
+            );
+        } else {
+            console.warn('[MedFlow] Cannot send token: session or iframe missing');
+        }
+    };
+
     useEffect(() => {
-        const sendToken = async () => {
-            const { data } = await supabase.auth.getSession();
-            if (data.session && iframeRef.current?.contentWindow) {
-                iframeRef.current.contentWindow.postMessage(
-                    {
-                        type: 'MEDFLOW_AUTH_TOKEN',
-                        accessToken: data.session.access_token,
-                        refreshToken: data.session.refresh_token,
-                    },
-                    POS_URL
-                );
-            }
+        const iframe = iframeRef.current;
+        const handleLoad = () => {
+            setIsLoading(false);
+            sendToken();
         };
 
-        const iframe = iframeRef.current;
         if (iframe) {
-            iframe.addEventListener('load', () => {
-                setIsLoading(false);
-                sendToken();
-            });
+            iframe.addEventListener('load', handleLoad);
         }
 
         return () => {
-            iframe?.removeEventListener('load', () => sendToken());
+            iframe?.removeEventListener('load', handleLoad);
         };
     }, []);
 
@@ -50,7 +55,6 @@ export function PharmacyPOSTab() {
                     sendToken();
                     break;
                 case 'SALE_COMPLETED':
-                    // Could invalidate billing queries, show toast, etc.
                     console.log('[MedFlow] POS sale completed:', event.data);
                     break;
                 case 'POS_READY':
