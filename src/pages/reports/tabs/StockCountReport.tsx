@@ -53,20 +53,20 @@ export function StockCountReport({ filters }: StockCountReportProps) {
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                        <thead className="bg-surface-dim border-b border-border-dim">
+                        <thead className="bg-surface border-b border-border-main">
                             <tr>
                                 {['Type', 'Status', 'Created By', 'Date', 'Items', 'Variants', ''].map(h => (
                                     <th key={h} className="text-left px-5 py-3.5 text-xs font-semibold text-text-sub uppercase tracking-wide">{h}</th>
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50">
+                        <tbody className="divide-y divide-border-main">
                             {isLoading ? (
-                                Array.from({ length: 4 }).map((_, i) => <tr key={i}><td colSpan={7} className="px-5 py-3.5"><div className="h-4 bg-gray-100 rounded animate-pulse" /></td></tr>)
+                                Array.from({ length: 4 }).map((_, i) => <tr key={i}><td colSpan={7} className="px-5 py-3.5"><div className="h-4 bg-surface-dim rounded animate-pulse" /></td></tr>)
                             ) : data.length === 0 ? (
                                 <tr>
                                     <td colSpan={7} className="px-5 py-16 text-center">
-                                        <ClipboardCheck size={32} className="text-gray-200 mx-auto mb-3" />
+                                        <ClipboardCheck size={32} className="text-text-dim mx-auto mb-3" />
                                         <p className="text-text-dim text-sm">No stock count sessions in this period</p>
                                     </td>
                                 </tr>
@@ -74,20 +74,20 @@ export function StockCountReport({ filters }: StockCountReportProps) {
                                 data.map(session => {
                                     const varianceCount = (session.items ?? []).filter(i => i.variance !== null && i.variance !== 0).length;
                                     return (
-                                        <tr key={session.id} className="hover:bg-surface-dim/60 transition-colors">
-                                            <td className="px-5 py-3.5 capitalize font-medium text-gray-800">{session.type}</td>
+                                        <tr key={session.id} className="hover:bg-surface-dim transition-colors">
+                                            <td className="px-5 py-3.5 capitalize font-medium text-text-main">{session.type}</td>
                                             <td className="px-5 py-3.5">
                                                 <StatusBadge status={session.status as 'draft' | 'in_progress' | 'submitted' | 'approved' | 'rejected'} />
                                             </td>
-                                            <td className="px-5 py-3.5 text-text-sub">{(session.creator as { full_name?: string })?.full_name ?? '—'}</td>
-                                            <td className="px-5 py-3.5 text-text-sub whitespace-nowrap">{format(new Date(session.created_at), 'MMM d, yyyy')}</td>
-                                            <td className="px-5 py-3.5 text-text-sub">{(session.items ?? []).length}</td>
+                                            <td className="px-5 py-3.5 text-text-main">{(session.creator as { full_name?: string })?.full_name ?? '—'}</td>
+                                            <td className="px-5 py-3.5 text-text-main whitespace-nowrap">{format(new Date(session.created_at), 'MMM d, yyyy')}</td>
+                                            <td className="px-5 py-3.5 text-text-main">{(session.items ?? []).length}</td>
                                             <td className="px-5 py-3.5">
-                                                <span className={clsx('font-semibold text-sm', varianceCount > 0 ? 'text-amber-600' : 'text-text-dim')}>
+                                                <span className={clsx('font-semibold text-sm', varianceCount > 0 ? 'text-warning' : 'text-text-main')}>
                                                     {varianceCount > 0 ? `${varianceCount} variances` : '—'}
                                                 </span>
                                             </td>
-                                            <td className="px-5 py-3.5 text-xs text-blue-500">{session.status === 'approved' ? '✓' : ''}</td>
+                                            <td className="px-5 py-3.5 text-xs text-brand">{session.status === 'approved' ? '✓' : ''}</td>
                                         </tr>
                                     );
                                 })

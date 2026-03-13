@@ -402,7 +402,7 @@ export function InventoryPage() {
                     <div className="py-12 text-center text-text-dim text-sm">Loading inventory...</div>
                 ) : filtered.length === 0 ? (
                     <div className="py-12 text-center">
-                        <PackageOpen size={36} className="text-gray-200 mx-auto mb-2" />
+                        <PackageOpen size={36} className="text-text-dim mx-auto mb-2" />
                         <p className="text-text-dim text-sm">No items found</p>
                     </div>
                 ) : (
@@ -522,8 +522,8 @@ export function InventoryPage() {
             <Card padding="none" className="hidden md:block">
                 <div className="overflow-x-auto">
                     <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-border-dim">
+                        <thead className="bg-surface sticky top-0 z-10">
+                            <tr className="border-b border-border-main">
                                 {['Name', 'SKU', 'Category', 'Stock', 'Unit Price', 'Expiry', 'Status', ''].map((h) => (
                                     <th
                                         key={h}
@@ -544,7 +544,7 @@ export function InventoryPage() {
                             ) : filtered.length === 0 ? (
                                 <tr>
                                     <td colSpan={8} className="px-5 py-12 text-center">
-                                        <PackageOpen size={36} className="text-gray-200 mx-auto mb-2" />
+                                        <PackageOpen size={36} className="text-text-dim mx-auto mb-2" />
                                         <p className="text-text-dim text-sm">No items found</p>
                                     </td>
                                 </tr>
@@ -554,7 +554,7 @@ export function InventoryPage() {
                                     const isExpiring = item.expiry_date && new Date(item.expiry_date) <= in30;
                                     return (
                                         <Fragment key={item.id}>
-                                            <tr className="hover:bg-surface-dim/60 transition-colors cursor-pointer" onClick={() => setExpandedItemId(expandedItemId === item.id ? null : item.id)}>
+                                            <tr className="hover:bg-surface-dim transition-colors cursor-pointer" onClick={() => setExpandedItemId(expandedItemId === item.id ? null : item.id)}>
                                                 <td className="px-5 py-3.5">
                                                     <div className="flex items-center gap-2">
                                                         {expandedItemId === item.id ? <ChevronUp size={16} className="text-text-dim" /> : <ChevronDown size={16} className="text-text-dim" />}
@@ -565,7 +565,7 @@ export function InventoryPage() {
                                                     </div>
                                                 </td>
                                                 <td className="px-5 py-3.5 text-xs text-text-dim font-mono">{item.sku ?? '—'}</td>
-                                                <td className="px-5 py-3.5 text-sm text-text-sub">{item.category ?? '—'}</td>
+                                                <td className="px-5 py-3.5 text-sm text-text-main">{item.category ?? '—'}</td>
                                                 <td className="px-5 py-3.5">
                                                     <div className="flex items-center gap-1.5">
                                                         <span className={clsx('text-sm font-semibold', isLow ? 'text-warning' : 'text-text-main')}>
@@ -575,12 +575,12 @@ export function InventoryPage() {
                                                         {isLow && <AlertTriangle size={13} className="text-warning" />}
                                                     </div>
                                                 </td>
-                                                <td className="px-5 py-3.5 text-sm text-text-sub">
+                                                <td className="px-5 py-3.5 text-sm text-text-main">
                                                     {item.selling_price ? `$${item.selling_price.toFixed(2)} ` : '—'}
                                                 </td>
                                                 <td className="px-5 py-3.5">
                                                     {item.expiry_date ? (
-                                                        <span className={clsx('text-xs', isExpiring ? 'text-warning font-medium' : 'text-text-sub')}>
+                                                        <span className={clsx('text-xs', isExpiring ? 'text-warning font-medium' : 'text-text-main')}>
                                                             {isExpiring && <Calendar size={11} className="inline mr-1" />}
                                                             {new Date(item.expiry_date).toLocaleDateString()}
                                                         </span>

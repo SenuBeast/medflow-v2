@@ -45,11 +45,11 @@ export function ExpiryReport({ filters, onFiltersChange }: ExpiryReportProps) {
 
             {/* Critical banner */}
             {window === 'expired' && data.length > 0 && (
-                <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-                    <CalendarX size={18} className="text-red-600 shrink-0" />
+                <div className="flex items-center gap-3 p-4 bg-danger-bg border border-danger-border rounded-xl">
+                    <CalendarX size={18} className="text-danger shrink-0" />
                     <div>
-                        <p className="text-sm font-bold text-red-800">{data.length} expired batch{data.length > 1 ? 'es' : ''} found</p>
-                        <p className="text-xs text-red-600 mt-0.5">These items should be quarantined or disposed immediately.</p>
+                        <p className="text-sm font-bold text-danger">{data.length} expired batch{data.length > 1 ? 'es' : ''} found</p>
+                        <p className="text-xs text-danger mt-0.5">These items should be quarantined or disposed immediately.</p>
                     </div>
                 </div>
             )}
@@ -58,20 +58,20 @@ export function ExpiryReport({ filters, onFiltersChange }: ExpiryReportProps) {
             <div className="bg-card rounded-2xl border border-border-dim overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                        <thead className="bg-surface-dim border-b border-border-dim sticky top-0">
+                        <thead className="bg-surface border-b border-border-main sticky top-0">
                             <tr>
                                 {['Product', 'Batch #', 'Quantity', 'Expiry Date', 'Days Remaining', 'Severity'].map(h => (
                                     <th key={h} className="text-left px-5 py-3.5 text-xs font-semibold text-text-sub uppercase tracking-wide">{h}</th>
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50">
+                        <tbody className="divide-y divide-border-main">
                             {isLoading ? (
-                                Array.from({ length: 5 }).map((_, i) => <tr key={i}><td colSpan={6} className="px-5 py-3.5"><div className="h-4 bg-gray-100 rounded animate-pulse" /></td></tr>)
+                                Array.from({ length: 5 }).map((_, i) => <tr key={i}><td colSpan={6} className="px-5 py-3.5"><div className="h-4 bg-surface-dim rounded animate-pulse" /></td></tr>)
                             ) : data.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="px-5 py-16 text-center">
-                                        <AlertTriangle size={32} className="text-gray-200 mx-auto mb-3" />
+                                        <AlertTriangle size={32} className="text-text-dim mx-auto mb-3" />
                                         <p className="text-text-dim text-sm">
                                             {window === 'expired' ? 'No expired batches found — great!' : `No batches expiring in the next ${window} days`}
                                         </p>
@@ -79,29 +79,29 @@ export function ExpiryReport({ filters, onFiltersChange }: ExpiryReportProps) {
                                 </tr>
                             ) : (
                                 data.map(row => (
-                                    <tr key={row.id} className={clsx('hover:bg-surface-dim/60 transition-colors',
-                                        row.status === 'expired' && 'bg-red-50/50',
-                                        row.status === 'critical' && 'bg-amber-50/40')}>
+                                    <tr key={row.id} className={clsx('hover:bg-surface-dim transition-colors',
+                                        row.status === 'expired' && 'bg-danger-bg',
+                                        row.status === 'critical' && 'bg-warning-bg')}>
                                         <td className="px-5 py-3.5">
                                             <p className="font-medium text-text-main">{row.item_name}</p>
                                             {row.item_sku && <p className="text-xs text-text-dim font-mono">{row.item_sku}</p>}
                                         </td>
-                                        <td className="px-5 py-3.5 font-mono text-xs text-text-sub">{row.batch_number}</td>
+                                        <td className="px-5 py-3.5 font-mono text-xs text-text-main">{row.batch_number}</td>
                                         <td className="px-5 py-3.5 font-semibold text-text-main">{row.quantity}</td>
-                                        <td className="px-5 py-3.5 text-text-sub whitespace-nowrap">{format(new Date(row.expiry_date), 'MMM d, yyyy')}</td>
+                                        <td className="px-5 py-3.5 text-text-main whitespace-nowrap">{format(new Date(row.expiry_date), 'MMM d, yyyy')}</td>
                                         <td className="px-5 py-3.5">
                                             <span className={clsx('font-bold',
-                                                row.status === 'expired' ? 'text-red-600' :
-                                                    row.status === 'critical' ? 'text-amber-600' : 'text-text-sub')}>
+                                                row.status === 'expired' ? 'text-danger' :
+                                                    row.status === 'critical' ? 'text-warning' : 'text-text-main')}>
                                                 {row.days_to_expiry < 0 ? `${Math.abs(row.days_to_expiry)}d ago` : `${row.days_to_expiry}d`}
                                             </span>
                                         </td>
                                         <td className="px-5 py-3.5">
                                             <span className={clsx('text-xs font-semibold px-2.5 py-1 rounded-full',
-                                                row.status === 'expired' ? 'bg-red-100 text-red-700' :
-                                                    row.status === 'critical' ? 'bg-amber-100 text-amber-700' :
-                                                        row.status === 'warning' ? 'bg-yellow-100 text-yellow-700' :
-                                                            'bg-green-100 text-green-700')}>
+                                                row.status === 'expired' ? 'bg-danger-bg text-danger' :
+                                                    row.status === 'critical' ? 'bg-warning-bg text-warning' :
+                                                        row.status === 'warning' ? 'bg-warning-bg text-warning' :
+                                                            'bg-success-bg text-success')}>
                                                 {row.status === 'expired' ? 'Expired' : row.status === 'critical' ? 'Critical' : row.status === 'warning' ? 'Warning' : 'OK'}
                                             </span>
                                         </td>

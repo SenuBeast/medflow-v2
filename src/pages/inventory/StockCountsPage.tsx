@@ -128,7 +128,7 @@ export function StockCountsPage() {
                     <div className="relative w-64">
                         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-dim" />
                         <input
-                            className="w-full pl-9 pr-4 py-2 rounded-xl border border-border-main text-sm bg-surface-dim focus:bg-card focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-colors"
+                            className="w-full pl-9 pr-4 py-2 rounded-xl border border-border-dim text-sm text-text-main placeholder:text-text-dim bg-surface-dim focus:bg-card focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-colors"
                             placeholder="Search sessions..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -138,7 +138,7 @@ export function StockCountsPage() {
 
                 <div className="flex-1 overflow-auto">
                     <table className="w-full text-sm text-left">
-                        <thead className="text-xs text-text-sub uppercase bg-surface-dim/50 sticky top-0 z-10">
+                        <thead className="text-xs text-text-sub uppercase bg-surface sticky top-0 z-10 border-b border-border-main">
                             <tr>
                                 <th className="px-4 lg:px-6 py-4 font-medium">Session ID</th>
                                 <th className="px-4 lg:px-6 py-4 font-medium">Type</th>
@@ -148,7 +148,7 @@ export function StockCountsPage() {
                                 <th className="px-4 lg:px-6 py-4 font-medium text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100">
+                        <tbody className="divide-y divide-border-main">
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={6} className="px-6 py-12 text-center text-text-sub">
@@ -163,7 +163,7 @@ export function StockCountsPage() {
                                 </tr>
                             ) : (
                                 filteredSessions.map((session) => (
-                                    <tr key={session.id} className="hover:bg-surface-dim/50 transition-colors">
+                                    <tr key={session.id} className="hover:bg-surface-dim transition-colors">
                                         <td className="px-4 lg:px-6 py-4 font-mono text-xs text-text-sub">
                                             {session.id.substring(0, 8).toUpperCase()}
                                         </td>
@@ -173,10 +173,10 @@ export function StockCountsPage() {
                                         <td className="px-4 lg:px-6 py-4">
                                             <StatusBadge status={session.status as "draft" | "in_progress" | "submitted" | "approved" | "rejected"} />
                                         </td>
-                                        <td className="px-4 lg:px-6 py-4 text-text-sub">
+                                        <td className="px-4 lg:px-6 py-4 text-text-main">
                                             {session.creator?.full_name || 'Unknown'}
                                         </td>
-                                        <td className="px-4 lg:px-6 py-4 text-text-sub">
+                                        <td className="px-4 lg:px-6 py-4 text-text-main">
                                             {format(new Date(session.created_at), 'MMM d, yyyy h:mm a')}
                                         </td>
                                         <td className="px-4 lg:px-6 py-4 text-right">

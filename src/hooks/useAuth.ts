@@ -117,7 +117,8 @@ async function initUser(
     if (!forceRefresh && currentUser?.id === userId) return;
 
     loadingUser = true;
-    if (!forceRefresh) useAuthStore.getState().setLoading(true);
+    const shouldShowLoading = !forceRefresh || !currentUser || currentUser.id !== userId;
+    if (shouldShowLoading) useAuthStore.getState().setLoading(true);
 
     try {
         await withTimeout(ensureUserRecord(userId, email, userMetadata, appMetadata), 10000);
@@ -176,49 +177,98 @@ function cleanupRealtimeSync() {
 }
 
 let listenerStarted = false;
+let authBootstrapCompleted = false;
+
+function resetToSignedOutState() {
+    cleanupRealtimeSync();
+    useAuthStore.getState().reset();
+}
+
+export async function rehydrateAuthFromSession(): Promise<boolean> {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session?.user) {
+        return false;
+    }
+
+    await initUser(
+        session.user.id,
+        session.user.email ?? '',
+        false,
+        session.user.user_metadata,
+        session.user.app_metadata,
+        false
+    );
+    setupRealtimeSync(session.user.id, session.user.email ?? '');
+    await syncTwoFactorState();
+    authBootstrapCompleted = true;
+    return true;
+}
 
 function startGlobalAuthListener() {
     if (listenerStarted) return;
     listenerStarted = true;
 
-    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
-        if (error || !session?.user) {
-            cleanupRealtimeSync();
-            useAuthStore.getState().reset();
+    void rehydrateAuthFromSession()
+        .then((ok) => {
+            if (!ok) {
+                authBootstrapCompleted = true;
+                resetToSignedOutState();
+            }
+        })
+        .catch((err: unknown) => {
+            console.error('[AUTH] Failed to resolve initial session:', err instanceof Error ? err.message : String(err));
+            authBootstrapCompleted = true;
+            resetToSignedOutState();
+        });
+
+    supabase.auth.onAuthStateChange((event, session) => {
+        // During bootstrap, ignore event churn and rely on getSession hydration.
+        if (!authBootstrapCompleted) {
             return;
         }
 
-        await initUser(
-            session.user.id,
-            session.user.email ?? '',
-            false,
-            session.user.user_metadata,
-            session.user.app_metadata,
-            true
-        );
-        setupRealtimeSync(session.user.id, session.user.email ?? '');
-        await syncTwoFactorState();
-        useAuthStore.getState().setLoading(false);
-        useAuthStore.getState().setInitialized(true);
-    });
-
-    supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_OUT') {
-            cleanupRealtimeSync();
-            useAuthStore.getState().reset();
+            // Guard against transient SIGNED_OUT during token churn.
+            void supabase.auth.getSession()
+                .then(({ data: { session: latestSession } }) => {
+                    if (latestSession?.user) {
+                        const currentUserId = useAuthStore.getState().user?.id;
+                        void initUser(
+                            latestSession.user.id,
+                            latestSession.user.email ?? '',
+                            currentUserId === latestSession.user.id,
+                            latestSession.user.user_metadata,
+                            latestSession.user.app_metadata
+                        );
+                        setupRealtimeSync(latestSession.user.id, latestSession.user.email ?? '');
+                        void syncTwoFactorState();
+                        return;
+                    }
+
+                    resetToSignedOutState();
+                })
+                .catch(() => {
+                    resetToSignedOutState();
+                });
+            return;
+        }
+
+        if (event === 'INITIAL_SESSION') {
             return;
         }
 
         if (['SIGNED_IN', 'USER_UPDATED', 'IDENTITY_LINKED', 'TOKEN_REFRESHED', 'MFA_CHALLENGE_VERIFIED'].includes(event as string) && session?.user) {
+            const currentUserId = useAuthStore.getState().user?.id;
             void initUser(
                 session.user.id,
                 session.user.email ?? '',
-                true,
+                currentUserId === session.user.id,
                 session.user.user_metadata,
                 session.user.app_metadata
             );
             setupRealtimeSync(session.user.id, session.user.email ?? '');
             void syncTwoFactorState();
+            authBootstrapCompleted = true;
         }
     });
 }

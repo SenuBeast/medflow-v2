@@ -32,18 +32,37 @@ export default function POSPage() {
 
                 if (activeBatches && activeBatches.length > 0) {
                     const selectedBatch = activeBatches[0];
+                    const baseUnit = p.base_unit || p.unit;
+                    const unitOptions = (p.unit_options && p.unit_options.length > 0)
+                        ? p.unit_options
+                        : [{ unit_name: baseUnit, conversion_factor: 1, is_base: true }];
+                    const defaultUnit = unitOptions.find((u) => u.unit_name.toLowerCase() === p.unit.toLowerCase())
+                        || unitOptions.find((u) => u.is_base)
+                        || unitOptions[unitOptions.length - 1];
+                    const unitsPerSaleUnit = Math.max(1, Number(defaultUnit?.conversion_factor ?? 1));
+                    const baseUnitPrice = Number(selectedBatch.selling_price ?? p.selling_price ?? 0);
+                    const unitPrice = baseUnitPrice * unitsPerSaleUnit;
+                    const maxQuantity = Math.floor(Number(selectedBatch.quantity ?? 0) / unitsPerSaleUnit);
+
+                    if (maxQuantity <= 0) return;
+
                     addItem({
                         item_id: p.id,
                         batch_id: selectedBatch.id,
                         name: p.name,
                         sku: p.sku,
-                        unit: p.unit,
-                        unit_price: p.selling_price || 0,
+                        unit: defaultUnit?.unit_name ?? p.unit,
+                        base_unit: baseUnit,
+                        base_unit_price: baseUnitPrice,
+                        units_per_sale_unit: unitsPerSaleUnit,
+                        available_base_quantity: Number(selectedBatch.quantity ?? 0),
+                        unit_options: unitOptions,
+                        unit_price: unitPrice,
                         quantity: 1,
-                        max_quantity: selectedBatch.quantity,
+                        max_quantity: maxQuantity,
                         is_controlled: p.is_controlled,
                         expiry_warning: false,
-                        subtotal: p.selling_price || 0
+                        subtotal: unitPrice
                     });
                     setSearchTerm(''); // Clear search after adding
                 }

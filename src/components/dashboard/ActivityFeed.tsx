@@ -1,25 +1,45 @@
 import { Activity, ShoppingCart, PackageMinus, AlertCircle } from 'lucide-react';
-import { Card } from '../ui/Card';
+import { formatDistanceToNow } from 'date-fns';
 import { clsx } from 'clsx';
+import { Card } from '../ui/Card';
+import { useDashboardActivity } from '../../hooks/useDashboardData';
 
-interface ActivityItem {
+type ActivityType = 'sale' | 'adjustment' | 'expiry';
+
+type FeedItem = {
     id: string;
-    type: 'sale' | 'adjustment' | 'expiry';
+    type: ActivityType;
     action: string;
-    user: string;
-    timestamp: string;
+    actor: string;
+    createdAt: string;
+};
+
+function toTitleCase(value: string): string {
+    return value
+        .replace(/_/g, ' ')
+        .toLowerCase()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function inferType(action: string, entityType: string): ActivityType {
+    const actionKey = action.toLowerCase();
+    const entityKey = entityType.toLowerCase();
+
+    if (actionKey.includes('sale') || entityKey.includes('sale')) return 'sale';
+    if (actionKey.includes('expiry') || actionKey.includes('expire') || entityKey.includes('batch')) return 'expiry';
+    return 'adjustment';
 }
 
 export function ActivityFeed() {
-    const activities: ActivityItem[] = [
-        { id: '1', type: 'adjustment', action: 'Adjusted stock: Paracetamol 500mg (+50)', user: 'Sarah Jenkins', timestamp: '10 mins ago' },
-        { id: '2', type: 'sale', action: 'New sale created: INV-2023-089', user: 'Mike Chen', timestamp: '1 hour ago' },
-        { id: '3', type: 'expiry', action: 'Item expired: Amoxicillin 250mg', user: 'System', timestamp: '3 hours ago' },
-        { id: '4', type: 'sale', action: 'New sale created: INV-2023-088', user: 'Sarah Jenkins', timestamp: '5 hours ago' },
-        { id: '5', type: 'adjustment', action: 'Received PO: #PO-1042', user: 'David Ross', timestamp: '1 day ago' },
-    ];
+    const { data = [], isLoading } = useDashboardActivity();
 
-    activities[4].action = 'Received PO: #PO-1042';
+    const activities: FeedItem[] = data.map((item) => ({
+        id: item.id,
+        type: inferType(item.action, item.entityType),
+        action: `${toTitleCase(item.action)} - ${toTitleCase(item.entityType)}`,
+        actor: item.actorName,
+        createdAt: item.createdAt,
+    }));
 
     return (
         <Card className="h-full flex flex-col bg-card border-border-main">
@@ -29,42 +49,54 @@ export function ActivityFeed() {
             </div>
 
             <div className="flex-1 overflow-y-auto pr-2 space-y-6">
-                {activities.map((item, index) => {
-                    const icons = {
-                        sale: <ShoppingCart size={14} className="text-success" />,
-                        adjustment: <PackageMinus size={14} className="text-brand" />,
-                        expiry: <AlertCircle size={14} className="text-danger" />
-                    };
+                {isLoading ? (
+                    <div className="h-full flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+                    </div>
+                ) : activities.length === 0 ? (
+                    <div className="h-full flex items-center justify-center text-sm text-text-dim">
+                        No recent activity available.
+                    </div>
+                ) : (
+                    activities.map((item, index) => {
+                        const icons = {
+                            sale: <ShoppingCart size={14} className="text-success" />,
+                            adjustment: <PackageMinus size={14} className="text-brand" />,
+                            expiry: <AlertCircle size={14} className="text-danger" />,
+                        };
 
-                    const iconBgs = {
-                        sale: 'bg-success/10 ring-success/5',
-                        adjustment: 'bg-brand/10 ring-brand/5',
-                        expiry: 'bg-danger/10 ring-danger/5'
-                    };
+                        const iconBgs = {
+                            sale: 'bg-success/10 ring-success/5',
+                            adjustment: 'bg-brand/10 ring-brand/5',
+                            expiry: 'bg-danger/10 ring-danger/5',
+                        };
 
-                    return (
-                        <div key={item.id} className="relative flex gap-4">
-                            {/* Connection Line */}
-                            {index !== activities.length - 1 && (
-                                <div className="absolute top-8 left-4 bottom-[-24px] w-px bg-border-dim/30" />
-                            )}
+                        return (
+                            <div key={item.id} className="relative flex gap-4">
+                                {index !== activities.length - 1 && (
+                                    <div className="absolute top-8 left-4 bottom-[-24px] w-px bg-border-dim/30" />
+                                )}
 
-                            <div className={clsx('relative z-10 shrink-0 w-8 h-8 rounded-full flex items-center justify-center ring-4', iconBgs[item.type])}>
-                                {icons[item.type]}
-                            </div>
+                                <div className={clsx('relative z-10 shrink-0 w-8 h-8 rounded-full flex items-center justify-center ring-4', iconBgs[item.type])}>
+                                    {icons[item.type]}
+                                </div>
 
-                            <div className="pt-1 flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-text-main truncate">{item.action}</p>
-                                <div className="flex items-center gap-2 mt-1.5">
-                                    <span className="text-[10px] font-bold text-text-sub uppercase tracking-wider">{item.user}</span>
-                                    <span className="w-1 h-1 rounded-full bg-border-dim" />
-                                    <span className="text-[10px] font-medium text-text-dim">{item.timestamp}</span>
+                                <div className="pt-1 flex-1 min-w-0">
+                                    <p className="text-sm font-semibold text-text-main truncate">{item.action}</p>
+                                    <div className="flex items-center gap-2 mt-1.5">
+                                        <span className="text-[10px] font-bold text-text-sub uppercase tracking-wider">{item.actor}</span>
+                                        <span className="w-1 h-1 rounded-full bg-border-dim" />
+                                        <span className="text-[10px] font-medium text-text-dim">
+                                            {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })
+                )}
             </div>
         </Card>
     );
 }
+

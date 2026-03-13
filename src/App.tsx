@@ -25,6 +25,8 @@ import { ProfilePage } from './pages/profile/ProfilePage';
 import { ToastProvider } from './components/ui/Toast';
 import { PharmacyPOSTab } from './components/pos/PharmacyPOSTab';
 import { PERMISSIONS } from './lib/constants';
+import { useAuthStore } from './store/authStore';
+import { Loader2 } from 'lucide-react';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,6 +49,16 @@ function ProtectedLayout() {
 }
 
 function App() {
+  const { isInitialized, isLoading } = useAuthStore();
+
+  if (!isInitialized || isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      </div>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <ToastProvider>

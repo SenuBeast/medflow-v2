@@ -19,6 +19,26 @@ export function usePOSSale() {
         mutationFn: async (payload: POSSalePayload) => {
             if (!user) throw new Error('Not authenticated');
 
+            for (const ci of payload.cart) {
+                if (ci.unit !== ci.base_unit && ci.units_per_sale_unit > 1) {
+                    if (!user.tenant_id) {
+                        throw new Error('Missing tenant context for unit conversion');
+                    }
+                    const { error: unitError } = await supabase.from('units').upsert(
+                        {
+                            tenant_id: user.tenant_id,
+                            product_id: ci.item_id,
+                            unit_name: ci.unit,
+                            conversion_factor: ci.units_per_sale_unit,
+                            is_base: false,
+                        },
+                        { onConflict: 'tenant_id,product_id,unit_name' }
+                    );
+
+                    if (unitError) throw unitError;
+                }
+            }
+
             // 1. Format the cart for the RPC payload
             const p_cart = payload.cart.map(ci => {
                 return {

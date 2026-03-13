@@ -194,14 +194,14 @@ export function GRNHistoryPage() {
                     <div className="py-10 text-center text-sm text-text-dim">Loading GRN history...</div>
                 ) : rows.length === 0 ? (
                     <div className="py-10 text-center">
-                        <PackageOpen size={36} className="text-gray-300 mx-auto mb-2" />
+                        <PackageOpen size={36} className="text-text-dim mx-auto mb-2" />
                         <p className="text-sm text-text-dim">No GRN records found for the selected filters.</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[980px]">
-                            <thead>
-                                <tr className="border-b border-border-dim">
+                            <thead className="bg-surface sticky top-0 z-10">
+                                <tr className="border-b border-border-main">
                                     {['GRN', 'Supplier', 'Received Date', 'Status', 'Quantity', 'Total', 'Invoice', 'Actions'].map((head) => (
                                         <th key={head} className="text-left text-xs font-bold text-text-dim uppercase tracking-wider px-4 py-3">
                                             {head}
@@ -217,7 +217,7 @@ export function GRNHistoryPage() {
 
                                     return (
                                         <Fragment key={row.id}>
-                                            <tr className="hover:bg-surface-dim/40 transition-colors">
+                                            <tr className="hover:bg-surface-dim transition-colors">
                                                 <td className="px-4 py-3">
                                                     <button
                                                         onClick={() => setExpandedId(expanded ? null : row.id)}
@@ -227,8 +227,8 @@ export function GRNHistoryPage() {
                                                         {row.grn_number}
                                                     </button>
                                                 </td>
-                                                <td className="px-4 py-3 text-sm text-text-sub">{row.supplier_name}</td>
-                                                <td className="px-4 py-3 text-sm text-text-sub">{new Date(row.received_date).toLocaleDateString()}</td>
+                                                <td className="px-4 py-3 text-sm text-text-main">{row.supplier_name}</td>
+                                                <td className="px-4 py-3 text-sm text-text-main">{new Date(row.received_date).toLocaleDateString()}</td>
                                                 <td className="px-4 py-3">
                                                     <span className={clsx('inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider', statusBadge(row.status))}>
                                                         {row.status}
@@ -281,7 +281,7 @@ export function GRNHistoryPage() {
                                                 </td>
                                             </tr>
                                             {expanded && (
-                                                <tr className="bg-surface-dim/20">
+                                                <tr className="bg-surface-dim/60">
                                                     <td colSpan={8} className="px-4 py-4">
                                                         <GrnRowDetails row={row} />
                                                     </td>

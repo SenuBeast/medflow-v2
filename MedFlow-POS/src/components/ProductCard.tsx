@@ -27,6 +27,19 @@ export default function ProductCard({ product }: ProductCardProps) {
         if (activeBatches.length === 0) return;
 
         const selectedBatch = activeBatches[0];
+        const baseUnit = product.base_unit || product.unit;
+        const unitOptions = (product.unit_options && product.unit_options.length > 0)
+            ? product.unit_options
+            : [{ unit_name: baseUnit, conversion_factor: 1, is_base: true }];
+        const defaultUnit = unitOptions.find((u) => u.unit_name.toLowerCase() === product.unit.toLowerCase())
+            || unitOptions.find((u) => u.is_base)
+            || unitOptions[unitOptions.length - 1];
+        const unitsPerSaleUnit = Math.max(1, Number(defaultUnit?.conversion_factor ?? 1));
+        const baseUnitPrice = Number(selectedBatch.selling_price ?? product.selling_price ?? 0);
+        const unitPrice = baseUnitPrice * unitsPerSaleUnit;
+        const maxQuantity = Math.floor(Number(selectedBatch.quantity ?? 0) / unitsPerSaleUnit);
+
+        if (maxQuantity <= 0) return;
 
         const now = new Date();
         const expiryDate = new Date(selectedBatch.expiry_date);
@@ -38,13 +51,18 @@ export default function ProductCard({ product }: ProductCardProps) {
             batch_id: selectedBatch.id,
             name: product.name,
             sku: product.sku,
-            unit: product.unit,
-            unit_price: product.selling_price || 0,
+            unit: defaultUnit?.unit_name ?? product.unit,
+            base_unit: baseUnit,
+            base_unit_price: baseUnitPrice,
+            units_per_sale_unit: unitsPerSaleUnit,
+            available_base_quantity: Number(selectedBatch.quantity ?? 0),
+            unit_options: unitOptions,
+            unit_price: unitPrice,
             quantity: 1,
-            max_quantity: selectedBatch.quantity,
+            max_quantity: maxQuantity,
             is_controlled: product.is_controlled,
             expiry_warning: expiryWarning,
-            subtotal: product.selling_price || 0
+            subtotal: unitPrice
         });
     };
 

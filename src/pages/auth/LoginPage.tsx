@@ -264,7 +264,7 @@ function LoginForm({
 }
 
 export function LoginPage() {
-    const { user, isInitialized, isTwoFactorVerified } = useAuthStore();
+    const { user, isInitialized, isLoading, isTwoFactorVerified } = useAuthStore();
     const location = useLocation();
     const navigate = useNavigate();
     const from = location.state?.from?.pathname || '/dashboard';
@@ -272,7 +272,7 @@ export function LoginPage() {
     const [step, setStep] = useState<AuthStep>('login');
     const { success, error: toastError } = useToast();
 
-    if (!isInitialized) {
+    if (!isInitialized || isLoading) {
         return (
             <div className="min-h-screen bg-[#020617] flex items-center justify-center">
                 <div className="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />

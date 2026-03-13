@@ -52,9 +52,17 @@ export interface InventoryItem {
     is_controlled: boolean;
     minimum_order_quantity: number;
     tenant_id: string | null;
+    base_unit?: string;
+    unit_options?: ProductUnitOption[];
     created_at: string;
     updated_at: string;
     batches?: ItemBatch[];
+}
+
+export interface ProductUnitOption {
+    unit_name: string;
+    conversion_factor: number;
+    is_base: boolean;
 }
 
 export interface ItemBatch {
@@ -62,6 +70,7 @@ export interface ItemBatch {
     item_id: string;
     batch_number: string;
     quantity: number;
+    selling_price?: number | null;
     expiry_date: string;
     purchase_date?: string | null;
     supplier?: string | null;
@@ -147,6 +156,11 @@ export interface CartItem {
     name: string;
     sku: string | null;
     unit: string;
+    base_unit: string;
+    base_unit_price: number;
+    units_per_sale_unit: number;
+    available_base_quantity: number;
+    unit_options: ProductUnitOption[];
     unit_price: number;
     quantity: number;
     max_quantity: number;  // available stock

@@ -44,7 +44,7 @@ export function SalesReport({ filters }: SalesReportProps) {
                     <ExportButton filename="medflow-top-products" headers={['Product', 'Qty Sold', 'Revenue']} rows={topExportRows} label="Export" />
                 </div>
                 <table className="w-full text-sm">
-                    <thead className="bg-surface-dim border-b border-border-dim">
+                    <thead className="bg-surface border-b border-border-main">
                         <tr>
                             <th className="text-left px-5 py-3 text-xs font-semibold text-text-sub uppercase tracking-wide">#</th>
                             <th className="text-left px-5 py-3 text-xs font-semibold text-text-sub uppercase tracking-wide">Product</th>
@@ -52,17 +52,17 @@ export function SalesReport({ filters }: SalesReportProps) {
                             <th className="text-right px-5 py-3 text-xs font-semibold text-text-sub uppercase tracking-wide">Revenue</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-border-main">
                         {isLoading ? (
-                            Array.from({ length: 5 }).map((_, i) => <tr key={i}><td colSpan={4} className="px-5 py-3"><div className="h-4 bg-gray-100 rounded animate-pulse" /></td></tr>)
+                            Array.from({ length: 5 }).map((_, i) => <tr key={i}><td colSpan={4} className="px-5 py-3"><div className="h-4 bg-surface-dim rounded animate-pulse" /></td></tr>)
                         ) : (data?.topProducts ?? []).length === 0 ? (
                             <tr><td colSpan={4} className="px-5 py-10 text-center text-text-dim text-sm">No sales in this period</td></tr>
                         ) : (
                             (data?.topProducts ?? []).map((p, i) => (
-                                <tr key={p.name} className="hover:bg-surface-dim/60 transition-colors">
+                                <tr key={p.name} className="hover:bg-surface-dim transition-colors">
                                     <td className="px-5 py-3 text-text-dim font-mono text-xs w-8">{i + 1}</td>
                                     <td className="px-5 py-3 font-medium text-text-main">{p.name}</td>
-                                    <td className="px-5 py-3 text-right text-text-sub">{p.qty}</td>
+                                    <td className="px-5 py-3 text-right text-text-main">{p.qty}</td>
                                     <td className="px-5 py-3 text-right font-bold text-text-main">${p.revenue.toFixed(2)}</td>
                                 </tr>
                             ))
@@ -79,26 +79,26 @@ export function SalesReport({ filters }: SalesReportProps) {
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                        <thead className="bg-surface-dim border-b border-border-dim">
+                        <thead className="bg-surface border-b border-border-main">
                             <tr>
                                 {['Invoice #', 'Date & Time', 'Staff', 'Items', 'Payment', 'Total', 'Status'].map(h => (
                                     <th key={h} className="text-left px-5 py-3.5 text-xs font-semibold text-text-sub uppercase tracking-wide">{h}</th>
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50">
+                        <tbody className="divide-y divide-border-main">
                             {isLoading ? (
-                                Array.from({ length: 5 }).map((_, i) => <tr key={i}><td colSpan={7} className="px-5 py-3.5"><div className="h-4 bg-gray-100 rounded animate-pulse" /></td></tr>)
+                                Array.from({ length: 5 }).map((_, i) => <tr key={i}><td colSpan={7} className="px-5 py-3.5"><div className="h-4 bg-surface-dim rounded animate-pulse" /></td></tr>)
                             ) : (data?.transactions ?? []).length === 0 ? (
                                 <tr><td colSpan={7} className="px-5 py-12 text-center text-text-dim text-sm">No transactions in this period</td></tr>
                             ) : (
                                 (data?.transactions ?? []).map(tx => (
-                                    <tr key={tx.id} className="hover:bg-surface-dim/60 transition-colors">
-                                        <td className="px-5 py-3.5 font-mono text-xs font-semibold text-blue-600">{tx.invoice_number}</td>
-                                        <td className="px-5 py-3.5 text-text-sub whitespace-nowrap">{format(new Date(tx.created_at), 'MMM d, yyyy · HH:mm')}</td>
-                                        <td className="px-5 py-3.5 text-text-sub">{tx.seller?.full_name ?? '—'}</td>
-                                        <td className="px-5 py-3.5 text-text-sub">{tx.items?.length ?? 0}</td>
-                                        <td className="px-5 py-3.5 capitalize text-text-sub">{tx.payment_method}</td>
+                                    <tr key={tx.id} className="hover:bg-surface-dim transition-colors">
+                                        <td className="px-5 py-3.5 font-mono text-xs font-semibold text-brand">{tx.invoice_number}</td>
+                                        <td className="px-5 py-3.5 text-text-main whitespace-nowrap">{format(new Date(tx.created_at), 'MMM d, yyyy · HH:mm')}</td>
+                                        <td className="px-5 py-3.5 text-text-main">{tx.seller?.full_name ?? '—'}</td>
+                                        <td className="px-5 py-3.5 text-text-main">{tx.items?.length ?? 0}</td>
+                                        <td className="px-5 py-3.5 capitalize text-text-main">{tx.payment_method}</td>
                                         <td className="px-5 py-3.5 font-bold text-text-main">${tx.total.toFixed(2)}</td>
                                         <td className="px-5 py-3.5">
                                             <StatusBadge status={tx.status as 'completed' | 'refunded' | 'partial_refund'} />

@@ -90,7 +90,7 @@ export function InventoryReport({ filters }: InventoryReportProps) {
             <div className="bg-card rounded-2xl border border-border-dim overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                        <thead className="bg-surface-dim border-b border-border-dim sticky top-0">
+                        <thead className="bg-surface border-b border-border-main sticky top-0">
                             <tr>
                                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-text-sub uppercase tracking-wide cursor-pointer" onClick={() => toggleSort('name')}>
                                     Product {renderSortIcon('name')}
@@ -106,32 +106,32 @@ export function InventoryReport({ filters }: InventoryReportProps) {
                                 <th className="text-center px-5 py-3.5 text-xs font-semibold text-text-sub uppercase tracking-wide">Status</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50">
+                        <tbody className="divide-y divide-border-main">
                             {isLoading ? (
                                 Array.from({ length: 6 }).map((_, i) => (
-                                    <tr key={i}><td colSpan={6} className="px-5 py-3.5"><div className="h-4 bg-gray-100 rounded animate-pulse" /></td></tr>
+                                    <tr key={i}><td colSpan={6} className="px-5 py-3.5"><div className="h-4 bg-surface-dim rounded animate-pulse" /></td></tr>
                                 ))
                             ) : displayed.length === 0 ? (
                                 <tr><td colSpan={6} className="px-5 py-12 text-center text-text-dim text-sm">No items match the current filters</td></tr>
                             ) : (
                                 displayed.map(row => (
-                                    <tr key={row.id} className={clsx('hover:bg-surface-dim/60 transition-colors', row.status === 'out' && 'bg-red-50/40', row.status === 'low' && 'bg-amber-50/40')}>
+                                    <tr key={row.id} className={clsx('hover:bg-surface-dim transition-colors', row.status === 'out' && 'bg-danger-bg', row.status === 'low' && 'bg-warning-bg')}>
                                         <td className="px-5 py-3.5">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-medium text-text-main">{row.name}</span>
-                                                {row.is_controlled && <span className="text-[10px] font-bold px-1.5 py-0.5 bg-red-100 text-red-700 rounded">CD</span>}
+                                                {row.is_controlled && <span className="text-[10px] font-bold px-1.5 py-0.5 bg-danger-bg text-danger rounded">CD</span>}
                                             </div>
                                             {row.sku && <p className="text-xs text-text-dim font-mono">{row.sku}</p>}
                                         </td>
                                         <td className="px-5 py-3.5 text-text-sub text-xs">{row.category ?? '—'}</td>
                                         <td className="px-5 py-3.5 text-right font-semibold text-text-main">{row.total_stock} <span className="text-text-dim font-normal text-xs">{row.unit}</span></td>
-                                        <td className="px-5 py-3.5 text-right text-text-sub">{row.minimum_order_quantity}</td>
+                                        <td className="px-5 py-3.5 text-right text-text-main">{row.minimum_order_quantity}</td>
                                         <td className="px-5 py-3.5 text-right font-semibold text-text-main">${row.total_value.toFixed(2)}</td>
                                         <td className="px-5 py-3.5 text-center">
                                             <span className={clsx('text-xs font-semibold px-2.5 py-1 rounded-full',
-                                                row.status === 'ok' ? 'bg-green-100 text-green-700' :
-                                                    row.status === 'low' ? 'bg-amber-100 text-amber-700' :
-                                                        'bg-red-100 text-red-700')}>
+                                                row.status === 'ok' ? 'bg-success-bg text-success' :
+                                                    row.status === 'low' ? 'bg-warning-bg text-warning' :
+                                                        'bg-danger-bg text-danger')}>
                                                 {row.status === 'ok' ? 'OK' : row.status === 'low' ? 'Low Stock' : 'Out of Stock'}
                                             </span>
                                         </td>

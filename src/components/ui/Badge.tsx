@@ -30,20 +30,20 @@ interface StatusBadgeProps {
 
 export function StatusBadge({ status }: StatusBadgeProps) {
     const map = {
-        active: 'bg-green-100 text-green-700 border-green-200',
-        inactive: 'bg-gray-100 text-text-sub border-border-main',
-        pending: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-        approved: 'bg-green-100 text-green-700 border-green-200',
-        rejected: 'bg-red-100 text-red-700 border-red-200',
-        draft: 'bg-gray-100 text-text-sub border-border-main',
-        in_progress: 'bg-blue-100 text-blue-700 border-blue-200',
-        submitted: 'bg-purple-100 text-purple-700 border-purple-200',
-        quarantined: 'bg-orange-100 text-orange-700 border-orange-200',
-        disposed: 'bg-red-100 text-red-700 border-red-200',
-        depleted: 'bg-slate-100 text-slate-500 border-slate-200',
-        completed: 'bg-green-100 text-green-700 border-green-200',
-        refunded: 'bg-rose-100 text-rose-700 border-rose-200',
-        partial_refund: 'bg-amber-100 text-amber-700 border-amber-200',
+        active: 'bg-success-bg text-success border-success-border',
+        inactive: 'bg-surface text-text-sub border-border-main',
+        pending: 'bg-warning-bg text-warning border-warning-border',
+        approved: 'bg-success-bg text-success border-success-border',
+        rejected: 'bg-danger-bg text-danger border-danger-border',
+        draft: 'bg-surface text-text-sub border-border-main',
+        in_progress: 'bg-info-bg text-info border-info-border',
+        submitted: 'bg-info-bg text-info border-info-border',
+        quarantined: 'bg-warning-bg text-warning border-warning-border',
+        disposed: 'bg-danger-bg text-danger border-danger-border',
+        depleted: 'bg-surface-dim text-text-dim border-border-main',
+        completed: 'bg-success-bg text-success border-success-border',
+        refunded: 'bg-danger-bg text-danger border-danger-border',
+        partial_refund: 'bg-warning-bg text-warning border-warning-border',
     };
     return (
         <span
