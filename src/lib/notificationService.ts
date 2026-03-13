@@ -28,8 +28,9 @@ export const notificationService = {
         try {
             const permission = await Notification.requestPermission();
             return permission;
-        } catch (e) {
+        } catch {
             // Fallback for older Safari
+
             return new Promise((resolve) => {
                 Notification.requestPermission((permission) => {
                     resolve(permission);

@@ -23,7 +23,7 @@ export interface User {
     email: string;
     full_name: string | null;
     role_id: string;
-    company_id: string | null;
+    tenant_id: string | null;
     is_active: boolean;
     created_at: string;
     role?: Role;
@@ -51,7 +51,7 @@ export interface InventoryItem {
     expiry_date: string | null;
     is_controlled: boolean;
     minimum_order_quantity: number;
-    company_id: string | null;
+    tenant_id: string | null;
     created_at: string;
     updated_at: string;
     batches?: ItemBatch[];
@@ -98,7 +98,7 @@ export interface SaleTransaction {
     total: number;
     notes: string | null;
     sold_by: string | null;
-    company_id: string | null;
+    tenant_id: string | null;
     created_at: string;
     updated_at: string;
     // Joined
@@ -165,7 +165,7 @@ export interface Sale {
     total_price: number;
     sold_by: string | null;
     sale_date: string;
-    company_id: string | null;
+    tenant_id: string | null;
     notes: string | null;
     created_at: string;
     inventory_item?: Pick<InventoryItem, 'name' | 'sku' | 'unit'>;
@@ -188,7 +188,7 @@ export interface StockCountSession {
     created_by: string;
     approved_by: string | null;
     approved_at: string | null;
-    company_id: string | null;
+    tenant_id: string | null;
     created_at: string;
     updated_at: string;
     // Joined relations

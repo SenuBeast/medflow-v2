@@ -126,7 +126,7 @@ export function useLiveSalesDashboard() {
                             transactions_count: newCount,
                             average_order_value: newRev / newCount,
                             // Note: for exact item count, we sum the items.
-                            items_sold: prev.items_sold + (fullTx.items?.reduce((s: number, i: any) => s + i.quantity, 0) || 0)
+                            items_sold: prev.items_sold + (fullTx.items?.reduce((s: number, i: { quantity: number }) => s + i.quantity, 0) || 0)
                         };
                     });
 

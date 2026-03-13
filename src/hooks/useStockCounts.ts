@@ -102,8 +102,8 @@ export function useCreateStockCountSession() {
 
             // 2. Fetch appropriate batches to count (For MVP, we'll fetch all active/quarantined batches)
             const { data: batches, error: batchesError } = await supabase
-                .from('item_batches')
-                .select('id, item_id, quantity')
+                .from('batches')
+                .select('id, product_id, quantity')
                 .in('status', ['active', 'quarantined']);
 
             if (batchesError) throw batchesError;
@@ -112,7 +112,7 @@ export function useCreateStockCountSession() {
             if (batches && batches.length > 0) {
                 const itemsToInsert = batches.map(b => ({
                     session_id: session.id,
-                    item_id: b.item_id,
+                    item_id: b.product_id,
                     batch_id: b.id,
                     system_quantity: b.quantity,
                     physical_count: null,
@@ -229,7 +229,7 @@ export function useApproveStockCountSession() {
                 for (const item of items) {
                     if (item.variance !== 0 && item.physical_count !== null) {
                         const { error: batchErr } = await supabase
-                            .from('item_batches')
+                            .from('batches')
                             .update({ quantity: item.physical_count, updated_at: new Date().toISOString() })
                             .eq('id', item.batch_id);
                         if (batchErr) console.error("Failed to update batch", item.batch_id, batchErr);

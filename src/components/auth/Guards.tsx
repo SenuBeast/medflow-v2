@@ -38,12 +38,11 @@ interface RouteGuardProps {
 
 export function RouteGuard({ permission, children }: RouteGuardProps) {
     const { isInitialized, isLoading } = useAuthStore();
+    const canAccess = useHasPermission(permission);
 
     if (!isInitialized || isLoading) {
         return <LoadingScreen />;
     }
-
-    const canAccess = useHasPermission(permission);
 
     if (!canAccess) {
         return <Navigate to="/no-access" replace />;

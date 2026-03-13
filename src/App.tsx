@@ -8,6 +8,7 @@ import { Verify2FAPage } from './pages/auth/Verify2FAPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { NoAccessPage } from './pages/NoAccessPage';
 import { InventoryPage } from './pages/inventory/InventoryPage';
+import { GRNHistoryPage } from './pages/inventory/GRNHistoryPage';
 import { StockCountsPage } from './pages/inventory/StockCountsPage';
 import { StockCountSessionPage } from './pages/inventory/StockCountSessionPage';
 import { ControlledSubstancesPage } from './pages/inventory/ControlledSubstancesPage';
@@ -65,6 +66,11 @@ function App() {
               <Route path="inventory" element={
                 <RouteGuard permission={PERMISSIONS.INVENTORY_VIEW}>
                   <InventoryPage />
+                </RouteGuard>
+              } />
+              <Route path="inventory-grn" element={
+                <RouteGuard permission={PERMISSIONS.INVENTORY_VIEW}>
+                  <GRNHistoryPage />
                 </RouteGuard>
               } />
               <Route path="controlled-substances" element={

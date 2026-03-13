@@ -40,7 +40,7 @@ export function BulkImportModal({ isOpen, onClose }: { isOpen: boolean; onClose:
 
             // Find headers
             const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
-            const requiredHeaders = ['name', 'category', 'minimum_order_quantity', 'unit', 'cost_price', 'selling_price', 'is_controlled'];
+            const requiredHeaders = ['name', 'category', 'minimum_order_quantity', 'unit', 'is_controlled'];
 
             const missing = requiredHeaders.filter(h => !headers.includes(h));
             if (missing.length > 0) {
@@ -51,8 +51,6 @@ export function BulkImportModal({ isOpen, onClose }: { isOpen: boolean; onClose:
             const catIdx = headers.indexOf('category');
             const moqIdx = headers.indexOf('minimum_order_quantity');
             const unitIdx = headers.indexOf('unit');
-            const costIdx = headers.indexOf('cost_price');
-            const sellIdx = headers.indexOf('selling_price');
             const ctrlIdx = headers.indexOf('is_controlled');
             const skuIdx = headers.indexOf('sku'); // optional
 
@@ -68,21 +66,22 @@ export function BulkImportModal({ isOpen, onClose }: { isOpen: boolean; onClose:
                 if (values.length < headers.length) continue;
 
                 itemsToInsert.push({
-                    name: values[nameIdx],
+                    product_code: skuIdx !== -1
+                        ? (values[skuIdx] || `MED-${Date.now()}-${i}`)
+                        : `MED-${Date.now()}-${i}`,
+                    medicine_name: values[nameIdx],
                     category: values[catIdx] || null,
-                    minimum_order_quantity: parseInt(values[moqIdx]) || 10,
-                    unit: values[unitIdx] || 'units',
-                    cost_price: parseFloat(values[costIdx]) || null,
-                    selling_price: parseFloat(values[sellIdx]) || null,
-                    is_controlled: values[ctrlIdx] === 'true' || values[ctrlIdx] === '1',
-                    sku: skuIdx !== -1 ? (values[skuIdx] || null) : null,
-                    quantity: 0 // initial quantity is 0 because batches handle stock
+                    unit_type: values[unitIdx] || 'units',
+                    pack_size: 1,
+                    minimum_stock_level: parseInt(values[moqIdx]) || 10,
+                    reorder_level: parseInt(values[moqIdx]) || 10,
+                    controlled_drug: values[ctrlIdx] === 'true' || values[ctrlIdx] === '1',
                 });
             }
 
             if (itemsToInsert.length === 0) throw new Error('No valid payload rows found.');
 
-            const { error: insertError } = await supabase.from('inventory_items').insert(itemsToInsert);
+            const { error: insertError } = await supabase.from('products').insert(itemsToInsert);
             if (insertError) throw insertError;
 
             setSuccessMsg(`Successfully imported ${itemsToInsert.length} items!`);
@@ -111,9 +110,9 @@ export function BulkImportModal({ isOpen, onClose }: { isOpen: boolean; onClose:
                 <div className="bg-blue-50 text-blue-800 p-4 rounded-xl text-sm">
                     <p className="font-semibold mb-2">CSV Format Requirements:</p>
                     <ul className="list-disc pl-5 space-y-1 text-blue-700">
-                        <li>Required Columns: <code className="bg-blue-100 px-1 rounded">name, category, minimum_order_quantity, unit, cost_price, selling_price, is_controlled</code></li>
+                        <li>Required Columns: <code className="bg-blue-100 px-1 rounded">name, category, minimum_order_quantity, unit, is_controlled</code></li>
                         <li>Optional Columns: <code className="bg-blue-100 px-1 rounded">sku</code></li>
-                        <li>Note: Starting quantities are governed by batches. Import items first, then add stock batches.</li>
+                        <li>Note: Cost/selling values from CSV are ignored at product-master level. Set prices while adding batches/GRNs.</li>
                     </ul>
                 </div>
 

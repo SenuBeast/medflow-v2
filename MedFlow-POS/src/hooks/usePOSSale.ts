@@ -21,10 +21,8 @@ export function usePOSSale() {
 
             // 1. Format the cart for the RPC payload
             const p_cart = payload.cart.map(ci => {
-                if (!ci.batch_id) {
-                    throw new Error(`Batch ID missing for: ${ci.name}. Please select a batch.`);
-                }
                 return {
+                    product_id: ci.item_id,
                     item_id: ci.item_id,
                     batch_id: ci.batch_id,
                     name: ci.name,
@@ -36,8 +34,8 @@ export function usePOSSale() {
                 };
             });
 
-            // 2. Call the Atomic PostgreSQL RPC
-            const { data, error } = await supabase.rpc('process_pos_sale', {
+            // 2. Call the atomic FEFO PostgreSQL RPC
+            const { data, error } = await supabase.rpc('process_pos_sale_fefo', {
                 p_payment_method: payload.payment_method,
                 p_discount_amount: payload.discount_amount,
                 p_tax_rate: payload.tax_rate,
@@ -53,7 +51,7 @@ export function usePOSSale() {
                 throw error;
             }
 
-            return data as SaleTransaction;
+            return ((data as { transaction?: SaleTransaction } | null)?.transaction ?? data) as SaleTransaction;
         },
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ['pos_products'] });

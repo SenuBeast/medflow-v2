@@ -107,7 +107,10 @@ export function OverviewDashboard() {
                                             color: 'var(--color-text-primary)'
                                         }}
                                         itemStyle={{ color: 'var(--color-text-primary)' }}
-                                        formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Revenue']}
+                                        formatter={(value: string | number | readonly (string | number)[] | undefined) => {
+                                            const val = Array.isArray(value) ? value[0] : value;
+                                            return [`$${Number(val ?? 0).toFixed(2)}`, 'Revenue'] as [string, string];
+                                        }}
                                     />
                                     <Line
                                         type="monotone"

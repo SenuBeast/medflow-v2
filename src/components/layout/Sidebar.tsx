@@ -10,6 +10,7 @@ import {
     ShieldAlert,
     ClipboardCheck,
     FileText,
+    ReceiptText,
     Menu,
     X,
     ChevronLeft,
@@ -35,6 +36,7 @@ interface NavItem {
 const navItems: NavItem[] = [
     { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard, permission: null },
     { label: 'Inventory', to: '/inventory', icon: Package, permission: PERMISSIONS.INVENTORY_VIEW, exact: true },
+    { label: 'GRN History', to: '/inventory-grn', icon: ReceiptText, permission: PERMISSIONS.INVENTORY_VIEW },
     { label: 'Stock Counts', to: '/stock-counts', icon: ClipboardCheck, permission: PERMISSIONS.STOCK_COUNTS_PERFORM },
     { label: 'Sales', to: '/sales', icon: ShoppingCart, permission: PERMISSIONS.SALES_VIEW },
     { label: 'Reports', to: '/reports', icon: FileText, permission: PERMISSIONS.REPORTS_VIEW },
@@ -142,8 +144,11 @@ export function Sidebar() {
 
     // Close mobile drawer on route change
     useEffect(() => {
-        setMobileOpen(false);
-    }, [location.pathname]);
+        if (mobileOpen) {
+            Promise.resolve().then(() => setMobileOpen(false));
+        }
+    }, [location.pathname, mobileOpen]);
+
 
     // Close mobile drawer on escape key
     useEffect(() => {
@@ -231,10 +236,6 @@ export function Sidebar() {
                 </div>
             )}
 
-            {/* Theme Toggle */}
-            <div className={clsx(collapsed && !isMobile ? 'px-2 pb-2' : 'px-3 pb-2')}>
-                <ThemeToggle className="w-full" />
-            </div>
 
             {/* User info — links to Profile */}
             <div className={clsx(
@@ -277,17 +278,25 @@ export function Sidebar() {
                         </div>
                     )}
                 </button>
-                <button
-                    onClick={handleSignOut}
-                    className={clsx(
-                        'flex items-center w-full rounded-lg text-xs transition-colors hover:bg-[var(--sidebar-item-hover)] hover:text-[var(--sidebar-text-active)] text-[var(--sidebar-text)]',
-                        collapsed && !isMobile ? 'justify-center px-2 py-2' : 'gap-2 px-3 py-2'
-                    )}
-                    title="Sign out"
-                >
-                    <LogOut size={14} />
-                    {(!collapsed || isMobile) && 'Sign out'}
-                </button>
+                <div className={clsx(
+                    'flex items-center gap-2',
+                    collapsed && !isMobile ? 'flex-col' : 'flex-row'
+                )}>
+                    <button
+                        onClick={handleSignOut}
+                        className={clsx(
+                            'flex items-center rounded-lg text-xs transition-colors hover:bg-[var(--sidebar-item-hover)] hover:text-[var(--sidebar-text-active)] text-[var(--sidebar-text)]',
+                            collapsed && !isMobile ? 'justify-center p-2 w-full' : 'gap-2 px-3 py-2 flex-1'
+                        )}
+                        title="Sign out"
+                    >
+                        <LogOut size={14} />
+                        {(!collapsed || isMobile) && 'Sign out'}
+                    </button>
+                    <ThemeToggle className={clsx(
+                        collapsed && !isMobile ? 'w-full' : ''
+                    )} />
+                </div>
             </div>
         </div>
     );

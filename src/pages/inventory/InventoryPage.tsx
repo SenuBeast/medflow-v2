@@ -2,6 +2,7 @@ import { useState, Fragment } from 'react';
 import {
     ShieldAlert,
     Plus,
+    FilePlus2,
     PackageOpen,
     AlertTriangle,
     Search,
@@ -15,12 +16,22 @@ import {
 } from 'lucide-react';
 import { StockAdjustmentModal } from '../../components/inventory/StockAdjustmentModal';
 import { ItemBatchForm } from '../../components/inventory/ItemBatchForm';
+import { GrnReceiveForm } from '../../components/inventory/GrnReceiveForm';
 import { BulkImportModal } from '../../components/inventory/BulkImportModal';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import { PermissionGuard } from '../../components/auth/Guards';
-import { useInventory, useAddInventoryItem, useUpdateInventoryItem, useDeleteInventoryItem, useAddBatch, useUpdateBatchStatus } from '../../hooks/useInventory';
+import {
+    useInventory,
+    useAddInventoryItem,
+    useUpdateInventoryItem,
+    useDeleteInventoryItem,
+    useAddBatch,
+    useUpdateBatchStatus,
+    useSuppliers,
+    useCreateGrnReceipt,
+} from '../../hooks/useInventory';
 import { PERMISSIONS } from '../../lib/constants';
 import type { InventoryItem } from '../../lib/types';
 import { clsx } from 'clsx';
@@ -41,14 +52,15 @@ function ItemForm({
         name: initialData?.name ?? '',
         generic_name: initialData?.generic_name ?? '',
         sku: initialData?.sku ?? '',
+        barcode: initialData?.barcode ?? '',
         category: initialData?.category ?? '',
-        quantity: initialData?.quantity ?? 0,
+        manufacturer: initialData?.manufacturer ?? '',
+        brand_name: initialData?.brand_name ?? '',
         unit: initialData?.unit ?? 'units',
-        cost_price: initialData?.cost_price ?? 0,
-        selling_price: initialData?.selling_price ?? 0,
-        expiry_date: initialData?.expiry_date ?? null,
+        pack_size: initialData?.pack_size ?? 1,
         is_controlled: initialData?.is_controlled ?? false,
         minimum_order_quantity: initialData?.minimum_order_quantity ?? 10,
+        reorder_level: initialData?.reorder_level ?? initialData?.minimum_order_quantity ?? 10,
         tenant_id: initialData?.tenant_id ?? null,
     });
 
@@ -80,10 +92,28 @@ function ItemForm({
                     onChange={(e) => handleChange('sku', e.target.value)}
                 />
                 <Input
+                    label="Barcode"
+                    placeholder="e.g. 8901234567890"
+                    value={form.barcode ?? ''}
+                    onChange={(e) => handleChange('barcode', e.target.value)}
+                />
+                <Input
                     label="Category"
                     placeholder="e.g. Analgesics"
                     value={form.category ?? ''}
                     onChange={(e) => handleChange('category', e.target.value)}
+                />
+                <Input
+                    label="Brand"
+                    placeholder="e.g. Panadol"
+                    value={form.brand_name ?? ''}
+                    onChange={(e) => handleChange('brand_name', e.target.value)}
+                />
+                <Input
+                    label="Manufacturer"
+                    placeholder="e.g. GSK"
+                    value={form.manufacturer ?? ''}
+                    onChange={(e) => handleChange('manufacturer', e.target.value)}
                 />
                 <div className="space-y-1.5">
                     <label className="block text-xs font-semibold text-text-sub uppercase tracking-wider">Unit</label>
@@ -100,39 +130,25 @@ function ItemForm({
                     </select>
                 </div>
                 <Input
-                    label="Quantity"
+                    label="Pack Size"
                     type="number"
-                    value={form.quantity}
-                    disabled
+                    value={form.pack_size}
+                    onChange={(e) => handleChange('pack_size', Math.max(1, Number(e.target.value)))}
+                    min={1}
                 />
                 <Input
-                    label="Minimum Order Qty"
+                    label="Minimum Stock Level"
                     type="number"
                     value={form.minimum_order_quantity}
                     onChange={(e) => handleChange('minimum_order_quantity', Number(e.target.value))}
                     min={0}
                 />
                 <Input
-                    label="Cost Price ($)"
+                    label="Reorder Level"
                     type="number"
-                    step="0.01"
-                    value={form.cost_price ?? 0}
-                    onChange={(e) => handleChange('cost_price', Number(e.target.value))}
+                    value={form.reorder_level}
+                    onChange={(e) => handleChange('reorder_level', Number(e.target.value))}
                     min={0}
-                />
-                <Input
-                    label="Selling Price ($)"
-                    type="number"
-                    step="0.01"
-                    value={form.selling_price ?? 0}
-                    onChange={(e) => handleChange('selling_price', Number(e.target.value))}
-                    min={0}
-                />
-                <Input
-                    label="Expiry Date"
-                    type="date"
-                    value={form.expiry_date || ''}
-                    onChange={(e) => handleChange('expiry_date', e.target.value || null)}
                 />
                 <div className="flex items-end pb-1 px-1">
                     <label className="flex items-center gap-2 cursor-pointer group">
@@ -278,10 +294,12 @@ function InventoryMobileCard({
 
 export function InventoryPage() {
     const { data: items = [], isLoading } = useInventory();
+    const { data: suppliers = [] } = useSuppliers();
     const addItem = useAddInventoryItem();
     const updateItem = useUpdateInventoryItem();
     const deleteItem = useDeleteInventoryItem();
     const addBatch = useAddBatch();
+    const createGrnReceipt = useCreateGrnReceipt();
     const updateBatchStatus = useUpdateBatchStatus();
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState<'all' | 'low' | 'controlled' | 'expiring'>('all');
@@ -291,6 +309,7 @@ export function InventoryPage() {
     const [adjustItem, setAdjustItem] = useState<InventoryItem | null>(null);
     const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
     const [showAddBatch, setShowAddBatch] = useState<string | null>(null);
+    const [showReceiveGrnForProduct, setShowReceiveGrnForProduct] = useState<string | null>(null);
 
     const now = new Date();
     const in30 = new Date(); in30.setDate(now.getDate() + 30);
@@ -307,6 +326,10 @@ export function InventoryPage() {
         }
     });
 
+    const selectedBatchItem = showAddBatch
+        ? items.find((entry) => entry.id === showAddBatch) ?? null
+        : null;
+
     return (
         <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
             {/* Header */}
@@ -320,6 +343,12 @@ export function InventoryPage() {
                         <Button variant="secondary" icon={<Upload size={16} />} onClick={() => setShowImport(true)}>
                             <span className="hidden sm:inline">Import CSV</span>
                             <span className="sm:hidden">Import</span>
+                        </Button>
+                    </PermissionGuard>
+                    <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                        <Button variant="secondary" icon={<FilePlus2 size={16} />} onClick={() => setShowReceiveGrnForProduct('')}>
+                            <span className="hidden sm:inline">Receive GRN</span>
+                            <span className="sm:hidden">GRN</span>
                         </Button>
                     </PermissionGuard>
                     <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
@@ -398,11 +427,18 @@ export function InventoryPage() {
                                     <Card className="mt-1 p-4 bg-card/30 border-t-0 rounded-t-none">
                                         <div className="flex items-center justify-between mb-3">
                                             <h4 className="text-[10px] font-bold text-text-dim uppercase tracking-widest">Item Batches</h4>
-                                            <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
-                                                <Button variant="outline" size="sm" onClick={() => setShowAddBatch(item.id)}>
-                                                    + Add Batch
-                                                </Button>
-                                            </PermissionGuard>
+                                            <div className="flex items-center gap-2">
+                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                    <Button variant="outline" size="sm" onClick={() => setShowReceiveGrnForProduct(item.id)}>
+                                                        + Receive GRN
+                                                    </Button>
+                                                </PermissionGuard>
+                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                    <Button variant="outline" size="sm" onClick={() => setShowAddBatch(item.id)}>
+                                                        + Add Batch
+                                                    </Button>
+                                                </PermissionGuard>
+                                            </div>
                                         </div>
                                         {(!item.batches || item.batches.length === 0) ? (
                                             <p className="text-sm text-text-dim py-4 text-center border border-dashed border-border-main rounded-xl bg-card">No batches recorded.</p>
@@ -598,11 +634,18 @@ export function InventoryPage() {
                                                         <div className="px-10 py-5 bg-card/30 border-t border-border-dim/30">
                                                             <div className="flex items-center justify-between mb-4">
                                                                 <h4 className="text-[10px] font-bold text-text-dim uppercase tracking-widest">Item Batches</h4>
-                                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
-                                                                    <Button variant="outline" size="sm" onClick={() => setShowAddBatch(item.id)}>
-                                                                        + Add Batch
-                                                                    </Button>
-                                                                </PermissionGuard>
+                                                                <div className="flex items-center gap-2">
+                                                                    <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                                        <Button variant="outline" size="sm" onClick={() => setShowReceiveGrnForProduct(item.id)}>
+                                                                            + Receive GRN
+                                                                        </Button>
+                                                                    </PermissionGuard>
+                                                                    <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                                        <Button variant="outline" size="sm" onClick={() => setShowAddBatch(item.id)}>
+                                                                            + Add Batch
+                                                                        </Button>
+                                                                    </PermissionGuard>
+                                                                </div>
                                                             </div>
                                                             {(!item.batches || item.batches.length === 0) ? (
                                                                 <p className="text-sm text-text-dim py-4 text-center border border-dashed border-border-main rounded-xl bg-card">No batches recorded.</p>
@@ -729,16 +772,34 @@ export function InventoryPage() {
             )}
 
             {/* Add Batch Modal */}
-            {showAddBatch && (
-                <Modal title="Add Item Batch" onClose={() => setShowAddBatch(null)} size="md">
+            {showAddBatch && selectedBatchItem && (
+                <Modal title="Add Item Batch" onClose={() => setShowAddBatch(null)} size="lg">
                     <ItemBatchForm
-                        itemId={showAddBatch}
+                        item={selectedBatchItem}
+                        suppliers={suppliers}
                         onSave={async (data) => {
                             await addBatch.mutateAsync(data);
                             setShowAddBatch(null);
                         }}
                         onClose={() => setShowAddBatch(null)}
                         loading={addBatch.isPending}
+                    />
+                </Modal>
+            )}
+
+            {/* Receive GRN Modal */}
+            {showReceiveGrnForProduct !== null && (
+                <Modal title="Receive Stock (GRN)" onClose={() => setShowReceiveGrnForProduct(null)} size="xl">
+                    <GrnReceiveForm
+                        items={items}
+                        suppliers={suppliers}
+                        defaultProductId={showReceiveGrnForProduct || null}
+                        onSave={async (payload) => {
+                            await createGrnReceipt.mutateAsync(payload);
+                            setShowReceiveGrnForProduct(null);
+                        }}
+                        onClose={() => setShowReceiveGrnForProduct(null)}
+                        loading={createGrnReceipt.isPending}
                     />
                 </Modal>
             )}

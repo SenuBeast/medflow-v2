@@ -39,7 +39,10 @@ export function HourlyRevenueChart({ data }: { data: HourlySales[] }) {
                                 color: 'var(--color-text-main)'
                             }}
                             itemStyle={{ color: '#10b981' }}
-                            formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Revenue'] as any}
+                            formatter={(value: string | number | readonly (string | number)[] | undefined) => {
+                                const val = Array.isArray(value) ? value[0] : value;
+                                return [`$${Number(val ?? 0).toFixed(2)}`, 'Revenue'] as [string, string];
+                            }}
                             labelStyle={{ color: 'var(--color-text-sub)', marginBottom: '4px' }}
                         />
                         <Area

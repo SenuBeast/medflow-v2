@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
-import { differenceInDays } from 'date-fns';
-import type { ReportFilters, InventoryItem, ItemBatch, SaleTransaction, StockCountSession, AuditLog } from '../lib/types';
+import type { ReportFilters, InventoryItem, SaleTransaction, StockCountSession, AuditLog } from '../lib/types';
 
 // ─── Inventory Report ─────────────────────────────────────────────────────────
 
@@ -127,34 +126,44 @@ export function useExpiryReport(filters: ReportFilters) {
     return useQuery({
         queryKey: ['report_expiry', filters],
         queryFn: async (): Promise<ExpiryReportRow[]> => {
-            const { data, error } = await supabase
-                .from('item_batches')
-                .select('*, item:inventory_items(name, sku, is_controlled)')
-                .in('status', ['active', 'quarantined'])
-                .order('expiry_date');
-
+            const window = filters.expiryWindow ?? 30;
+            const days = window === 'expired' ? 3650 : window;
+            const { data, error } = await supabase.rpc('inventory_report_expiry', { p_days: days });
             if (error) throw error;
 
-            const window = filters.expiryWindow ?? 30;
-            const today = new Date();
+            return ((data ?? []) as Array<{
+                batch_id: string;
+                product_id: string;
+                medicine_name: string;
+                batch_number: string;
+                expiry_date: string;
+                quantity: number;
+                days_to_expiry: number;
+                expiry_status: 'expired' | 'near_expiry' | 'ok';
+            }>)
+                .map((row) => {
+                    const mappedStatus: ExpiryReportRow['status'] =
+                        row.expiry_status === 'expired'
+                            ? 'expired'
+                            : Number(row.days_to_expiry) <= 30
+                                ? 'critical'
+                                : Number(row.days_to_expiry) <= 60
+                                    ? 'warning'
+                                    : 'ok';
 
-            return ((data ?? []) as (ItemBatch & { item: Pick<InventoryItem, 'name' | 'sku' | 'is_controlled'> })[])
-                .map(b => {
-                    const days = differenceInDays(new Date(b.expiry_date), today);
-                    const status: ExpiryReportRow['status'] = days < 0 ? 'expired' : days <= 30 ? 'critical' : days <= 60 ? 'warning' : 'ok';
                     return {
-                        id: b.id,
-                        item_id: b.item_id,
-                        item_name: b.item?.name ?? '—',
-                        item_sku: b.item?.sku ?? null,
-                        batch_number: b.batch_number,
-                        quantity: b.quantity,
-                        expiry_date: b.expiry_date,
-                        days_to_expiry: days,
-                        status,
+                        id: row.batch_id,
+                        item_id: row.product_id,
+                        item_name: row.medicine_name,
+                        item_sku: null,
+                        batch_number: row.batch_number,
+                        quantity: row.quantity,
+                        expiry_date: row.expiry_date,
+                        days_to_expiry: Number(row.days_to_expiry),
+                        status: mappedStatus,
                     };
                 })
-                .filter(row => {
+                .filter((row) => {
                     if (filters.search && !row.item_name.toLowerCase().includes(filters.search.toLowerCase())) return false;
                     if (window === 'expired') return row.days_to_expiry < 0;
                     return row.days_to_expiry >= 0 && row.days_to_expiry <= window;

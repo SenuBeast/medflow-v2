@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import { supabase, supabaseUrl, supabaseAnonKey } from '../lib/supabase';
 import { getMfaAssuranceState, normalizeTotpCode } from '../lib/mfa';
 
 interface TotpEnrollmentData {
@@ -10,44 +9,28 @@ interface TotpEnrollmentData {
     uri: string;
 }
 
-interface PasswordAuthError {
-    code?: string;
-    message?: string;
-}
-
-const verifierUrl = (import.meta.env.VITE_SUPABASE_URL as string) || 'https://placeholder.supabase.co';
-const verifierAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string) || 'placeholder-key';
-
-const verifierClient = createClient(
-    verifierUrl,
-    verifierAnonKey,
-    {
-        auth: {
-            persistSession: false,
-            autoRefreshToken: false,
-            detectSessionInUrl: false,
-        },
-    }
-);
-
 async function confirmCurrentPassword(email: string, password: string): Promise<void> {
     if (!password.trim()) {
         throw new Error('Current password is required.');
     }
 
-    const { data, error } = await verifierClient.auth.signInWithPassword({ email, password });
-    if (error) {
-        const authError = error as PasswordAuthError;
-        const code = authError.code ?? '';
+    const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+            'apikey': supabaseAnonKey,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        const code = errorData.code ?? '';
         if (code === 'mfa_required' || code === 'insufficient_aal') {
             return;
         }
 
-        throw new Error(code === 'invalid_credentials' ? 'Current password is incorrect.' : (authError.message ?? 'Password confirmation failed.'));
-    }
-
-    if (data.session) {
-        await verifierClient.auth.signOut({ scope: 'local' });
+        throw new Error(code === 'invalid_credentials' ? 'Current password is incorrect.' : (errorData.message ?? 'Password confirmation failed.'));
     }
 }
 

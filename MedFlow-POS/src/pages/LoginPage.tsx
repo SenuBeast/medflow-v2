@@ -99,8 +99,8 @@ export default function LoginPage() {
                             try {
                                 setError(null);
                                 await signInWithGoogle();
-                            } catch (err: any) {
-                                setError(err.message || 'Google Sign-in failed');
+                            } catch (err: unknown) {
+                                setError(err instanceof Error ? err.message : 'Google Sign-in failed');
                             }
                         }}
                         className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-50 text-gray-900 font-bold py-3 px-4 transition-colors uppercase tracking-widest border border-gray-200"

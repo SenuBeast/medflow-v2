@@ -37,7 +37,7 @@ export function LiveSalesFeed({ sales }: { sales: SaleTransaction[] }) {
                                 </div>
                                 <div className="text-xs text-text-sub flex justify-between">
                                     <span>#{sale.invoice_number}</span>
-                                    <span>{(sale as any).seller?.full_name || 'Staff'}</span>
+                                    <span>{sale.seller?.full_name || 'Staff'}</span>
                                 </div>
                             </div>
                         ))}

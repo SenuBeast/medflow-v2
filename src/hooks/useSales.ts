@@ -78,80 +78,35 @@ export function useCreateSaleTransaction() {
         mutationFn: async (payload: CreateSalePayload) => {
             if (!user) throw new Error('Not authenticated');
 
-            const subtotal = payload.cart.reduce((s, i) => s + i.subtotal, 0);
-            const afterDiscount = subtotal - payload.discount_amount;
-            const taxAmount = afterDiscount * (payload.tax_rate / 100);
-            const total = afterDiscount + taxAmount;
-
-            // 1. Validate all items still have enough stock
-            for (const cartItem of payload.cart) {
-                if (cartItem.batch_id) {
-                    const { data: batch } = await supabase
-                        .from('item_batches')
-                        .select('quantity')
-                        .eq('id', cartItem.batch_id)
-                        .single();
-                    if (!batch || batch.quantity < cartItem.quantity) {
-                        throw new Error(`Insufficient stock for: ${cartItem.name}`);
-                    }
-                }
-            }
-
-            // 2. Create the transaction header
-            const { data: tx, error: txErr } = await supabase
-                .from('sale_transactions')
-                .insert({
-                    invoice_number: `INV-${Date.now()}`, // will be overridden by trigger, but needed as fallback
-                    status: 'completed',
-                    payment_method: payload.payment_method,
-                    subtotal,
-                    discount_amount: payload.discount_amount,
-                    tax_rate: payload.tax_rate,
-                    tax_amount: taxAmount,
-                    total,
-                    notes: payload.notes ?? null,
-                    sold_by: user.id,
-                    tenant_id: user.tenant_id,
-                })
-                .select()
-                .single();
-            if (txErr) throw txErr;
-
-            // 3. Insert line items
-            const lineItems: Omit<SaleItem, 'id' | 'created_at'>[] = payload.cart.map(ci => ({
-                transaction_id: tx.id,
+            const p_cart = payload.cart.map((ci) => ({
+                product_id: ci.item_id,
                 item_id: ci.item_id,
                 batch_id: ci.batch_id,
-                item_name: ci.name,
-                item_sku: ci.sku,
-                item_unit: ci.unit,
+                name: ci.name,
+                sku: ci.sku,
+                unit: ci.unit,
                 unit_price: ci.unit_price,
                 quantity: ci.quantity,
                 subtotal: ci.subtotal,
             }));
 
-            const { error: itemsErr } = await supabase.from('sale_items').insert(lineItems);
-            if (itemsErr) throw itemsErr;
+            const { data, error } = await supabase.rpc('process_pos_sale_fefo', {
+                p_payment_method: payload.payment_method,
+                p_discount_amount: payload.discount_amount,
+                p_tax_rate: payload.tax_rate,
+                p_notes: payload.notes,
+                p_cart,
+            });
 
-            // 4. Deduct stock from batches (FIFO via batch_id already resolved in POS)
-            for (const ci of payload.cart) {
-                if (ci.batch_id) {
-                    const { data: batch } = await supabase
-                        .from('item_batches')
-                        .select('quantity')
-                        .eq('id', ci.batch_id)
-                        .single();
-                    if (batch) {
-                        const newQty = Math.max(0, batch.quantity - ci.quantity);
-                        await supabase
-                            .from('item_batches')
-                            .update({ quantity: newQty, updated_at: new Date().toISOString() })
-                            .eq('id', ci.batch_id);
-                    }
+            if (error) {
+                if (error.message.includes('INSUFFICIENT_STOCK')) {
+                    throw new Error(error.message);
                 }
+                throw error;
             }
 
-            return tx as SaleTransaction;
+            const tx = ((data as { transaction?: SaleTransaction } | null)?.transaction ?? data) as SaleTransaction;
+            return tx;
         },
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ['sale_transactions'] });
@@ -216,17 +171,14 @@ export function useCreateRefund() {
             for (const ri of items) {
                 const matchedItem = (tx.items as SaleItem[]).find(i => i.item_id === ri.item_id);
                 if (matchedItem?.batch_id) {
-                    const { data: batch } = await supabase
-                        .from('item_batches')
-                        .select('quantity')
-                        .eq('id', matchedItem.batch_id)
-                        .single();
-                    if (batch) {
-                        await supabase
-                            .from('item_batches')
-                            .update({ quantity: batch.quantity + ri.quantity, updated_at: new Date().toISOString() })
-                            .eq('id', matchedItem.batch_id);
-                    }
+                    const { error: returnErr } = await supabase.rpc('process_customer_return', {
+                        p_sale_id: payload.transaction_id,
+                        p_product_id: matchedItem.item_id,
+                        p_batch_id: matchedItem.batch_id,
+                        p_quantity: ri.quantity,
+                        p_refund_amount: ri.amount,
+                    });
+                    if (returnErr) throw returnErr;
                 }
             }
         },

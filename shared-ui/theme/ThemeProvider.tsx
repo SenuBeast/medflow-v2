@@ -1,21 +1,7 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-
-// ── Types ──────────────────────────────────────────────────
-export type ThemeMode = 'light' | 'dark' | 'system';
-
-interface ThemeContextValue {
-    theme: ThemeMode;
-    setTheme: (mode: ThemeMode) => void;
-    /** The actual resolved theme ('light' | 'dark') */
-    resolvedTheme: 'light' | 'dark';
-}
-
-const STORAGE_KEY = 'mf-theme';
-const BROADCAST_CHANNEL = 'mf-theme-sync';
-
-// ── Context ────────────────────────────────────────────────
-const ThemeContext = createContext<ThemeContextValue | null>(null);
+import { ThemeContext, STORAGE_KEY, BROADCAST_CHANNEL } from './ThemeContext';
+import type { ThemeMode } from './ThemeContext';
 
 // ── Helper: apply to document ──────────────────────────────
 function applyTheme(mode: ThemeMode): 'light' | 'dark' {
@@ -91,11 +77,4 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
             {children}
         </ThemeContext.Provider>
     );
-}
-
-// ── Internal hook (for useTheme.ts) ───────────────────────
-export function useThemeContext() {
-    const ctx = useContext(ThemeContext);
-    if (!ctx) throw new Error('useTheme must be used inside <ThemeProvider>');
-    return ctx;
 }

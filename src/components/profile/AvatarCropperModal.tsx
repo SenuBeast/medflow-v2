@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import Cropper from 'react-easy-crop';
+import Cropper, { type Area } from 'react-easy-crop';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { RotateCcw, ZoomIn } from 'lucide-react';
@@ -15,10 +15,10 @@ export function AvatarCropperModal({ imageSrc, onClose, onCropComplete }: Avatar
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [rotation, setRotation] = useState(0);
     const [zoom, setZoom] = useState(1);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const handleCropComplete = useCallback((_croppedArea: any, croppedAreaPixels: any) => {
+    const handleCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
         setCroppedAreaPixels(croppedAreaPixels);
     }, []);
 

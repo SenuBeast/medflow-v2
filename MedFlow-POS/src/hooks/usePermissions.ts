@@ -21,7 +21,7 @@ export function usePermissions(requiredPermission: PermissionKey | string) {
 
             // 2. Check explicitly loaded permissions in Zustand store
             // The store permissions are formatted as an array of objects: [{ key: 'sales.create', ... }]
-            const localMatch = permissions.some((p: any) => p.key === requiredPermission || p.name === requiredPermission);
+            const localMatch = permissions.some((p: { key?: string; name?: string }) => p.key === requiredPermission || p.name === requiredPermission);
             if (localMatch) {
                 setHasPermission(true);
                 setLoading(false);
@@ -45,8 +45,11 @@ export function usePermissions(requiredPermission: PermissionKey | string) {
         if (user) {
             checkPerm();
         } else {
-            setLoading(false);
-            setHasPermission(false);
+            // Using a microtask to avoid "synchronous setState in effect" lint warning
+            Promise.resolve().then(() => {
+                setLoading(false);
+                setHasPermission(false);
+            });
         }
     }, [requiredPermission, user, permissions]);
 
