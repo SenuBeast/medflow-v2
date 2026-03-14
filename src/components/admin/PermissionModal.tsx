@@ -340,11 +340,6 @@ export function PermissionModal({ role, onClose }: PermissionModalProps) {
                                                         )}>
                                                             {perm.description}
                                                         </p>
-                                                        <div className="mt-1.5">
-                                                            <span className="inline-block px-1.5 py-0.5 bg-surface-dim text-text-dim text-[10px] font-mono rounded">
-                                                                {perm.key}
-                                                            </span>
-                                                        </div>
                                                     </div>
                                                 </label>
                                             );

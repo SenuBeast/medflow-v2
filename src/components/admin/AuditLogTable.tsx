@@ -18,6 +18,48 @@ const formatActionText = (action: string) => {
     return action.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ');
 };
 
+const renderDetails = (details: any) => {
+    if (!details || typeof details !== 'object') return '-';
+
+    // Handle Stock Item Changes (POS/Inventory)
+    if ('previous_quantity' in details && 'new_quantity' in details) {
+        const delta = details.delta || (details.new_quantity - details.previous_quantity);
+        const deltaSign = delta > 0 ? '+' : '';
+        return (
+            <div className="flex flex-col gap-0.5">
+                <span className="text-text-main font-medium">
+                    Qty: {details.previous_quantity} → {details.new_quantity}
+                </span>
+                <span className={clsx(
+                    "text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm w-fit",
+                    delta < 0 ? "bg-red-500/10 text-red-500" : "bg-green-500/10 text-green-500"
+                )}>
+                    {deltaSign}{delta} units
+                </span>
+            </div>
+        );
+    }
+
+    // Handle generic field updates (e.g. from profiles, settings)
+    const entries = Object.entries(details).filter(([key]) => !key.includes('_id'));
+    if (entries.length > 0) {
+        return (
+            <div className="flex flex-wrap gap-x-3 gap-y-1">
+                {entries.map(([key, value]) => (
+                    <div key={key} className="text-xs">
+                        <span className="text-text-dim capitalize">{key.replace(/_/g, ' ')}:</span>
+                        <span className="text-text-main ml-1 font-medium italic">
+                            {typeof value === 'object' ? 'updated' : String(value)}
+                        </span>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
+    return '-';
+};
+
 export function AuditLogTable() {
     const { logs, isLoading } = useAuditLogs();
 
@@ -69,7 +111,7 @@ export function AuditLogTable() {
                                             log.action.includes('DELETE') ? "bg-red-50 text-red-700 border-red-100" :
                                                 log.action.includes('CREATE') || log.action.includes('ADD') ? "bg-green-50 text-green-700 border-green-100" :
                                                     log.action.includes('UPDATE') || log.action.includes('EDIT') ? "bg-blue-50 text-blue-700 border-blue-100" :
-                                                        "bg-surface-dim text-gray-700 border-border-main"
+                                                        "bg-surface-dim text-slate-700 dark:text-slate-300 border-border-main"
                                         )}>
                                             {formatActionText(log.action)}
                                         </span>
@@ -78,16 +120,16 @@ export function AuditLogTable() {
                                         <div className="flex items-center gap-2">
                                             {getEntityIcon(log.entity_type)}
                                             <span className="text-sm text-text-main capitalize">
-                                                {log.entity_type.replace('_', ' ')}
+                                                {log.entity_type.replace(/_/g, ' ')}
                                             </span>
                                         </div>
-                                        <div className="text-xs text-text-dim mt-1 font-mono truncate max-w-[120px]" title={log.entity_id || ''}>
-                                            {log.entity_id}
+                                        <div className="text-[10px] text-text-dim mt-1 font-mono truncate max-w-[120px]" title={log.entity_id || ''}>
+                                            Ref: {log.entity_id?.slice(0, 8)}...
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="text-xs text-text-sub font-mono bg-surface-dim p-2 rounded max-h-16 overflow-y-auto max-w-xs break-all">
-                                            {log.details ? JSON.stringify(log.details) : '-'}
+                                        <div className="max-w-md">
+                                            {renderDetails(log.details)}
                                         </div>
                                     </td>
                                 </tr>

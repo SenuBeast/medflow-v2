@@ -15,7 +15,7 @@ export function ProductPerformance() {
                     </div>
                 ) : (
                     <div className="h-[400px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                             <BarChart data={topProducts.data || []} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#E5E7EB" />
                                 <XAxis type="number" hide />

@@ -264,8 +264,8 @@ export function PermissionEditor({ role, onClose }: PermissionEditorProps) {
                                                 />
                                                 <div className="min-w-0">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-sm font-medium text-text-main font-mono text-xs">
-                                                            {perm.key}
+                                                        <span className="text-sm font-semibold text-text-main capitalize">
+                                                            {perm.key.split('.').pop()?.replace(/_/g, ' ')}
                                                         </span>
                                                         {critical && (
                                                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full border border-amber-200">

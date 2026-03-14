@@ -1459,7 +1459,8 @@ CREATE OR REPLACE FUNCTION public.deduct_stock_fefo(
 RETURNS TABLE (
     batch_id uuid,
     quantity_deducted numeric,
-    expiry_date date
+    expiry_date date,
+    error_code text
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -1484,7 +1485,12 @@ BEGIN
       AND (p_allow_expired OR b.expiry_date >= current_date);
 
     IF v_available < p_quantity THEN
-        RAISE EXCEPTION 'INSUFFICIENT_STOCK: requested %, available % for product %', p_quantity, v_available, p_product_id;
+        batch_id := NULL;
+        quantity_deducted := 0;
+        expiry_date := NULL;
+        error_code := 'INSUFFICIENT_STOCK';
+        RETURN NEXT;
+        RETURN;
     END IF;
 
     FOR v_batch IN
@@ -1544,6 +1550,7 @@ BEGIN
         batch_id := v_batch.id;
         quantity_deducted := v_take;
         expiry_date := v_batch.expiry_date;
+        error_code := NULL;
         RETURN NEXT;
     END LOOP;
 END;
@@ -1739,6 +1746,11 @@ BEGIN
                 false
             )
         LOOP
+            IF v_alloc.error_code IS NOT NULL THEN
+                -- Rollback transaction and return error JSON
+                RAISE EXCEPTION 'INSUFFICIENT_STOCK: product %', v_product_id;
+            END IF;
+
             INSERT INTO public.sale_batch_allocations (
                 tenant_id,
                 transaction_id,

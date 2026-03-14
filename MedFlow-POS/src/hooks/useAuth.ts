@@ -4,10 +4,6 @@ import { hasPermission } from '../lib/permissionUtils';
 import type { User } from '../lib/types';
 
 async function fetchUserProfile(userId: string): Promise<User | null> {
-    // Step 0: Debug auth state
-    const { data: sessionData } = await supabase.auth.getSession();
-    console.log('[DEBUG] Session at profile fetch:', !!sessionData.session);
-
     // Step 1: fetch the user row (no joins — avoid PostgREST FK ambiguity)
     const { data: user, error: userError } = await supabase
         .from('users')

@@ -47,6 +47,17 @@ function ControlledTable({ filters }: ControlledReportProps) {
                     filename="medflow-controlled-report"
                     headers={['Product', 'SKU', 'Batch', 'Qty', 'Unit', 'Cost Price', 'Expiry Date', 'Days Remaining']}
                     rows={exportRows}
+                    pdf={{
+                        title: 'Controlled Substances Report',
+                        subtitle: 'Restricted inventory report for scheduled and controlled medicines.',
+                        filters,
+                        summary: [
+                            { label: 'Controlled Products', value: data.length.toString() },
+                            { label: 'Active Batches', value: rows.length.toString() },
+                        ],
+                        note: 'This report contains controlled-substance inventory data. Access, review, and distribution should follow company compliance controls.',
+                        accentColor: [185, 28, 28],
+                    }}
                 />
             </div>
 

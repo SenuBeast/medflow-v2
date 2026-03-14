@@ -31,7 +31,7 @@ export function ChartsSection() {
                     </div>
                 ) : (
                     <div className="w-full h-[220px] sm:h-[240px] md:h-[260px]">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                             <BarChart data={categoryData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-border-dim" />
                                 <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: 'currentColor', fontSize: 11 }} className="text-text-sub" />
@@ -74,7 +74,7 @@ export function ChartsSection() {
                 ) : (
                     <div className="flex-1 flex flex-col">
                         <div className="w-full h-[180px] md:h-[210px]">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 <AreaChart data={salesTrendData} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="salesTrendGradient" x1="0" y1="0" x2="0" y2="1">

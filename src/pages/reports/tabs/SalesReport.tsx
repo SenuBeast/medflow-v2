@@ -41,7 +41,22 @@ export function SalesReport({ filters }: SalesReportProps) {
             <div className="bg-card rounded-2xl border border-border-dim overflow-hidden">
                 <div className="px-5 py-4 border-b border-border-dim flex items-center justify-between">
                     <h3 className="font-semibold text-text-main text-sm">Top Products by Revenue</h3>
-                    <ExportButton filename="medflow-top-products" headers={['Product', 'Qty Sold', 'Revenue']} rows={topExportRows} label="Export" />
+                    <ExportButton
+                        filename="medflow-top-products"
+                        headers={['Product', 'Qty Sold', 'Revenue']}
+                        rows={topExportRows}
+                        label="CSV"
+                        pdf={{
+                            title: 'Top Products by Revenue',
+                            subtitle: 'Best-performing products for the selected sales period.',
+                            filters,
+                            summary: [
+                                { label: 'Products Ranked', value: (data?.topProducts?.length ?? 0).toString() },
+                                { label: 'Total Revenue', value: `$${(data?.totalRevenue ?? 0).toFixed(2)}` },
+                                { label: 'Transactions', value: (data?.totalTransactions ?? 0).toString() },
+                            ],
+                        }}
+                    />
                 </div>
                 <table className="w-full text-sm">
                     <thead className="bg-surface border-b border-border-main">
@@ -75,7 +90,21 @@ export function SalesReport({ filters }: SalesReportProps) {
             <div className="bg-card rounded-2xl border border-border-dim overflow-hidden">
                 <div className="px-5 py-4 border-b border-border-dim flex items-center justify-between">
                     <h3 className="font-semibold text-text-main text-sm">All Transactions</h3>
-                    <ExportButton filename="medflow-sales-report" headers={['Invoice', 'Date', 'Staff', 'Items', 'Payment', 'Total', 'Status']} rows={txExportRows} />
+                    <ExportButton
+                        filename="medflow-sales-report"
+                        headers={['Invoice', 'Date', 'Staff', 'Items', 'Payment', 'Total', 'Status']}
+                        rows={txExportRows}
+                        pdf={{
+                            title: 'Sales Transactions Report',
+                            subtitle: 'Transaction register for the selected reporting period.',
+                            filters,
+                            summary: [
+                                { label: 'Revenue', value: `$${(data?.totalRevenue ?? 0).toFixed(2)}` },
+                                { label: 'Transactions', value: (data?.totalTransactions ?? 0).toString() },
+                                { label: 'Avg. Order Value', value: `$${(data?.avgOrderValue ?? 0).toFixed(2)}` },
+                            ],
+                        }}
+                    />
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">

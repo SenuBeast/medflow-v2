@@ -37,8 +37,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     },
 
     reset: () => {
-        console.log('[AuthStore] Global reset() called! Wiping all state including 2FA flag.');
-        console.trace();
         localStorage.removeItem('_mf2a');
         set({
             user: null,

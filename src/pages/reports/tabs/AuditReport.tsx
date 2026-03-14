@@ -36,6 +36,16 @@ function AuditTable({ filters }: AuditReportProps) {
                     filename="medflow-audit-report"
                     headers={['User', 'Action', 'Entity Type', 'Entity ID', 'Timestamp']}
                     rows={exportRows}
+                    pdf={{
+                        title: 'Audit Log Report',
+                        subtitle: 'Chronological activity log for operational and compliance review.',
+                        filters,
+                        summary: [
+                            { label: 'Entries Exported', value: data.length.toString() },
+                        ],
+                        note: 'Audit data is confidential and should only be shared with authorized personnel.',
+                        accentColor: [15, 23, 42],
+                    }}
                 />
             </div>
 

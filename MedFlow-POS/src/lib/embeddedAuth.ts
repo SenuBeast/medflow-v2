@@ -2,27 +2,24 @@ import { supabase } from './supabase';
 
 const MEDFLOW_ORIGIN = import.meta.env.VITE_MEDFLOW_URL || 'http://localhost:5173';
 
+let isListening = false;
+
 /**
  * Listens for auth tokens sent from MedFlow via postMessage.
  */
 export function listenForParentAuth() {
-    console.log('[POS] Starting parent auth listener. Expected origin:', MEDFLOW_ORIGIN);
+    if (isListening) return;
+    isListening = true;
     
     window.addEventListener('message', async (event) => {
         // Normalize origins
         const cleanEventOrigin = event.origin.replace(/\/$/, '');
         const cleanMedflowOrigin = MEDFLOW_ORIGIN.replace(/\/$/, '');
 
-        if (cleanEventOrigin !== cleanMedflowOrigin) {
-            if (event.data?.type === 'MEDFLOW_AUTH_TOKEN') {
-                console.warn('[POS] Blocked auth message from untrusted origin:', event.origin, 'Expected:', MEDFLOW_ORIGIN);
-            }
-            return;
-        }
+        if (cleanEventOrigin !== cleanMedflowOrigin) return;
 
         if (event.data?.type !== 'MEDFLOW_AUTH_TOKEN') return;
         
-        console.log('[POS] Received auth token from parent');
         const { accessToken, refreshToken } = event.data;
         if (!accessToken || !refreshToken) {
             console.error('[POS] Received empty tokens from parent');
@@ -37,7 +34,6 @@ export function listenForParentAuth() {
 
             if (error) throw error;
             
-            console.log('[POS] Session restored from parent token');
             // Notify parent that POS is ready
             window.parent.postMessage({ type: 'POS_READY' }, MEDFLOW_ORIGIN);
         } catch (err) {
@@ -55,7 +51,6 @@ export function listenForParentAuth() {
  */
 export function requestTokenFromParent() {
     if (window.self === window.top) return;
-    console.log('[POS] Requesting token from parent...');
     window.parent.postMessage({ type: 'POS_WANT_TOKEN' }, MEDFLOW_ORIGIN);
 }
 

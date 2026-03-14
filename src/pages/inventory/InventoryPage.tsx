@@ -36,6 +36,7 @@ import { PERMISSIONS } from '../../lib/constants';
 import type { InventoryItem } from '../../lib/types';
 import { clsx } from 'clsx';
 import { Input } from '../../components/ui/Input';
+import { useNavigate } from 'react-router-dom';
 
 function ItemForm({
     initialData,
@@ -293,6 +294,7 @@ function InventoryMobileCard({
 }
 
 export function InventoryPage() {
+    const navigate = useNavigate();
     const { data: items = [], isLoading } = useInventory();
     const { data: suppliers = [] } = useSuppliers();
     const addItem = useAddInventoryItem();
@@ -349,6 +351,18 @@ export function InventoryPage() {
                         <Button variant="secondary" icon={<FilePlus2 size={16} />} onClick={() => setShowReceiveGrnForProduct('')}>
                             <span className="hidden sm:inline">Receive GRN</span>
                             <span className="sm:hidden">GRN</span>
+                        </Button>
+                    </PermissionGuard>
+                    <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                        <Button variant="secondary" onClick={() => navigate('/inventory-bulk-entry?mode=grn')}>
+                            <span className="hidden sm:inline">Bulk GRN</span>
+                            <span className="sm:hidden">Bulk GRN</span>
+                        </Button>
+                    </PermissionGuard>
+                    <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                        <Button variant="secondary" onClick={() => navigate('/inventory-bulk-entry?mode=batch')}>
+                            <span className="hidden sm:inline">Bulk Batches</span>
+                            <span className="sm:hidden">Bulk Batch</span>
                         </Button>
                     </PermissionGuard>
                     <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
@@ -436,6 +450,16 @@ export function InventoryPage() {
                                                 <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
                                                     <Button variant="outline" size="sm" onClick={() => setShowAddBatch(item.id)}>
                                                         + Add Batch
+                                                    </Button>
+                                                </PermissionGuard>
+                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                    <Button variant="outline" size="sm" onClick={() => navigate(`/inventory-bulk-entry?mode=grn&product_id=${item.id}`)}>
+                                                        + Bulk GRN
+                                                    </Button>
+                                                </PermissionGuard>
+                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                    <Button variant="outline" size="sm" onClick={() => navigate(`/inventory-bulk-entry?mode=batch&product_id=${item.id}`)}>
+                                                        + Bulk Batch
                                                     </Button>
                                                 </PermissionGuard>
                                             </div>
@@ -643,6 +667,16 @@ export function InventoryPage() {
                                                                     <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
                                                                         <Button variant="outline" size="sm" onClick={() => setShowAddBatch(item.id)}>
                                                                             + Add Batch
+                                                                        </Button>
+                                                                    </PermissionGuard>
+                                                                    <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                                        <Button variant="outline" size="sm" onClick={() => navigate(`/inventory-bulk-entry?mode=grn&product_id=${item.id}`)}>
+                                                                            + Bulk GRN
+                                                                        </Button>
+                                                                    </PermissionGuard>
+                                                                    <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                                        <Button variant="outline" size="sm" onClick={() => navigate(`/inventory-bulk-entry?mode=batch&product_id=${item.id}`)}>
+                                                                            + Bulk Batch
                                                                         </Button>
                                                                     </PermissionGuard>
                                                                 </div>

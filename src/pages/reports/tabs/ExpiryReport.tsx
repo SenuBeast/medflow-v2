@@ -40,6 +40,21 @@ export function ExpiryReport({ filters, onFiltersChange }: ExpiryReportProps) {
                     filename={`medflow-expiry-${window}d`}
                     headers={['Product', 'SKU', 'Batch', 'Qty', 'Expiry Date', 'Days Remaining', 'Status']}
                     rows={exportRows}
+                    pdf={{
+                        title: window === 'expired' ? 'Expired Stock Report' : 'Expiry Monitoring Report',
+                        subtitle: window === 'expired'
+                            ? 'Expired batches requiring quarantine, disposal, or follow-up.'
+                            : `Products expiring within the next ${window} days.`,
+                        filters,
+                        summary: [
+                            { label: 'Batches Listed', value: data.length.toString() },
+                            { label: 'Window', value: window === 'expired' ? 'Expired' : `${window} days` },
+                        ],
+                        note: window === 'expired'
+                            ? 'Expired inventory should be quarantined and processed according to company disposal policy.'
+                            : 'Use this report to prioritize transfer, promotion, or return actions before stock reaches expiry.',
+                        accentColor: window === 'expired' ? [185, 28, 28] : [217, 119, 6],
+                    }}
                 />
             </div>
 

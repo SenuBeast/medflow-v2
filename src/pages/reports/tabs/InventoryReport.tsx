@@ -83,6 +83,17 @@ export function InventoryReport({ filters }: InventoryReportProps) {
                     filename="medflow-inventory-report"
                     headers={['Name', 'SKU', 'Category', 'Stock', 'Unit', 'Reorder Lvl', 'Cost Price', 'Sell Price', 'Total Value', 'Status']}
                     rows={exportRows}
+                    pdf={{
+                        title: 'Inventory Position Report',
+                        subtitle: 'Current stock levels, valuation, and replenishment status.',
+                        filters,
+                        summary: [
+                            { label: 'Total Items', value: data.length.toString() },
+                            { label: 'Low Stock', value: lowCount.toString() },
+                            { label: 'Out of Stock', value: outCount.toString() },
+                            { label: 'Inventory Value', value: `$${totalValue.toFixed(2)}` },
+                        ],
+                    }}
                 />
             </div>
 

@@ -11,6 +11,16 @@ export interface POSSalePayload {
     notes?: string;
 }
 
+function formatRpcError(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    if (!error || typeof error !== 'object') return 'Failed to complete sale';
+
+    const maybe = error as { message?: string; details?: string; hint?: string; code?: string };
+    const parts = [maybe.message, maybe.details, maybe.hint].filter(Boolean) as string[];
+    const text = parts.join(' | ').trim();
+    return text || (maybe.code ? `Failed to complete sale (${maybe.code})` : 'Failed to complete sale');
+}
+
 export function usePOSSale() {
     const qc = useQueryClient();
     const { user } = useAuth();
@@ -18,24 +28,48 @@ export function usePOSSale() {
     return useMutation({
         mutationFn: async (payload: POSSalePayload) => {
             if (!user) throw new Error('Not authenticated');
+            if (!user.tenant_id) throw new Error('Your account is not linked to a tenant. Contact an administrator.');
+
+            const unitRows = new Map<string, {
+                tenant_id: string;
+                product_id: string;
+                unit_name: string;
+                conversion_factor: number;
+                is_base: boolean;
+            }>();
 
             for (const ci of payload.cart) {
-                if (ci.unit !== ci.base_unit && ci.units_per_sale_unit > 1) {
-                    if (!user.tenant_id) {
-                        throw new Error('Missing tenant context for unit conversion');
-                    }
-                    const { error: unitError } = await supabase.from('units').upsert(
-                        {
-                            tenant_id: user.tenant_id,
-                            product_id: ci.item_id,
-                            unit_name: ci.unit,
-                            conversion_factor: ci.units_per_sale_unit,
-                            is_base: false,
-                        },
-                        { onConflict: 'tenant_id,product_id,unit_name' }
-                    );
+                const baseUnit = ci.base_unit || 'unit';
+                const selectedFactor = Math.max(1, Number(ci.units_per_sale_unit || 1));
 
-                    if (unitError) throw unitError;
+                const baseKey = `${ci.item_id}:${baseUnit.toLowerCase()}`;
+                if (!unitRows.has(baseKey)) {
+                    unitRows.set(baseKey, {
+                        tenant_id: user.tenant_id,
+                        product_id: ci.item_id,
+                        unit_name: baseUnit,
+                        conversion_factor: 1,
+                        is_base: true,
+                    });
+                }
+
+                const selectedKey = `${ci.item_id}:${ci.unit.toLowerCase()}`;
+                unitRows.set(selectedKey, {
+                    tenant_id: user.tenant_id,
+                    product_id: ci.item_id,
+                    unit_name: ci.unit,
+                    conversion_factor: selectedFactor,
+                    is_base: ci.unit.toLowerCase() === baseUnit.toLowerCase(),
+                });
+            }
+
+            if (unitRows.size > 0) {
+                const { error: unitError } = await supabase
+                    .from('units')
+                    .upsert([...unitRows.values()], { onConflict: 'tenant_id,product_id,unit_name' });
+
+                if (unitError) {
+                    throw new Error(formatRpcError(unitError));
                 }
             }
 
@@ -64,11 +98,7 @@ export function usePOSSale() {
             });
 
             if (error) {
-                // Surface specific stock errors raised by our Postgres function
-                if (error.message.includes('INSUFFICIENT_STOCK')) {
-                    throw new Error(error.message);
-                }
-                throw error;
+                throw new Error(formatRpcError(error));
             }
 
             return ((data as { transaction?: SaleTransaction } | null)?.transaction ?? data) as SaleTransaction;

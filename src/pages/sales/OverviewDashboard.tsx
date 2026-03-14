@@ -80,7 +80,7 @@ export function OverviewDashboard() {
                         </div>
                     ) : (
                         <div className="h-[220px] sm:h-[260px] md:h-[284px]">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 <LineChart data={monthlyRevenue.data || []} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid)" />
                                     <XAxis

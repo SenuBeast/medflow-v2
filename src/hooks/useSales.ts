@@ -3,6 +3,16 @@ import { supabase } from '../lib/supabase';
 import type { SaleTransaction, SaleItem, CartItem, RefundLineItem } from '../lib/types';
 import { useAuthStore } from '../store/authStore';
 
+function formatRpcError(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    if (!error || typeof error !== 'object') return 'Failed to complete sale';
+
+    const maybe = error as { message?: string; details?: string; hint?: string; code?: string };
+    const parts = [maybe.message, maybe.details, maybe.hint].filter(Boolean) as string[];
+    const text = parts.join(' | ').trim();
+    return text || (maybe.code ? `Failed to complete sale (${maybe.code})` : 'Failed to complete sale');
+}
+
 // ─── Queries ──────────────────────────────────────────────────────────────────
 
 export function useSaleTransactions(filters?: {
@@ -77,6 +87,37 @@ export function useCreateSaleTransaction() {
     return useMutation({
         mutationFn: async (payload: CreateSalePayload) => {
             if (!user) throw new Error('Not authenticated');
+            if (!user.tenant_id) throw new Error('Your account is not linked to a tenant. Contact an administrator.');
+
+            const unitRows = new Map<string, {
+                tenant_id: string;
+                product_id: string;
+                unit_name: string;
+                conversion_factor: number;
+                is_base: boolean;
+            }>();
+
+            for (const ci of payload.cart) {
+                const unitName = (ci.unit || 'unit').trim() || 'unit';
+                const key = `${ci.item_id}:${unitName.toLowerCase()}`;
+                unitRows.set(key, {
+                    tenant_id: user.tenant_id,
+                    product_id: ci.item_id,
+                    unit_name: unitName,
+                    conversion_factor: 1,
+                    is_base: true,
+                });
+            }
+
+            if (unitRows.size > 0) {
+                const { error: unitError } = await supabase
+                    .from('units')
+                    .upsert([...unitRows.values()], { onConflict: 'tenant_id,product_id,unit_name' });
+
+                if (unitError) {
+                    throw new Error(formatRpcError(unitError));
+                }
+            }
 
             const p_cart = payload.cart.map((ci) => ({
                 product_id: ci.item_id,
@@ -99,10 +140,7 @@ export function useCreateSaleTransaction() {
             });
 
             if (error) {
-                if (error.message.includes('INSUFFICIENT_STOCK')) {
-                    throw new Error(error.message);
-                }
-                throw error;
+                throw new Error(formatRpcError(error));
             }
 
             const tx = ((data as { transaction?: SaleTransaction } | null)?.transaction ?? data) as SaleTransaction;

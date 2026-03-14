@@ -10,7 +10,6 @@ export function PharmacyPOSTab() {
     const sendToken = async () => {
         const { data } = await supabase.auth.getSession();
         if (data.session && iframeRef.current?.contentWindow) {
-            console.log('[MedFlow] Sending auth token to POS:', POS_URL);
             iframeRef.current.contentWindow.postMessage(
                 {
                     type: 'MEDFLOW_AUTH_TOKEN',
@@ -28,7 +27,8 @@ export function PharmacyPOSTab() {
         const iframe = iframeRef.current;
         const handleLoad = () => {
             setIsLoading(false);
-            sendToken();
+            // No longer calling sendToken() here because POS requests it via POS_WANT_TOKEN.
+            // This prevents the duplicate message log on every refresh.
         };
 
         if (iframe) {
@@ -38,6 +38,24 @@ export function PharmacyPOSTab() {
         return () => {
             iframe?.removeEventListener('load', handleLoad);
         };
+    }, []);
+
+    // Automatically push refreshed tokens to POS
+    useEffect(() => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'TOKEN_REFRESHED' && session && iframeRef.current?.contentWindow) {
+                iframeRef.current.contentWindow.postMessage(
+                    {
+                        type: 'MEDFLOW_AUTH_TOKEN',
+                        accessToken: session.access_token,
+                        refreshToken: session.refresh_token,
+                    },
+                    POS_URL
+                );
+            }
+        });
+
+        return () => subscription.unsubscribe();
     }, []);
 
     // Listen for events from POS
@@ -51,14 +69,13 @@ export function PharmacyPOSTab() {
 
             switch (event.data?.type) {
                 case 'POS_WANT_TOKEN':
-                    console.log('[MedFlow] POS requested token, sending...');
                     sendToken();
                     break;
                 case 'SALE_COMPLETED':
                     console.log('[MedFlow] POS sale completed:', event.data);
                     break;
                 case 'POS_READY':
-                    console.log('[MedFlow] POS iframe ready');
+                    // Silent
                     break;
             }
         };

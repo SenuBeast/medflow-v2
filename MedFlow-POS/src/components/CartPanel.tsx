@@ -6,6 +6,14 @@ import CartItemRow from './CartItemRow';
 import PaymentSelector from './PaymentSelector';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
+function getErrorMessage(err: unknown): string {
+    if (err instanceof Error) return err.message;
+    if (!err || typeof err !== 'object') return 'Failed to complete sale';
+    const maybe = err as { message?: string; details?: string; hint?: string; code?: string };
+    const parts = [maybe.message, maybe.details, maybe.hint].filter(Boolean) as string[];
+    return parts.join(' | ') || (maybe.code ? `Failed to complete sale (${maybe.code})` : 'Failed to complete sale');
+}
+
 export default function CartPanel() {
     const { items, paymentMethod, discountAmount, taxRate, getSubtotal, getGrandTotal, clearCart } = useCartStore();
     const { mutateAsync: processSale, isPending } = usePOSSale();
@@ -29,15 +37,15 @@ export default function CartPanel() {
                 notes: 'POS Sale'
             });
 
+            if (!tx?.id) {
+                throw new Error('Sale completed but no receipt id was returned');
+            }
+
             clearCart();
             // Navigate to receipt
             navigate(`/receipt/${tx.id}`);
         } catch (err: unknown) {
-            if (err instanceof Error) {
-                setError(err.message);
-            } else {
-                setError('Failed to complete sale');
-            }
+            setError(getErrorMessage(err));
         }
     };
 

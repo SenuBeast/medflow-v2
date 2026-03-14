@@ -49,6 +49,16 @@ export function StockCountReport({ filters }: StockCountReportProps) {
                         filename="medflow-stock-count-report"
                         headers={['ID', 'Type', 'Status', 'Created By', 'Date', 'Total Items', 'Variance Items']}
                         rows={exportRows}
+                        pdf={{
+                            title: 'Stock Count Sessions Report',
+                            subtitle: 'Cycle count activity, approvals, and variance overview.',
+                            filters,
+                            summary: [
+                                { label: 'Total Sessions', value: data.length.toString() },
+                                { label: 'Approved', value: approvedSessions.length.toString() },
+                                { label: 'Variance Items', value: totalVarianceItems.length.toString() },
+                            ],
+                        }}
                     />
                 </div>
                 <div className="overflow-x-auto">
