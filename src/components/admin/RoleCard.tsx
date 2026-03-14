@@ -56,14 +56,16 @@ export function RoleCard({ role, onEditPermissions, onDelete }: RoleCardProps) {
 
             {/* Actions Footer */}
             <div className="pt-4 border-t border-border-dim flex items-center gap-2 mt-auto">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onEditPermissions(role)}
-                    className="flex-1 justify-center bg-surface-dim/50 hover:bg-surface-elevated text-text-sub font-medium group/btn border border-border-dim"
-                >
-                    Edit Permission
-                </Button>
+                {role.name !== 'Super Admin' && (
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onEditPermissions(role)}
+                        className="flex-1 justify-center bg-surface-dim/50 hover:bg-surface-elevated text-text-sub font-medium group/btn border border-border-dim"
+                    >
+                        Edit Permission
+                    </Button>
+                )}
                 {!role.is_system && onDelete && (
                     <Button
                         variant="danger"

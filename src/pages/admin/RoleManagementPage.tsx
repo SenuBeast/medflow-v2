@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Shield, Plus } from 'lucide-react';
 import { useRoles, useDeleteRole } from '../../hooks/useRoles';
 import { useHasPermission } from '../../lib/permissionUtils';
-import { PERMISSIONS, ROLE_HIERARCHY } from '../../lib/constants';
+import { PERMISSIONS } from '../../lib/constants';
 import { Button } from '../../components/ui/Button';
 import { RoleCard } from '../../components/admin/RoleCard';
 import { PermissionEditor } from '../../components/admin/PermissionEditor';
@@ -22,16 +22,6 @@ export function RoleManagementPage() {
     const [editPermRole, setEditPermRole] = useState<Role | null>(null);
     const [showCreateRole, setShowCreateRole] = useState(false);
     const [deleteConfirmRole, setDeleteConfirmRole] = useState<Role | null>(null);
-
-    // Sort roles based on defined hierarchy
-    const sortedRoles = [...roles].sort((a, b) => {
-        const indexA = ROLE_HIERARCHY.indexOf(a.name);
-        const indexB = ROLE_HIERARCHY.indexOf(b.name);
-        // Custom roles (not in hierarchy) go to the end
-        if (indexA === -1) return 1;
-        if (indexB === -1) return -1;
-        return indexA - indexB;
-    });
 
     if (!canManageRoles) {
         return (
@@ -70,7 +60,7 @@ export function RoleManagementPage() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                    {sortedRoles.map((role) => (
+                    {roles.map((role: Role) => (
                         <RoleCard
                             key={role.id}
                             role={role}

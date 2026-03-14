@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { 
     AlertTriangle, RotateCcw, Search, X, 
-    Shield, Box, Pill, ShoppingBag, BarChart, Zap 
+    Shield, Box, Pill, ShoppingBag, BarChart, Zap
 } from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
 import { Button } from '../../components/ui/Button';
@@ -49,19 +49,56 @@ interface PermissionEditorProps {
     onClose: () => void;
 }
 
-function CriticalWarning({ onDismiss }: { onDismiss: () => void }) {
+interface SafetyModalProps {
+    isOpen: boolean;
+    onConfirm: () => void;
+    onCancel: () => void;
+    title: string;
+    description: string;
+    confirmText: string;
+    icon: any;
+    variant?: 'danger' | 'warning';
+}
+
+function SafetyModal({ isOpen, onConfirm, onCancel, title, description, confirmText, icon: Icon, variant = 'danger' }: SafetyModalProps) {
+    if (!isOpen) return null;
     return (
-        <div className="mb-4 p-3 bg-[#fee2e2] border border-[#fecaca] rounded-xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
-            <div className="flex items-center gap-2">
-                <AlertTriangle size={16} className="text-[#991b1b]" />
-                <p className="text-xs font-bold text-[#991b1b] uppercase tracking-tight">Critical Access Required</p>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-200">
+            <div className="bg-card w-full max-w-md rounded-[2rem] p-8 border border-border-dim shadow-2xl animate-in zoom-in-95 duration-200">
+                <div className="flex items-center gap-4 mb-5">
+                    <div className={clsx(
+                        "p-3.5 rounded-2xl",
+                        variant === 'danger' ? "bg-red-500/10" : "bg-amber-500/10"
+                    )}>
+                        <Icon size={28} className={variant === 'danger' ? "text-red-500" : "text-amber-500"} />
+                    </div>
+                    <h3 className="text-xl font-bold text-text-main">{title}</h3>
+                </div>
+                <p className="text-text-sub text-[15px] leading-relaxed mb-10 px-1">
+                    {description}
+                </p>
+                <div className="flex gap-3 justify-end">
+                    <Button 
+                        variant="ghost" 
+                        onClick={onCancel} 
+                        className="px-6 h-12 rounded-xl border border-border-dim font-bold text-sm bg-surface-dim hover:bg-surface-elevated transition-colors text-text-sub"
+                    >
+                        Cancel
+                    </Button>
+                    <Button 
+                        variant="ghost"
+                        onClick={onConfirm} 
+                        className={clsx(
+                            "px-8 h-12 rounded-xl font-bold text-sm transition-all active:scale-95 shadow-lg border-none",
+                            variant === 'danger' 
+                                ? "!bg-red-500 hover:!bg-red-600 !text-white shadow-red-500/20" 
+                                : "!bg-amber-500 hover:!bg-amber-600 !text-white shadow-amber-500/20"
+                        )}
+                    >
+                        {confirmText}
+                    </Button>
+                </div>
             </div>
-            <button 
-                onClick={onDismiss} 
-                className="px-3 py-1 bg-[#991b1b] text-white text-[10px] font-bold rounded-lg hover:bg-black transition-colors"
-            >
-                Confirm
-            </button>
         </div>
     );
 }
@@ -80,8 +117,18 @@ export function PermissionEditor({ role, onClose }: PermissionEditorProps) {
     const [activeCategory, setActiveCategory] = useState<string | 'all'>('all');
     const [pendingCritical, setPendingCritical] = useState<string | null>(null);
     const [showCriticalWarning, setShowCriticalWarning] = useState(false);
+    const [showResetConfirm, setShowResetConfirm] = useState(false);
 
     const isSuperAdmin = role.name === 'Super Admin';
+
+    // Keyboard support - Close on Escape
+    useState(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    });
 
     const filteredPermissions = useMemo(() => {
         return allPermissions.filter((p: Permission) => {
@@ -133,7 +180,16 @@ export function PermissionEditor({ role, onClose }: PermissionEditorProps) {
         setShowCriticalWarning(false);
     };
 
+    const cancelCritical = () => {
+        setPendingCritical(null);
+        setShowCriticalWarning(false);
+    };
+
     const handleResetToDefault = () => {
+        setShowResetConfirm(true);
+    };
+
+    const confirmReset = () => {
         const defaults = SYSTEM_ROLE_DEFAULTS[role.name];
         if (!defaults) return;
 
@@ -141,6 +197,7 @@ export function PermissionEditor({ role, onClose }: PermissionEditorProps) {
             .filter((p: Permission) => defaults.includes(p.key))
             .map((p: Permission) => p.id);
         setSelected(new Set(defaultIds));
+        setShowResetConfirm(false);
     };
 
     const handleSave = async () => {
@@ -167,7 +224,7 @@ export function PermissionEditor({ role, onClose }: PermissionEditorProps) {
                             <Button
                                 variant="danger"
                                 onClick={handleResetToDefault}
-                                className="rounded-xl px-6 bg-[#ef4444] hover:bg-[#dc2626] border-none"
+                                className="rounded-xl px-6 !bg-red-500 hover:!bg-red-600 border-none shadow-lg shadow-red-500/20 font-bold !text-white"
                                 icon={<RotateCcw size={16} />}
                             >
                                 Reset to Default
@@ -276,9 +333,27 @@ export function PermissionEditor({ role, onClose }: PermissionEditorProps) {
                 </>
             )}
 
-            {showCriticalWarning && !isSuperAdmin && (
-                <CriticalWarning onDismiss={confirmCritical} />
-            )}
+            <SafetyModal 
+                isOpen={showCriticalWarning && !isSuperAdmin}
+                onConfirm={confirmCritical}
+                onCancel={cancelCritical}
+                title="Critical Permission Warning"
+                description="This permission provides sensitive system access. Assigning it may impact security and data integrity. Please confirm this change."
+                confirmText="Yes, Assign Permission"
+                icon={AlertTriangle}
+                variant="warning"
+            />
+
+            <SafetyModal 
+                isOpen={showResetConfirm}
+                onConfirm={confirmReset}
+                onCancel={() => setShowResetConfirm(false)}
+                title="Reset to Defaults?"
+                description="This will overwrite all existing permissions for this role with the system's factory default settings. This action cannot be undone."
+                confirmText="Yes, Reset All"
+                icon={RotateCcw}
+                variant="danger"
+            />
 
             {/* Permission List Area */}
             <div className="min-h-[400px] max-h-[500px] overflow-y-auto pr-2 custom-scrollbar flex flex-col">
@@ -368,7 +443,7 @@ export function PermissionEditor({ role, onClose }: PermissionEditorProps) {
                                                                 {getPermissionLabel(perm.key)}
                                                             </span>
                                                             {critical && (
-                                                                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#fee2e2] border border-[#fecaca] rounded-full text-[#991b1b]">
+                                                                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded-full text-amber-600">
                                                                     <AlertTriangle size={10} strokeWidth={2.5} />
                                                                     <span className="text-[10px] font-bold uppercase tracking-tight">Critical</span>
                                                                 </div>

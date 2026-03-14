@@ -327,7 +327,7 @@ export function Sidebar() {
             <aside
                 className={clsx(
                     'fixed top-0 left-0 h-full w-72 z-50 md:hidden bg-[var(--sidebar-bg)] border-r border-[var(--sidebar-border)] shadow-2xl',
-                    'transform transition-transform duration-300 ease-in-out',
+                    'transform transition-transform duration-300 ease-in-out backdrop-blur-md bg-opacity-80',
                     mobileOpen ? 'translate-x-0' : '-translate-x-full'
                 )}
             >
@@ -340,7 +340,7 @@ export function Sidebar() {
             {/* ─── Desktop / Tablet Sidebar ──────────────────────────────── */}
             <aside
                 className={clsx(
-                    'hidden md:flex shrink-0 h-screen flex-col border-r bg-[var(--sidebar-bg)] border-[var(--sidebar-border)] transition-all duration-300',
+                    'hidden md:flex shrink-0 h-screen flex-col border-r bg-[var(--sidebar-bg)] border-[var(--sidebar-border)] transition-all duration-300 backdrop-blur-md bg-opacity-80',
                     collapsed ? 'w-16' : 'w-60'
                 )}
             >

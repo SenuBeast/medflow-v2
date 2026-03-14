@@ -25,7 +25,7 @@ export function RoleBadge({ roleName, isCustom, showLock, size = 'md' }: RoleBad
                 size === 'sm' ? 'px-2.5 py-0.5 text-[10px]' : 'px-3 py-1 text-xs'
             )}
         >
-            {showLock && roleName !== 'Viewer' && !isCustom && (
+            {showLock && !isCustom && (
                 <Lock size={size === 'sm' ? 10 : 12} className="mr-1.5 opacity-60" />
             )}
             {roleName}

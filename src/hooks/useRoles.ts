@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import type { Role, Permission } from '../lib/types';
+import { sortRoles } from '../lib/roleUtils';
 
 export function useRoles() {
     return useQuery({
@@ -13,17 +14,18 @@ export function useRoles() {
           permissions:role_permissions (
             permission:permissions (*)
           )
-        `)
-                .order('name');
+        `);
 
             if (error) throw error;
 
-            return (data ?? []).map((role) => ({
+            const roles = (data ?? []).map((role) => ({
                 ...role,
                 permissions: (role.permissions ?? []).map(
                     (rp: { permission: Permission }) => rp.permission
                 ),
             })) as Role[];
+
+            return sortRoles(roles);
         },
     });
 }
