@@ -5,7 +5,6 @@ import {
     Package,
     ShoppingCart,
     LogOut,
-    Activity,
     ChevronRight,
     ShieldAlert,
     ClipboardCheck,
@@ -121,8 +120,12 @@ export function MobileTopBar({ onToggle }: { onToggle: () => void }) {
                     <Menu size={20} />
                 </button>
                 <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
-                        <Activity size={14} className="text-white" />
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 p-0 overflow-hidden">
+                        <img 
+                            src="/assets/logo-no-bg.png" 
+                            alt="MedFlow Logo" 
+                            className="w-full h-full object-contain scale-125" 
+                        />
                     </div>
                     <p className="font-bold text-sm text-[var(--sidebar-text-active)]">MedFlow</p>
                 </div>
@@ -194,8 +197,12 @@ export function Sidebar() {
                             <X size={18} />
                         </button>
                     )}
-                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
-                        <Activity size={16} className="text-white" />
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 p-0 overflow-hidden">
+                        <img 
+                            src="/assets/logo-no-bg.png" 
+                            alt="MedFlow Logo" 
+                            className="w-full h-full object-contain scale-125" 
+                        />
                     </div>
                     {(!collapsed || isMobile) && (
                         <div>
@@ -273,7 +280,11 @@ export function Sidebar() {
                                 {user?.full_name ?? user?.email}
                             </p>
                             <div className="mt-0.5">
-                                <RoleBadge roleName={user?.role?.name ?? 'Viewer'} size="sm" />
+                                <RoleBadge 
+                                    roleName={user?.role?.name ?? 'Viewer'} 
+                                    isCustom={!user?.role?.is_system}
+                                    size="sm" 
+                                />
                             </div>
                         </div>
                     )}

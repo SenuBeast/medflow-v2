@@ -2,16 +2,19 @@ import { useState } from 'react';
 import { Shield, Plus } from 'lucide-react';
 import { useRoles, useDeleteRole } from '../../hooks/useRoles';
 import { useHasPermission } from '../../lib/permissionUtils';
-import { PERMISSIONS } from '../../lib/constants';
+import { PERMISSIONS, ROLE_HIERARCHY } from '../../lib/constants';
 import { Button } from '../../components/ui/Button';
 import { RoleCard } from '../../components/admin/RoleCard';
-import { PermissionModal } from '../../components/admin/PermissionModal';
+import { PermissionEditor } from '../../components/admin/PermissionEditor';
 import { Modal } from '../../components/ui/Modal';
 import { CreateRoleModal } from '../../components/admin/CreateRoleModal';
 import { ConfirmDeleteModal } from '../../components/admin/ConfirmDeleteModal';
 import type { Role } from '../../lib/types';
 
+import { useAuthStore } from '../../store/authStore';
+
 export function RoleManagementPage() {
+    const isSuperAdmin = useAuthStore((state) => state.user?.role?.name === 'Super Admin');
     const canManageRoles = useHasPermission(PERMISSIONS.ADMIN_ROLES_MANAGE);
     const { data: roles = [], isLoading } = useRoles();
     const deleteRole = useDeleteRole();
@@ -19,6 +22,16 @@ export function RoleManagementPage() {
     const [editPermRole, setEditPermRole] = useState<Role | null>(null);
     const [showCreateRole, setShowCreateRole] = useState(false);
     const [deleteConfirmRole, setDeleteConfirmRole] = useState<Role | null>(null);
+
+    // Sort roles based on defined hierarchy
+    const sortedRoles = [...roles].sort((a, b) => {
+        const indexA = ROLE_HIERARCHY.indexOf(a.name);
+        const indexB = ROLE_HIERARCHY.indexOf(b.name);
+        // Custom roles (not in hierarchy) go to the end
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        return indexA - indexB;
+    });
 
     if (!canManageRoles) {
         return (
@@ -39,14 +52,16 @@ export function RoleManagementPage() {
                         Configure system access levels and permissions for medical staff.
                     </p>
                 </div>
-                <Button
-                    variant="primary"
-                    icon={<Plus size={16} />}
-                    onClick={() => setShowCreateRole(true)}
-                    className="w-full sm:w-auto shadow-sm"
-                >
-                    Create Custom Role
-                </Button>
+                {isSuperAdmin && (
+                    <Button
+                        variant="primary"
+                        icon={<Plus size={16} />}
+                        onClick={() => setShowCreateRole(true)}
+                        className="w-full sm:w-auto shadow-sm"
+                    >
+                        Create Custom Role
+                    </Button>
+                )}
             </div>
 
             {isLoading ? (
@@ -55,7 +70,7 @@ export function RoleManagementPage() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                    {roles.map((role) => (
+                    {sortedRoles.map((role) => (
                         <RoleCard
                             key={role.id}
                             role={role}
@@ -67,7 +82,7 @@ export function RoleManagementPage() {
             )}
 
             {editPermRole && (
-                <PermissionModal
+                <PermissionEditor
                     role={editPermRole}
                     onClose={() => setEditPermRole(null)}
                 />

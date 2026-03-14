@@ -1,8 +1,12 @@
-import { Lock, Settings, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import type { Role } from '../../lib/types';
+import { RoleBadge } from '../../components/ui/Badge';
+import type { Role, Permission } from '../../lib/types';
 import { CRITICAL_PERMISSIONS } from '../../lib/constants';
+import { clsx } from 'clsx';
+import { getRoleClassName } from '../../lib/roleUtils';
+import './RoleCard.css';
 
 interface RoleCardProps {
     role: Role;
@@ -12,46 +16,42 @@ interface RoleCardProps {
 
 export function RoleCard({ role, onEditPermissions, onDelete }: RoleCardProps) {
     const permCount = role.permissions?.length ?? 0;
-    const hasCritical = role.permissions?.some((p) =>
-        CRITICAL_PERMISSIONS.some((cp) => p.key === cp || p.key.startsWith(cp.replace('.*', '.')))
+    const hasCritical = role.permissions?.some((p: Permission) =>
+        CRITICAL_PERMISSIONS.some((cp: string) => p.key === cp || p.key.startsWith(cp.replace('.*', '.')))
     );
 
+    const roleClass = getRoleClassName(role.name);
+
     return (
-        <Card className="group flex flex-col h-full hover:-translate-y-1 hover:shadow-lg transition-all duration-300 border border-border-dim bg-card">
+        <Card className={clsx(
+            "group flex flex-col h-full hover:-translate-y-1 hover:shadow-lg transition-all duration-300 border border-border-dim bg-card font-inter role-card",
+            roleClass
+        )}>
             <div className="flex items-start justify-between mb-5">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-surface-dim border border-border-dim flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
-                        {role.is_system ? (
-                            <Lock size={18} className="text-text-dim" strokeWidth={2.5} />
-                        ) : (
-                            <Settings size={18} className="text-brand" strokeWidth={2.5} />
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-0.5">
+                        <RoleBadge 
+                            roleName={role.name} 
+                            isCustom={!role.is_system} 
+                            showLock={true} 
+                        />
+                        {hasCritical && (
+                            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-amber-500/10 border border-amber-500/50 rounded-lg text-amber-600 shrink-0 select-none">
+                                <AlertTriangle size={10} strokeWidth={2.5} />
+                                <span className="text-[10px] font-bold uppercase tracking-tight">Critical</span>
+                            </div>
                         )}
                     </div>
-                    <div className="min-w-0">
-                        <h3 className="text-sm font-bold text-text-main truncate tracking-tight">{role.name}</h3>
-                        <p className="text-xs text-text-dim mt-0.5 line-clamp-1 break-all">{role.description}</p>
-                    </div>
+                    <p className="text-sm text-text-main/80 line-clamp-2 leading-relaxed min-h-[42px]">{role.description}</p>
                 </div>
-                {role.is_system && (
-                    <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold text-text-sub bg-surface-elevated px-2 py-1 rounded-md border border-border-dim shrink-0">
-                        <ShieldCheck size={12} />
-                        Core
-                    </span>
-                )}
             </div>
 
             {/* Stats Area */}
             <div className="flex flex-wrap items-center gap-2 mb-auto pb-5">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-surface-dim border border-border-dim rounded-lg">
-                    <span className="text-sm font-bold text-text-main tabular-nums">{permCount}</span>
-                    <span className="text-[10px] font-semibold text-text-dim uppercase tracking-wider">Perms</span>
+                <div className="inline-flex items-center gap-2 text-brand">
+                    <span className="text-sm font-bold tabular-nums">{permCount}</span>
+                    <span className="text-[12px] font-semibold text-brand/80">permissions</span>
                 </div>
-                {hasCritical && (
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-warning/10 border border-warning/20 rounded-lg text-warning">
-                        <AlertTriangle size={12} strokeWidth={2.5} />
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Critical</span>
-                    </div>
-                )}
             </div>
 
             {/* Actions Footer */}
@@ -59,11 +59,10 @@ export function RoleCard({ role, onEditPermissions, onDelete }: RoleCardProps) {
                 <Button
                     variant="ghost"
                     size="sm"
-                    icon={<Settings size={14} className="text-text-dim group-hover/btn:text-text-main transition-colors" />}
                     onClick={() => onEditPermissions(role)}
-                    className="flex-1 justify-center bg-surface-dim/50 hover:bg-surface-elevated text-text-sub font-medium group/btn"
+                    className="flex-1 justify-center bg-surface-dim/50 hover:bg-surface-elevated text-text-sub font-medium group/btn border border-border-dim"
                 >
-                    Edit Access
+                    Edit Permission
                 </Button>
                 {!role.is_system && onDelete && (
                     <Button

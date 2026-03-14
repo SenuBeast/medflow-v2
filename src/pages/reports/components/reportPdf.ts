@@ -8,6 +8,8 @@ interface ReportSummaryMetric {
     value: string;
 }
 
+let brandMarkDataUrlPromise: Promise<string | null> | null = null;
+
 export interface ReportPdfOptions {
     filename: string;
     title: string;
@@ -52,6 +54,97 @@ function buildFilterSummary(filters?: ReportFilters) {
     return parts.length > 0 ? parts : ['No filters applied'];
 }
 
+async function loadBrandMarkDataUrl() {
+    if (brandMarkDataUrlPromise) return brandMarkDataUrlPromise;
+
+    brandMarkDataUrlPromise = new Promise((resolve) => {
+        const image = new Image();
+        image.crossOrigin = 'anonymous';
+        image.onload = () => {
+            try {
+                const size = 180;
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const context = canvas.getContext('2d');
+
+                if (!context) {
+                    resolve(null);
+                    return;
+                }
+
+                context.clearRect(0, 0, size, size);
+
+                const sourceCanvas = document.createElement('canvas');
+                sourceCanvas.width = image.width;
+                sourceCanvas.height = image.height;
+                const sourceContext = sourceCanvas.getContext('2d');
+
+                if (!sourceContext) {
+                    resolve(null);
+                    return;
+                }
+
+                sourceContext.clearRect(0, 0, image.width, image.height);
+                sourceContext.drawImage(image, 0, 0);
+
+                const imageData = sourceContext.getImageData(0, 0, image.width, image.height).data;
+                let minX = image.width;
+                let minY = image.height;
+                let maxX = 0;
+                let maxY = 0;
+
+                for (let y = 0; y < image.height; y++) {
+                    for (let x = 0; x < image.width; x++) {
+                        const alpha = imageData[((y * image.width) + x) * 4 + 3];
+                        if (alpha > 0) {
+                            minX = Math.min(minX, x);
+                            minY = Math.min(minY, y);
+                            maxX = Math.max(maxX, x);
+                            maxY = Math.max(maxY, y);
+                        }
+                    }
+                }
+
+                if (minX > maxX || minY > maxY) {
+                    resolve(null);
+                    return;
+                }
+
+                const sourceWidth = maxX - minX + 1;
+                const sourceHeight = maxY - minY + 1;
+                const destPadding = 6;
+                const maxDestSize = size - (destPadding * 2);
+                const scale = Math.min(maxDestSize / sourceWidth, maxDestSize / sourceHeight);
+                const destWidth = sourceWidth * scale;
+                const destHeight = sourceHeight * scale;
+                const destX = (size - destWidth) / 2;
+                const destY = (size - destHeight) / 2;
+
+                context.drawImage(
+                    image,
+                    minX,
+                    minY,
+                    sourceWidth,
+                    sourceHeight,
+                    destX,
+                    destY,
+                    destWidth,
+                    destHeight
+                );
+
+                resolve(canvas.toDataURL('image/png'));
+            } catch {
+                resolve(null);
+            }
+        };
+        image.onerror = () => resolve(null);
+        image.src = '/brand/medflow-logo.png';
+    });
+
+    return brandMarkDataUrlPromise;
+}
+
 export async function generateReportPdf(options: ReportPdfOptions) {
     const [{ jsPDF }, autoTableModule] = await Promise.all([
         import('jspdf'),
@@ -66,6 +159,7 @@ export async function generateReportPdf(options: ReportPdfOptions) {
     const filterSummary = buildFilterSummary(options.filters);
     const pageDate = format(generatedAt, 'MMM d, yyyy');
     const pageTimestamp = format(generatedAt, 'MMM d, yyyy HH:mm');
+    const brandMarkDataUrl = await loadBrandMarkDataUrl();
 
     const doc = new jsPDF({
         orientation,
@@ -105,9 +199,9 @@ export async function generateReportPdf(options: ReportPdfOptions) {
     const leftBlockX = margin + 28;
     const logoBoxX = leftBlockX;
     const logoBoxY = cursorY + 22;
-    const logoBoxSize = 56;
-    const textStartX = logoBoxX + logoBoxSize + 18;
-    const textBlockWidth = contentWidth - rightPanelWidth - 86 - logoBoxSize;
+    const logoBoxSize = 62;
+    const textStartX = logoBoxX + logoBoxSize + 20;
+    const textBlockWidth = contentWidth - rightPanelWidth - 92 - logoBoxSize;
     const infoPanelX = pageWidth - margin - rightPanelWidth - 24;
     const infoPanelY = cursorY + 18;
     const infoPanelHeight = headerHeight - 36;
@@ -115,11 +209,27 @@ export async function generateReportPdf(options: ReportPdfOptions) {
     drawBox(margin, cursorY, contentWidth, headerHeight, accent);
     drawBox(logoBoxX, logoBoxY, logoBoxSize, logoBoxSize, [255, 255, 255]);
     drawBox(infoPanelX, infoPanelY, rightPanelWidth, infoPanelHeight, [244, 247, 255]);
+    doc.setDrawColor(191, 219, 254);
+    doc.setLineWidth(1);
+    doc.roundedRect(logoBoxX, logoBoxY, logoBoxSize, logoBoxSize, 14, 14, 'S');
 
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(22);
-    doc.setTextColor(accent[0], accent[1], accent[2]);
-    doc.text(options.companyInitials, logoBoxX + (logoBoxSize / 2), logoBoxY + 37, { align: 'center' });
+    if (brandMarkDataUrl) {
+        doc.addImage(
+            brandMarkDataUrl,
+            'PNG',
+            logoBoxX + 4,
+            logoBoxY + 4,
+            logoBoxSize - 8,
+            logoBoxSize - 8,
+            undefined,
+            'FAST'
+        );
+    } else {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(22);
+        doc.setTextColor(accent[0], accent[1], accent[2]);
+        doc.text(options.companyInitials, logoBoxX + (logoBoxSize / 2), logoBoxY + 40, { align: 'center' });
+    }
 
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');

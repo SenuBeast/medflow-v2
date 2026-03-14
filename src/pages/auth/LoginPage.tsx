@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { Activity, Mail, AlertCircle, ArrowRight, KeyRound } from 'lucide-react';
+import { Mail, AlertCircle, ArrowRight, KeyRound } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
@@ -321,8 +321,12 @@ export function LoginPage() {
             <div className="relative w-full max-w-[420px]">
                 <div className="bg-card/[0.03] backdrop-blur-2xl border border-white/[0.08] rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl">
                     <div className="flex flex-col items-center mb-6 sm:mb-8">
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-3 sm:mb-4 shadow-lg shadow-blue-500/25">
-                            <Activity size={22} className="text-white sm:w-[26px] sm:h-[26px]" />
+                        <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center mb-3 sm:mb-4 p-0.5 overflow-hidden">
+                            <img 
+                                src="/assets/logo-no-bg.png" 
+                                alt="MedFlow Logo" 
+                                className="w-full h-full object-contain scale-125" 
+                            />
                         </div>
                         <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">MedFlow</h1>
                         <p className="text-text-sub text-xs sm:text-sm mt-1">Medical Inventory System</p>

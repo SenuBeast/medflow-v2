@@ -229,7 +229,15 @@ export function UsersPage() {
                                     <div>
                                         <span className="text-text-dim">Role</span>
                                         <div className="mt-0.5">
-                                            {user.role ? <RoleBadge roleName={user.role.name} size="sm" /> : <span className="text-text-dim/40 italic">No role</span>}
+                                            {user.role ? (
+                                                <RoleBadge 
+                                                    roleName={user.role.name} 
+                                                    isCustom={!user.role.is_system} 
+                                                    size="sm" 
+                                                />
+                                            ) : (
+                                                <span className="text-text-dim/40 italic">No role</span>
+                                            )}
                                         </div>
                                     </div>
                                     <div>
@@ -308,7 +316,14 @@ export function UsersPage() {
                                             </td>
                                             <td className="px-4 lg:px-5 py-3.5 text-text-sub">{user.email}</td>
                                             <td className="px-4 lg:px-5 py-3.5">
-                                                {user.role ? <RoleBadge roleName={user.role.name} /> : <span className="text-text-dim/40 text-xs italic">No role</span>}
+                                                {user.role ? (
+                                                    <RoleBadge 
+                                                        roleName={user.role.name} 
+                                                        isCustom={!user.role.is_system} 
+                                                    />
+                                                ) : (
+                                                    <span className="text-text-dim/40 text-xs italic">No role</span>
+                                                )}
                                             </td>
                                             <td className="px-4 lg:px-5 py-3.5">
                                                 <StatusBadge status={user.is_active ? 'active' : 'inactive'} />

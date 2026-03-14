@@ -1,0 +1,45 @@
+/* Role Card Hover Effects - Migration from v1 */
+
+.role-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Specific Role Hover Borders */
+.role-card.super-admin:hover {
+    border-color: #b91c1c !important;
+}
+
+.role-card.pharmacist:hover {
+    border-color: #0f766e !important;
+}
+
+.role-card.manager:hover {
+    border-color: #1d4ed8 !important;
+}
+
+.role-card.warehouse-staff:hover {
+    border-color: #b45309 !important;
+}
+
+.role-card.sales-front-desk:hover,
+.role-card.sales-representative:hover {
+    border-color: #4338ca !important;
+}
+
+.role-card.accountant:hover {
+    border-color: #a21caf !important;
+}
+
+.role-card.viewer-auditor:hover {
+    border-color: #475569 !important;
+}
+
+/* Custom Role Hover - Light Theme */
+.role-card:not(.super-admin):not(.pharmacist):not(.manager):not(.warehouse-staff):not(.sales-front-desk):not(.sales-representative):not(.accountant):not(.viewer-auditor):hover {
+    border-color: #000000 !important;
+}
+
+/* Custom Role Hover - Dark Theme */
+.dark .role-card:not(.super-admin):not(.pharmacist):not(.manager):not(.warehouse-staff):not(.sales-front-desk):not(.sales-representative):not(.accountant):not(.viewer-auditor):hover {
+    border-color: #ffffff !important;
+}

@@ -1,24 +1,33 @@
 import { clsx } from 'clsx';
+import { Lock } from 'lucide-react';
 import { ROLE_COLORS, CUSTOM_ROLE_COLOR } from '../../lib/constants';
 
 interface RoleBadgeProps {
     roleName: string;
+    isCustom?: boolean;
+    showLock?: boolean;
     size?: 'sm' | 'md';
 }
 
-export function RoleBadge({ roleName, size = 'md' }: RoleBadgeProps) {
+export function RoleBadge({ roleName, isCustom, showLock, size = 'md' }: RoleBadgeProps) {
     const colors = ROLE_COLORS[roleName] ?? CUSTOM_ROLE_COLOR;
+    
+    // Custom Role Colors (Black in Light, White in Dark)
+    const customBorder = "border-black dark:border-white opacity-80";
+    const roleBorder = isCustom ? customBorder : colors.border;
+
     return (
         <span
             className={clsx(
-                'inline-flex items-center gap-1.5 font-medium rounded-full border',
-                colors.bg,
-                colors.text,
-                colors.border,
-                size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs'
+                'inline-flex items-center rounded-full border bg-transparent font-medium transition-all duration-200',
+                roleBorder,
+                isCustom ? 'text-text-main' : colors.text,
+                size === 'sm' ? 'px-2.5 py-0.5 text-[10px]' : 'px-3 py-1 text-xs'
             )}
         >
-            <span className={clsx('w-1.5 h-1.5 rounded-full', colors.dot)} />
+            {showLock && roleName !== 'Viewer' && !isCustom && (
+                <Lock size={size === 'sm' ? 10 : 12} className="mr-1.5 opacity-60" />
+            )}
             {roleName}
         </span>
     );
