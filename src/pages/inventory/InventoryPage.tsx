@@ -33,7 +33,7 @@ import {
     useCreateGrnReceipt,
 } from '../../hooks/useInventory';
 import { PERMISSIONS } from '../../lib/constants';
-import type { InventoryItem } from '../../lib/types';
+import type { InventoryItem, ItemBatch } from '../../lib/types';
 import { clsx } from 'clsx';
 import { Input } from '../../components/ui/Input';
 import { useNavigate } from 'react-router-dom';
@@ -292,8 +292,8 @@ function InventoryMobileCard({
 }
 
 export function InventoryPage() {
-    const { items = [], isLoading, error } = useInventory();
-    const { suppliers } = useSuppliers();
+    const { data: items = [], isLoading, error } = useInventory();
+    const { data: suppliers = [] } = useSuppliers();
     const addItem = useAddInventoryItem();
     const updateItem = useUpdateInventoryItem();
     const deleteItem = useDeleteInventoryItem();
@@ -317,7 +317,7 @@ export function InventoryPage() {
     const in30 = new Date();
     in30.setDate(in30.getDate() + 30);
 
-    const filtered = items.filter((item) => {
+    const filtered = items.filter((item: InventoryItem) => {
         const matchesSearch =
             item.name.toLowerCase().includes(search.toLowerCase()) ||
             (item.sku ?? '').toLowerCase().includes(search.toLowerCase());
@@ -330,7 +330,7 @@ export function InventoryPage() {
     });
 
     const selectedBatchItem = showAddBatch
-        ? items.find((entry) => entry.id === showAddBatch) ?? null
+        ? items.find((entry: InventoryItem) => entry.id === showAddBatch) ?? null
         : null;
 
     return (
@@ -421,7 +421,7 @@ export function InventoryPage() {
                         <p className="text-text-dim text-sm">No items found</p>
                     </div>
                 ) : (
-                    filtered.map((item) => {
+                    filtered.map((item: InventoryItem) => {
                         const isLow = item.quantity <= item.minimum_order_quantity;
                         const isExpiring = !!(item.expiry_date && new Date(item.expiry_date) <= in30);
                         const isExpanded = expandedItemId === item.id;
@@ -469,7 +469,7 @@ export function InventoryPage() {
                                             <p className="text-sm text-text-dim py-4 text-center border border-dashed border-border-main rounded-xl bg-card">No batches recorded.</p>
                                         ) : (
                                             <div className="space-y-2">
-                                                {item.batches.map(batch => (
+                                                {item.batches.map((batch: ItemBatch) => (
                                                     <div key={batch.id} className="p-3 rounded-xl bg-surface border border-border-dim/30 space-y-2">
                                                         <div className="flex items-center justify-between">
                                                             <span className="font-mono text-xs text-text-main font-semibold">{batch.batch_number}</span>
@@ -577,7 +577,7 @@ export function InventoryPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                filtered.map((item) => {
+                                filtered.map((item: InventoryItem) => {
                                     const isLow = item.quantity <= item.minimum_order_quantity;
                                     const isExpiring = item.expiry_date && new Date(item.expiry_date) <= in30;
                                     return (
@@ -708,7 +708,7 @@ export function InventoryPage() {
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody className="divide-y divide-border-dim/20">
-                                                                        {item.batches.map(batch => (
+                                                                        {item.batches.map((batch: ItemBatch) => (
                                                                             <tr key={batch.id}>
                                                                                 <td className="py-3 font-mono text-xs text-text-main">{batch.batch_number}</td>
                                                                                 <td className="py-3 text-text-sub">{batch.supplier || '—'}</td>
