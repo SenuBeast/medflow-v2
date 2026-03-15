@@ -252,69 +252,70 @@ function InventoryMobileCard({
                 </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border-dim/50">
-                <PermissionGuard permission={PERMISSIONS.INVENTORY_ADJUST}>
-                    <button
-                        onClick={onAdjust}
-                        className="flex-1 flex items-center justify-center gap-1.5 p-2 text-xs font-medium text-text-dim hover:text-brand hover:bg-brand-subtle rounded-lg transition min-h-[40px]"
-                        title="Adjust stock"
-                    >
-                        <ArrowUpDown size={14} /> Adjust
-                    </button>
-                </PermissionGuard>
-                <PermissionGuard permission={PERMISSIONS.INVENTORY_EDIT}>
-                    <button
-                        onClick={onEdit}
-                        className="flex-1 flex items-center justify-center gap-1.5 p-2 text-xs font-medium text-text-dim hover:text-brand hover:bg-brand-subtle rounded-lg transition min-h-[40px]"
-                        title="Edit item"
-                    >
-                        <Edit size={14} /> Edit
-                    </button>
-                </PermissionGuard>
-                <PermissionGuard permission={PERMISSIONS.INVENTORY_EDIT}>
-                    <button
-                        onClick={onDelete}
-                        className="flex-1 flex items-center justify-center gap-1.5 p-2 text-xs font-medium text-text-dim hover:text-danger hover:bg-danger-bg rounded-lg transition min-h-[40px]"
-                        title="Delete item"
-                    >
-                        <Trash2 size={14} /> Delete
-                    </button>
-                </PermissionGuard>
+            <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-border-dim/30">
                 <button
-                    onClick={onExpand}
-                    className="p-2 text-text-dim hover:text-text-main rounded-lg transition min-h-[40px]"
-                    title="View batches"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onExpand();
+                    }}
+                    className="p-2 text-text-dim hover:text-text-main transition-colors"
+                    title={isExpanded ? 'Hide Batches' : 'View Batches'}
                 >
                     {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
+
+                <div className="flex-1" />
+
+                <PermissionGuard permission={PERMISSIONS.INVENTORY_ADJUSTMENTS_MANAGE}>
+                    <Button variant="ghost" size="sm" onClick={onAdjust}>
+                        <ArrowUpDown size={14} className="mr-1" /> Adjust
+                    </Button>
+                </PermissionGuard>
+                <PermissionGuard permission={PERMISSIONS.INVENTORY_PRODUCTS_MANAGE}>
+                    <Button variant="ghost" size="sm" onClick={onEdit}>
+                        <Edit size={14} className="mr-1" /> Edit
+                    </Button>
+                </PermissionGuard>
+                <PermissionGuard permission={PERMISSIONS.INVENTORY_PRODUCTS_MANAGE}>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={onDelete}
+                        className="text-danger hover:text-danger hover:bg-danger-bg"
+                    >
+                        <Trash2 size={14} className="mr-1" /> Delete
+                    </Button>
+                </PermissionGuard>
             </div>
         </Card>
     );
 }
 
 export function InventoryPage() {
-    const navigate = useNavigate();
-    const { data: items = [], isLoading } = useInventory();
-    const { data: suppliers = [] } = useSuppliers();
+    const { items = [], isLoading, error } = useInventory();
+    const { suppliers } = useSuppliers();
     const addItem = useAddInventoryItem();
     const updateItem = useUpdateInventoryItem();
     const deleteItem = useDeleteInventoryItem();
     const addBatch = useAddBatch();
-    const createGrnReceipt = useCreateGrnReceipt();
     const updateBatchStatus = useUpdateBatchStatus();
+    const createGrnReceipt = useCreateGrnReceipt();
+    const navigate = useNavigate();
+
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState<'all' | 'low' | 'controlled' | 'expiring'>('all');
     const [showAdd, setShowAdd] = useState(false);
-    const [showImport, setShowImport] = useState(false);
     const [editItem, setEditItem] = useState<InventoryItem | null>(null);
     const [adjustItem, setAdjustItem] = useState<InventoryItem | null>(null);
     const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
     const [showAddBatch, setShowAddBatch] = useState<string | null>(null);
     const [showReceiveGrnForProduct, setShowReceiveGrnForProduct] = useState<string | null>(null);
+    const [showImport, setShowImport] = useState(false);
 
-    const now = new Date();
-    const in30 = new Date(); in30.setDate(now.getDate() + 30);
+    if (error) return <div className="p-4 text-danger">Error loading inventory: {error.message}</div>;
+
+    const in30 = new Date();
+    in30.setDate(in30.getDate() + 30);
 
     const filtered = items.filter((item) => {
         const matchesSearch =
@@ -347,25 +348,25 @@ export function InventoryPage() {
                             <span className="sm:hidden">Import</span>
                         </Button>
                     </PermissionGuard>
-                    <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                    <PermissionGuard permission={PERMISSIONS.INVENTORY_PURCHASE_MANAGE}>
                         <Button variant="secondary" icon={<FilePlus2 size={16} />} onClick={() => setShowReceiveGrnForProduct('')}>
                             <span className="hidden sm:inline">Receive GRN</span>
                             <span className="sm:hidden">GRN</span>
                         </Button>
                     </PermissionGuard>
-                    <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                    <PermissionGuard permission={PERMISSIONS.INVENTORY_PURCHASE_MANAGE}>
                         <Button variant="secondary" onClick={() => navigate('/inventory-bulk-entry?mode=grn')}>
                             <span className="hidden sm:inline">Bulk GRN</span>
                             <span className="sm:hidden">Bulk GRN</span>
                         </Button>
                     </PermissionGuard>
-                    <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                    <PermissionGuard permission={PERMISSIONS.INVENTORY_BATCHES_MANAGE}>
                         <Button variant="secondary" onClick={() => navigate('/inventory-bulk-entry?mode=batch')}>
                             <span className="hidden sm:inline">Bulk Batches</span>
                             <span className="sm:hidden">Bulk Batch</span>
                         </Button>
                     </PermissionGuard>
-                    <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                    <PermissionGuard permission={PERMISSIONS.INVENTORY_PRODUCTS_MANAGE}>
                         <Button variant="primary" icon={<Plus size={16} />} onClick={() => setShowAdd(true)}>
                             <span className="hidden sm:inline">Add Item</span>
                             <span className="sm:hidden">Add</span>
@@ -442,22 +443,22 @@ export function InventoryPage() {
                                         <div className="flex items-center justify-between mb-3">
                                             <h4 className="text-[10px] font-bold text-text-dim uppercase tracking-widest">Item Batches</h4>
                                             <div className="flex items-center gap-2">
-                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_PURCHASE_MANAGE}>
                                                     <Button variant="outline" size="sm" onClick={() => setShowReceiveGrnForProduct(item.id)}>
                                                         + Receive GRN
                                                     </Button>
                                                 </PermissionGuard>
-                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_BATCHES_MANAGE}>
                                                     <Button variant="outline" size="sm" onClick={() => setShowAddBatch(item.id)}>
                                                         + Add Batch
                                                     </Button>
                                                 </PermissionGuard>
-                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_PURCHASE_MANAGE}>
                                                     <Button variant="outline" size="sm" onClick={() => navigate(`/inventory-bulk-entry?mode=grn&product_id=${item.id}`)}>
                                                         + Bulk GRN
                                                     </Button>
                                                 </PermissionGuard>
-                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                <PermissionGuard permission={PERMISSIONS.INVENTORY_BATCHES_MANAGE}>
                                                     <Button variant="outline" size="sm" onClick={() => navigate(`/inventory-bulk-entry?mode=batch&product_id=${item.id}`)}>
                                                         + Bulk Batch
                                                     </Button>
@@ -548,10 +549,13 @@ export function InventoryPage() {
                     <table className="w-full">
                         <thead className="bg-surface sticky top-0 z-10">
                             <tr className="border-b border-border-main">
-                                {['Name', 'SKU', 'Category', 'Stock', 'Unit Price', 'Expiry', 'Status', ''].map((h) => (
+                                {['Name', 'SKU', 'Category', 'Stock', 'Unit Price', 'Expiry', 'Actions'].map((h) => (
                                     <th
                                         key={h}
-                                        className="text-left text-xs font-bold text-text-dim uppercase tracking-wider px-5 py-3.5"
+                                        className={clsx(
+                                            'text-xs font-bold text-text-dim uppercase tracking-wider px-5 py-3.5',
+                                            h === 'Actions' ? 'text-right' : 'text-left'
+                                        )}
                                     >
                                         {h}
                                     </th>
@@ -561,13 +565,13 @@ export function InventoryPage() {
                         <tbody className="divide-y divide-border-dim/50">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={8} className="px-5 py-12 text-center text-text-dim text-sm">
+                                    <td colSpan={7} className="px-5 py-12 text-center text-text-dim text-sm">
                                         Loading inventory...
                                     </td>
                                 </tr>
                             ) : filtered.length === 0 ? (
                                 <tr>
-                                    <td colSpan={8} className="px-5 py-12 text-center">
+                                    <td colSpan={7} className="px-5 py-12 text-center">
                                         <PackageOpen size={36} className="text-text-dim mx-auto mb-2" />
                                         <p className="text-text-dim text-sm">No items found</p>
                                     </td>
@@ -600,81 +604,89 @@ export function InventoryPage() {
                                                     </div>
                                                 </td>
                                                 <td className="px-5 py-3.5 text-sm text-text-main">
-                                                    {item.selling_price ? `$${item.selling_price.toFixed(2)} ` : '—'}
+                                                    {item.selling_price ? `$${item.selling_price.toFixed(2)}` : '—'}
                                                 </td>
                                                 <td className="px-5 py-3.5">
                                                     {item.expiry_date ? (
                                                         <span className={clsx('text-xs', isExpiring ? 'text-warning font-medium' : 'text-text-main')}>
-                                                            {isExpiring && <Calendar size={11} className="inline mr-1" />}
+                                                            {isExpiring && <Calendar size={10} className="inline mr-1" />}
                                                             {new Date(item.expiry_date).toLocaleDateString()}
                                                         </span>
                                                     ) : (
                                                         <span className="text-xs text-text-dim/50">—</span>
                                                     )}
                                                 </td>
-                                                <td className="px-5 py-3.5">
-                                                    <span className={clsx(
-                                                        'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider',
-                                                        isLow ? 'bg-warning-bg text-warning' : 'bg-success-bg text-success'
-                                                    )}>
-                                                        {isLow ? 'Low Stock' : 'In Stock'}
-                                                    </span>
-                                                </td>
-                                                <td className="px-5 py-3.5">
-                                                    <div className="flex items-center gap-1.5">
-                                                        <PermissionGuard permission={PERMISSIONS.INVENTORY_ADJUST}>
-                                                            <button
-                                                                onClick={() => setAdjustItem(item)}
-                                                                className="p-1.5 text-text-dim hover:text-brand hover:bg-brand-subtle rounded-lg transition"
+                                                <td className="px-5 py-3.5 text-right">
+                                                    <div className="flex items-center justify-end gap-1">
+                                                        <PermissionGuard permission={PERMISSIONS.INVENTORY_ADJUSTMENTS_MANAGE}>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setAdjustItem(item);
+                                                                }}
                                                                 title="Adjust stock"
                                                             >
                                                                 <ArrowUpDown size={14} />
-                                                            </button>
+                                                            </Button>
                                                         </PermissionGuard>
-                                                        <PermissionGuard permission={PERMISSIONS.INVENTORY_EDIT}>
-                                                            <button
-                                                                onClick={() => setEditItem(item)}
-                                                                className="p-1.5 text-text-dim hover:text-brand hover:bg-brand-subtle rounded-lg transition"
+                                                        <PermissionGuard permission={PERMISSIONS.INVENTORY_PRODUCTS_MANAGE}>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setEditItem(item);
+                                                                }}
                                                                 title="Edit item"
                                                             >
                                                                 <Edit size={14} />
-                                                            </button>
+                                                            </Button>
                                                         </PermissionGuard>
-                                                        <PermissionGuard permission={PERMISSIONS.INVENTORY_EDIT}>
-                                                            <button
-                                                                onClick={() => deleteItem.mutate(item.id)}
-                                                                className="p-1.5 text-text-dim hover:text-danger hover:bg-danger-bg rounded-lg transition"
+                                                        <PermissionGuard permission={PERMISSIONS.INVENTORY_PRODUCTS_MANAGE}>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    if (window.confirm('Are you sure you want to delete this item?')) {
+                                                                        deleteItem.mutate(item.id);
+                                                                    }
+                                                                }}
+                                                                className="text-danger hover:text-danger hover:bg-danger-bg"
                                                                 title="Delete item"
                                                             >
                                                                 <Trash2 size={14} />
-                                                            </button>
+                                                            </Button>
                                                         </PermissionGuard>
                                                     </div>
                                                 </td>
                                             </tr>
+
                                             {expandedItemId === item.id && (
                                                 <tr className="bg-surface-dim border-b border-border-dim/50">
-                                                    <td colSpan={8} className="p-0">
+                                                    <td colSpan={7} className="p-0">
                                                         <div className="px-10 py-5 bg-card/30 border-t border-border-dim/30">
                                                             <div className="flex items-center justify-between mb-4">
                                                                 <h4 className="text-[10px] font-bold text-text-dim uppercase tracking-widest">Item Batches</h4>
                                                                 <div className="flex items-center gap-2">
-                                                                    <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                                    <PermissionGuard permission={PERMISSIONS.INVENTORY_PURCHASE_MANAGE}>
                                                                         <Button variant="outline" size="sm" onClick={() => setShowReceiveGrnForProduct(item.id)}>
                                                                             + Receive GRN
                                                                         </Button>
                                                                     </PermissionGuard>
-                                                                    <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                                    <PermissionGuard permission={PERMISSIONS.INVENTORY_BATCHES_MANAGE}>
                                                                         <Button variant="outline" size="sm" onClick={() => setShowAddBatch(item.id)}>
                                                                             + Add Batch
                                                                         </Button>
                                                                     </PermissionGuard>
-                                                                    <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                                    <PermissionGuard permission={PERMISSIONS.INVENTORY_PURCHASE_MANAGE}>
                                                                         <Button variant="outline" size="sm" onClick={() => navigate(`/inventory-bulk-entry?mode=grn&product_id=${item.id}`)}>
                                                                             + Bulk GRN
                                                                         </Button>
                                                                     </PermissionGuard>
-                                                                    <PermissionGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                                                                    <PermissionGuard permission={PERMISSIONS.INVENTORY_BATCHES_MANAGE}>
                                                                         <Button variant="outline" size="sm" onClick={() => navigate(`/inventory-bulk-entry?mode=batch&product_id=${item.id}`)}>
                                                                             + Bulk Batch
                                                                         </Button>

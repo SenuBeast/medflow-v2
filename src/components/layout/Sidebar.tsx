@@ -34,8 +34,8 @@ interface NavItem {
 
 const navItems: NavItem[] = [
     { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard, permission: null },
-    { label: 'Inventory', to: '/inventory', icon: Package, permission: PERMISSIONS.INVENTORY_VIEW, exact: true },
-    { label: 'GRN History', to: '/inventory-grn', icon: ReceiptText, permission: PERMISSIONS.INVENTORY_VIEW },
+    { label: 'Inventory', to: '/inventory', icon: Package, permission: PERMISSIONS.INVENTORY_PRODUCTS_VIEW, exact: true },
+    { label: 'GRN History', to: '/inventory-grn', icon: ReceiptText, permission: PERMISSIONS.INVENTORY_PURCHASE_MANAGE },
     { label: 'Stock Counts', to: '/stock-counts', icon: ClipboardCheck, permission: PERMISSIONS.STOCK_COUNTS_PERFORM },
     { label: 'Sales', to: '/sales', icon: ShoppingCart, permission: PERMISSIONS.SALES_VIEW },
     { label: 'Reports', to: '/reports', icon: FileText, permission: PERMISSIONS.REPORTS_VIEW },

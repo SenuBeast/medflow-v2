@@ -77,17 +77,17 @@ function App() {
               <Route path="/dashboard" element={<DashboardPage />} />
 
               <Route path="inventory" element={
-                <RouteGuard permission={PERMISSIONS.INVENTORY_VIEW}>
+                <RouteGuard permission={PERMISSIONS.INVENTORY_PRODUCTS_VIEW}>
                   <InventoryPage />
                 </RouteGuard>
               } />
               <Route path="inventory-bulk-entry" element={
-                <RouteGuard permission={PERMISSIONS.INVENTORY_ADD}>
+                <RouteGuard permission={PERMISSIONS.INVENTORY_PRODUCTS_MANAGE}>
                   <BulkInventoryEntryPage />
                 </RouteGuard>
               } />
               <Route path="inventory-grn" element={
-                <RouteGuard permission={PERMISSIONS.INVENTORY_VIEW}>
+                <RouteGuard permission={PERMISSIONS.INVENTORY_PURCHASE_MANAGE}>
                   <GRNHistoryPage />
                 </RouteGuard>
               } />
