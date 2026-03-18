@@ -8,6 +8,8 @@ import { getMfaAssuranceState } from '../../lib/mfa';
 import { PasswordField } from './PasswordField';
 import { SignupForm } from './SignupForm';
 import { useToast } from '../../components/ui/Toast';
+import { Modal } from '../../components/ui/Modal';
+import { Button } from '../../components/ui/Button';
 
 function GoogleLogo() {
     return (
@@ -137,6 +139,9 @@ function LoginForm({
             onSuccess();
         } catch (err: unknown) {
             const raw = err instanceof Error ? err.message : 'Authentication failed';
+            if (raw === 'ACCOUNT_DEACTIVATED') {
+                return;
+            }
             const friendly = raw.toLowerCase().includes('invalid')
                 ? 'Incorrect email or password.'
                 : raw.toLowerCase().includes('network')
@@ -264,7 +269,13 @@ function LoginForm({
 }
 
 export function LoginPage() {
-    const { user, isInitialized, isLoading, isTwoFactorVerified } = useAuthStore();
+    const {
+        user,
+        isInitialized,
+        isLoading,
+        isTwoFactorVerified,
+        deactivatedAccountNotice,
+    } = useAuthStore();
     const location = useLocation();
     const navigate = useNavigate();
     const from = location.state?.from?.pathname || '/dashboard';
@@ -310,67 +321,100 @@ export function LoginPage() {
         setStep('login');
     };
 
+    const handleLogoutFromNotice = async () => {
+        useAuthStore.getState().clearDeactivatedAccountNotice();
+        await supabase.auth.signOut();
+    };
+
+    const handleContactAdmin = async () => {
+        window.location.href =
+            'mailto:?subject=MedFlow%20Account%20Deactivated&body=My%20MedFlow%20account%20has%20been%20deactivated.%20Please%20assist%20with%20access.';
+        await handleLogoutFromNotice();
+    };
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-slate-900 flex items-center justify-center p-3 sm:p-4 relative overflow-hidden">
-            <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute -top-60 -left-40 w-[500px] h-[500px] bg-blue-700/15 rounded-full blur-3xl" />
-                <div className="absolute -bottom-60 -right-40 w-[500px] h-[500px] bg-indigo-700/15 rounded-full blur-3xl" />
-                <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-64 h-64 bg-blue-600/5 rounded-full blur-2xl" />
-            </div>
-
-            <div className="relative w-full max-w-[420px]">
-                <div className="bg-card/[0.03] backdrop-blur-2xl border border-white/[0.08] rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl">
-                    <div className="flex flex-col items-center mb-6 sm:mb-8">
-                        <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center mb-3 sm:mb-4 p-0.5 overflow-hidden">
-                            <img 
-                                src="/assets/logo-no-bg.png" 
-                                alt="MedFlow Logo" 
-                                className="w-full h-full object-contain scale-125" 
-                            />
-                        </div>
-                        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">MedFlow</h1>
-                        <p className="text-text-sub text-xs sm:text-sm mt-1">Medical Inventory System</p>
-                    </div>
-
-                    {(step === 'login' || step === 'signup') && (
-                        <>
-                            <div className="flex bg-card/5 p-1 rounded-xl mb-6 border border-white/5">
-                                {(['login', 'signup'] as const).map((s) => (
-                                    <button
-                                        key={s}
-                                        onClick={() => setStep(s)}
-                                        className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all capitalize ${step === s ? 'bg-blue-600 text-white shadow-sm' : 'text-text-sub hover:text-gray-300'}`}
-                                    >
-                                        {s === 'login' ? 'Sign In' : 'Sign Up'}
-                                    </button>
-                                ))}
-                            </div>
-                            {step === 'login' && (
-                                <LoginForm
-                                    onSuccess={handleLoginSuccess}
-                                    onSwitchToSignup={() => setStep('signup')}
-                                    onForgotPassword={() => setStep('forgot')}
-                                />
-                            )}
-                            {step === 'signup' && (
-                                <SignupForm onSignedUp={handleSignedUp} onSwitchToLogin={() => setStep('login')} />
-                            )}
-                        </>
-                    )}
-
-                    {step === 'forgot' && (
-                        <ForgotPassword onBack={() => setStep('login')} />
-                    )}
-
-                    <p className="text-center text-[11px] text-gray-700 mt-6">
-                        Secure - HIPAA-aware - Role-based access
-                    </p>
+        <>
+            <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-gray-950 via-gray-900 to-slate-900 p-3 sm:p-4">
+                <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute -left-40 -top-60 h-[500px] w-[500px] rounded-full bg-blue-700/15 blur-3xl" />
+                    <div className="absolute -bottom-60 -right-40 h-[500px] w-[500px] rounded-full bg-indigo-700/15 blur-3xl" />
+                    <div className="absolute left-1/2 top-1/3 h-64 w-64 -translate-x-1/2 rounded-full bg-blue-600/5 blur-2xl" />
                 </div>
 
-                <p className="text-center text-xs text-gray-700 mt-4">
-                    (c) 2026 MedFlow Healthcare Systems
-                </p>
+                <div className="relative w-full max-w-[420px]">
+                    <div className="rounded-2xl border border-white/[0.08] bg-card/[0.03] p-5 shadow-2xl backdrop-blur-2xl sm:rounded-3xl sm:p-8">
+                        <div className="mb-6 flex flex-col items-center sm:mb-8">
+                            <div className="mb-3 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl p-0.5 sm:mb-4 sm:h-24 sm:w-24">
+                                <img
+                                    src="/assets/logo-no-bg.png"
+                                    alt="MedFlow Logo"
+                                    className="h-full w-full scale-125 object-contain"
+                                />
+                            </div>
+                            <h1 className="text-xl font-bold tracking-tight text-white sm:text-2xl">MedFlow</h1>
+                            <p className="mt-1 text-xs text-text-sub sm:text-sm">Medical Inventory System</p>
+                        </div>
+
+                        {(step === 'login' || step === 'signup') && (
+                            <>
+                                <div className="mb-6 flex rounded-xl border border-white/5 bg-card/5 p-1">
+                                    {(['login', 'signup'] as const).map((s) => (
+                                        <button
+                                            key={s}
+                                            onClick={() => setStep(s)}
+                                            className={`flex-1 rounded-lg py-2 text-sm font-semibold capitalize transition-all ${step === s ? 'bg-blue-600 text-white shadow-sm' : 'text-text-sub hover:text-gray-300'}`}
+                                        >
+                                            {s === 'login' ? 'Sign In' : 'Sign Up'}
+                                        </button>
+                                    ))}
+                                </div>
+                                {step === 'login' && (
+                                    <LoginForm
+                                        onSuccess={handleLoginSuccess}
+                                        onSwitchToSignup={() => setStep('signup')}
+                                        onForgotPassword={() => setStep('forgot')}
+                                    />
+                                )}
+                                {step === 'signup' && (
+                                    <SignupForm onSignedUp={handleSignedUp} onSwitchToLogin={() => setStep('login')} />
+                                )}
+                            </>
+                        )}
+
+                        {step === 'forgot' && (
+                            <ForgotPassword onBack={() => setStep('login')} />
+                        )}
+
+                        <p className="mt-6 text-center text-[11px] text-gray-700">
+                            Secure - HIPAA-aware - Role-based access
+                        </p>
+                    </div>
+
+                    <p className="mt-4 text-center text-xs text-gray-700">
+                        (c) 2026 MedFlow Healthcare Systems
+                    </p>
+                </div>
             </div>
-        </div>
+
+            {deactivatedAccountNotice && (
+                <Modal title={deactivatedAccountNotice.title} size="sm" onClose={() => void handleLogoutFromNotice()}>
+                    <div className="space-y-4">
+                        <div className="rounded-xl border border-danger/20 bg-danger/10 p-4 text-sm leading-relaxed text-danger">
+                            {deactivatedAccountNotice.message.split('\n').map((line) => (
+                                <p key={line}>{line}</p>
+                            ))}
+                        </div>
+                        <div className="flex justify-end gap-3">
+                            <Button variant="secondary" onClick={() => void handleContactAdmin()}>
+                                Contact Admin
+                            </Button>
+                            <Button variant="danger" onClick={() => void handleLogoutFromNotice()}>
+                                Logout
+                            </Button>
+                        </div>
+                    </div>
+                </Modal>
+            )}
+        </>
     );
 }

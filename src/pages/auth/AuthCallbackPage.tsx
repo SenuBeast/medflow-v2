@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { getMfaAssuranceState } from '../../lib/mfa';
+import { rehydrateAuthFromSession } from '../../hooks/useAuth';
 import { useAuthStore } from '../../store/authStore';
 
 export function AuthCallbackPage() {
@@ -21,15 +21,18 @@ export function AuthCallbackPage() {
                     return;
                 }
 
-                const assurance = await getMfaAssuranceState();
-                if (assurance.requiresChallenge) {
-                    useAuthStore.getState().setTwoFactorVerified(false);
-                    navigate('/verify-2fa', { replace: true });
+                const initialized = await rehydrateAuthFromSession();
+                if (!initialized) {
+                    navigate('/login', { replace: true });
                     return;
                 }
 
-                useAuthStore.getState().setTwoFactorVerified(true);
-                navigate('/dashboard', { replace: true });
+                if (useAuthStore.getState().isTwoFactorVerified) {
+                    navigate('/dashboard', { replace: true });
+                    return;
+                }
+
+                navigate('/verify-2fa', { replace: true });
             } catch {
                 navigate('/login', { replace: true });
             }
@@ -43,7 +46,7 @@ export function AuthCallbackPage() {
             <div className="flex flex-col items-center gap-4 text-center">
                 <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
                 <p className="text-white font-semibold text-lg">Completing sign-in...</p>
-                <p className="text-text-sub text-sm">Checking account security</p>
+                <p className="text-text-sub text-sm">Checking account access</p>
             </div>
         </div>
     );

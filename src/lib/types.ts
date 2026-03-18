@@ -28,6 +28,10 @@ export interface User {
     role_id: string;
     tenant_id: string;
     is_active: boolean;
+    deactivated_at?: string | null;
+    deactivated_by?: string | null;
+    deleted_at?: string | null;
+    deleted_by?: string | null;
     created_at: string;
     updated_at?: string;
     role?: Role;

@@ -23,6 +23,7 @@ import { PERMISSIONS } from '../../lib/constants';
 import { useHasPermission } from '../../lib/permissionUtils';
 import { ThemeToggle } from '../../../shared-ui/theme/ThemeToggle';
 import { useIntegrationStatus } from '../../hooks/useIntegrationStatus';
+import { Avatar } from '../ui/Avatar';
 
 interface NavItem {
     label: string;
@@ -260,20 +261,8 @@ export function Sidebar() {
                     )}
                     title="View profile"
                 >
-                    {/* Avatar — shows Google photo or initials */}
-                    {user?.avatar_url ? (
-                        <img
-                            src={user.avatar_url}
-                            alt={user.full_name ?? 'Avatar'}
-                            className="w-8 h-8 rounded-full object-cover ring-2 ring-border-dim shrink-0"
-                        />
-                    ) : (
-                        <div className="w-8 h-8 rounded-full bg-brand/20 border border-brand/30 flex items-center justify-center shrink-0">
-                            <span className="text-brand text-xs font-bold">
-                                {(user?.full_name ?? user?.email ?? 'U').charAt(0).toUpperCase()}
-                            </span>
-                        </div>
-                    )}
+                    {/* Avatar — shows Google photo or initials with error fallback */}
+                    <Avatar src={user?.avatar_url} name={user?.full_name ?? user?.email} size="sm" />
                     {(!collapsed || isMobile) && (
                         <div className="min-w-0 text-left">
                             <p className="text-xs font-medium truncate text-[var(--sidebar-text-active)] group-hover:text-brand transition-colors">

@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import type { User } from '../lib/types';
+import { useDeactivateUser } from './useDeactivateUser';
+import { useReactivateUser } from './useReactivateUser';
 
 export function useUsers() {
     return useQuery({
@@ -9,13 +11,23 @@ export function useUsers() {
             const { data, error } = await supabase
                 .from('users')
                 .select(`
-          *,
-          role:roles (id, name, is_system)
-        `)
+                    *,
+                    role:roles!role_id (
+                        id,
+                        name,
+                        is_system
+                    )
+                `)
                 .order('created_at', { ascending: false });
 
-            if (error) throw error;
-            return (data ?? []) as User[];
+            if (error) {
+                console.error('[useUsers] Fetch error:', error);
+                throw error;
+            }
+            
+            const users = (data ?? []) as any[];
+            // Filter locally to avoid 400 errors if the column is missing in some environments
+            return users.filter(u => !u.deleted_at) as User[];
         },
     });
 }
@@ -73,30 +85,5 @@ export function useUpdateUserRole() {
     });
 }
 
-export function useDeactivateUser() {
-    const qc = useQueryClient();
-    return useMutation({
-        mutationFn: async (userId: string) => {
-            const { error } = await supabase
-                .from('users')
-                .update({ is_active: false })
-                .eq('id', userId);
-            if (error) throw error;
-        },
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
-    });
-}
-
-export function useActivateUser() {
-    const qc = useQueryClient();
-    return useMutation({
-        mutationFn: async (userId: string) => {
-            const { error } = await supabase
-                .from('users')
-                .update({ is_active: true })
-                .eq('id', userId);
-            if (error) throw error;
-        },
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
-    });
-}
+export { useDeactivateUser, useReactivateUser };
+export const useActivateUser = useReactivateUser;

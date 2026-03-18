@@ -7,6 +7,7 @@ import { supabase } from '../../lib/supabase';
 import { Card } from '../../components/ui/Card';
 import { AvatarCropperModal } from '../../components/profile/AvatarCropperModal';
 import { TwoFactorSetupCard } from '../../components/profile/TwoFactorSetupCard';
+import { Avatar } from '../../components/ui/Avatar';
 import { useToast } from '../../components/ui/Toast';
 
 interface AuthErrorLike {
@@ -21,17 +22,7 @@ interface PendingTotpSetup {
     uri: string;
 }
 
-function UserAvatar({ url, name, size = 'lg' }: { url?: string | null; name?: string | null; size?: 'sm' | 'lg' }) {
-    const s = size === 'lg' ? 'w-24 h-24 text-3xl' : 'w-10 h-10 text-sm';
-    if (url) return <img src={url} alt={name ?? 'Avatar'} className={clsx(s, 'rounded-full object-cover ring-4 ring-border-dim')} />;
-
-    const initials = (name ?? '?').split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
-    return (
-        <div className={clsx(s, 'rounded-full bg-brand/10 text-brand font-bold flex items-center justify-center ring-4 ring-border-dim')}>
-            {initials}
-        </div>
-    );
-}
+// Local UserAvatar removed in favor of centralized UI component
 
 function toMfaErrorMessage(error: unknown): string {
     const authError = error as AuthErrorLike;
@@ -228,7 +219,7 @@ export function ProfilePage() {
             <Card className="p-4 md:p-6">
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 md:gap-6">
                     <div className="relative shrink-0 group">
-                        <UserAvatar url={displayAvatar} name={fullName || user.full_name} size="lg" />
+                        <Avatar src={displayAvatar} name={fullName || user.full_name} size="xl" className="ring-4" />
                         <div
                             className="absolute inset-0 rounded-full bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                             onClick={() => {

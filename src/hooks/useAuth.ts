@@ -1,8 +1,15 @@
+import { queryClient } from '../lib/queryClient';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { hasPermission, useHasPermission } from '../lib/permissionUtils';
 import { getMfaAssuranceState } from '../lib/mfa';
 import type { User } from '../lib/types';
+
+const DEACTIVATED_ACCOUNT_NOTICE = {
+    title: 'Account Deactivated',
+    message:
+        'Your MedFlow account has been deactivated by the administrator.\nPlease contact your administrator for assistance.',
+};
 
 async function fetchUserProfile(userId: string): Promise<User | null> {
     const { data: user, error: userError } = await supabase
@@ -46,7 +53,7 @@ async function ensureUserRecord(
 ): Promise<void> {
     const { data, error } = await supabase
         .from('users')
-        .select('id')
+        .select('id, avatar_url')
         .eq('id', userId)
         .maybeSingle();
 
@@ -84,12 +91,25 @@ async function ensureUserRecord(
     }
 
     if (isGoogleLinked) {
+        const updatePayload: Record<string, unknown> = {
+            provider,
+            updated_at: new Date().toISOString(),
+        };
+
+        if (googleAvatar) {
+            const currentAvatar = (data as { id: string; avatar_url?: string | null }).avatar_url;
+            // Only overwrite avatar if it's absent or still points to Google's CDN.
+            // This preserves any custom photo the user has uploaded.
+            const isGoogleHostedOrMissing = !currentAvatar || currentAvatar.includes('googleusercontent.com');
+
+            if (isGoogleHostedOrMissing) {
+                updatePayload.avatar_url = googleAvatar;
+            }
+        }
+
         await supabase
             .from('users')
-            .update({
-                provider,
-                updated_at: new Date().toISOString(),
-            })
+            .update(updatePayload)
             .eq('id', userId);
     }
 }
@@ -101,7 +121,25 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
     ]);
 }
 
-let loadingUser = false;
+let blockedAccountSignOutInProgress = false;
+let activeUserLoadPromise: Promise<boolean> | null = null;
+
+async function signOutBlockedAccount() {
+    if (blockedAccountSignOutInProgress) return;
+
+    blockedAccountSignOutInProgress = true;
+    cleanupRealtimeSync();
+    useAuthStore.getState().setDeactivatedAccountNotice(DEACTIVATED_ACCOUNT_NOTICE);
+
+    try {
+        await supabase.auth.signOut();
+    } catch (err: unknown) {
+        console.error('[AUTH] Failed to sign out blocked account:', err instanceof Error ? err.message : String(err));
+    } finally {
+        useAuthStore.getState().reset(true);
+        blockedAccountSignOutInProgress = false;
+    }
+}
 
 async function initUser(
     userId: string,
@@ -110,35 +148,51 @@ async function initUser(
     userMetadata?: Record<string, unknown>,
     appMetadata?: Record<string, unknown>,
     deferCompletion = false
-) {
-    if (loadingUser) return;
-
+) : Promise<boolean> {
     const currentUser = useAuthStore.getState().user;
-    if (!forceRefresh && currentUser?.id === userId) return;
+    if (!forceRefresh && currentUser?.id === userId) return true;
 
-    loadingUser = true;
-    const shouldShowLoading = !forceRefresh || !currentUser || currentUser.id !== userId;
-    if (shouldShowLoading) useAuthStore.getState().setLoading(true);
-
-    try {
-        await withTimeout(ensureUserRecord(userId, email, userMetadata, appMetadata), 10000);
-        const profile = await withTimeout(fetchUserProfile(userId), 10000);
-
-        if (profile) {
-            useAuthStore.getState().setUser(profile);
-            useAuthStore.getState().setPermissions(profile.role?.permissions ?? []);
-        } else {
-            console.warn('[AUTH] Profile not found for user:', userId);
-        }
-    } catch (err: unknown) {
-        console.error('[AUTH] Failed to initialize user profile:', err instanceof Error ? err.message : String(err));
-    } finally {
-        if (!deferCompletion) {
-            useAuthStore.getState().setLoading(false);
-            useAuthStore.getState().setInitialized(true);
-        }
-        loadingUser = false;
+    if (activeUserLoadPromise) {
+        return activeUserLoadPromise;
     }
+
+    activeUserLoadPromise = (async () => {
+        const shouldShowLoading = !forceRefresh || !currentUser || currentUser.id !== userId;
+        if (shouldShowLoading) useAuthStore.getState().setLoading(true);
+        let shouldSkipCompletion = false;
+
+        try {
+            await withTimeout(ensureUserRecord(userId, email, userMetadata, appMetadata), 10000);
+            const profile = await withTimeout(fetchUserProfile(userId), 10000);
+
+            if (profile?.deleted_at || profile?.is_active === false) {
+                shouldSkipCompletion = true;
+                await signOutBlockedAccount();
+                return false;
+            }
+
+            if (profile) {
+                useAuthStore.getState().setUser(profile);
+                useAuthStore.getState().setPermissions(profile.role?.permissions ?? []);
+                useAuthStore.getState().clearDeactivatedAccountNotice();
+                return true;
+            }
+
+            console.warn('[AUTH] Profile not found for user:', userId);
+            return false;
+        } catch (err: unknown) {
+            console.error('[AUTH] Failed to initialize user profile:', err instanceof Error ? err.message : String(err));
+            return false;
+        } finally {
+            if (!deferCompletion && !shouldSkipCompletion) {
+                useAuthStore.getState().setLoading(false);
+                useAuthStore.getState().setInitialized(true);
+            }
+            activeUserLoadPromise = null;
+        }
+    })();
+
+    return activeUserLoadPromise;
 }
 
 async function syncTwoFactorState() {
@@ -179,9 +233,11 @@ function cleanupRealtimeSync() {
 let listenerStarted = false;
 let authBootstrapCompleted = false;
 
-function resetToSignedOutState() {
+function resetToSignedOutState(
+    preserveDeactivatedNotice = Boolean(useAuthStore.getState().deactivatedAccountNotice)
+) {
     cleanupRealtimeSync();
-    useAuthStore.getState().reset();
+    useAuthStore.getState().reset(preserveDeactivatedNotice);
 }
 
 export async function rehydrateAuthFromSession(): Promise<boolean> {
@@ -190,7 +246,7 @@ export async function rehydrateAuthFromSession(): Promise<boolean> {
         return false;
     }
 
-    await initUser(
+    const initialized = await initUser(
         session.user.id,
         session.user.email ?? '',
         false,
@@ -198,6 +254,11 @@ export async function rehydrateAuthFromSession(): Promise<boolean> {
         session.user.app_metadata,
         false
     );
+
+    if (!initialized) {
+        return false;
+    }
+
     setupRealtimeSync(session.user.id, session.user.email ?? '');
     await syncTwoFactorState();
     authBootstrapCompleted = true;
@@ -276,11 +337,26 @@ function startGlobalAuthListener() {
 startGlobalAuthListener();
 
 export function useAuth() {
-    const { user, permissions, isLoading, isInitialized, isTwoFactorVerified } = useAuthStore();
+    const {
+        user,
+        permissions,
+        isLoading,
+        isInitialized,
+        isTwoFactorVerified,
+    } = useAuthStore();
 
     const signIn = async (email: string, password: string) => {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+
+        const initialized = await rehydrateAuthFromSession();
+        if (!initialized) {
+            if (useAuthStore.getState().deactivatedAccountNotice) {
+                throw new Error('ACCOUNT_DEACTIVATED');
+            }
+
+            throw new Error('Failed to initialize authenticated session.');
+        }
     };
 
     const signInWithGoogle = async () => {
@@ -296,6 +372,7 @@ export function useAuth() {
     const signOut = async () => {
         cleanupRealtimeSync();
         await supabase.auth.signOut();
+        useAuthStore.getState().clearDeactivatedAccountNotice();
         useAuthStore.getState().reset();
     };
 
@@ -314,7 +391,11 @@ export function useAuth() {
             .eq('id', currentUser.id);
         if (error) throw error;
 
+        // Update local auth state immediately
         useAuthStore.getState().setUser({ ...currentUser, ...data });
+
+        // Invalidate the admin users list so the admin tab reflects changes without reload
+        queryClient.invalidateQueries({ queryKey: ['users'] });
     };
 
     const refreshMfaState = async () => {

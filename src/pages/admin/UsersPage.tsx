@@ -1,29 +1,37 @@
 import { useState } from 'react';
 import { Search, UserPlus, Users2 } from 'lucide-react';
+import { format } from 'date-fns';
+import { clsx } from 'clsx';
+
 import { Modal } from '../../components/ui/Modal';
 import { StatusBadge, RoleBadge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
-import { PermissionGuard } from '../../components/auth/Guards';
-import { PERMISSIONS } from '../../lib/constants';
-import { useUsers, useUpdateUserRole, useDeactivateUser, useActivateUser, useCreateUser } from '../../hooks/useUsers';
-import { useRoles } from '../../hooks/useRoles';
-import { useToast } from '../../components/ui/Toast';
-import type { Role } from '../../lib/types';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
-import { clsx } from 'clsx';
-import { format } from 'date-fns';
+import { PermissionGuard } from '../../components/auth/Guards';
+import { DeactivateUserDialog } from '../../components/admin/DeactivateUserDialog';
+import { ReactivateUserDialog } from '../../components/admin/ReactivateUserDialog';
+import { DeleteUserDialog } from '../../components/admin/DeleteUserDialog';
+import { PERMISSIONS } from '../../lib/constants';
+import { Avatar } from '../../components/ui/Avatar';
+import { useUsers, useUpdateUserRole, useCreateUser } from '../../hooks/useUsers';
+import { useDeactivateUser } from '../../hooks/useDeactivateUser';
+import { useReactivateUser } from '../../hooks/useReactivateUser';
+import { useDeleteUser } from '../../hooks/useDeleteUser';
+import { useRoles } from '../../hooks/useRoles';
+import { useToast } from '../../components/ui/Toast';
+import { useAuthStore } from '../../store/authStore';
+import type { Role, User } from '../../lib/types';
 
-// ─── Create User Modal ────────────────────────────────────────────────────────
 function CreateUserModal({ onClose }: { onClose: () => void }) {
     const { data: roles = [] } = useRoles();
     const createUser = useCreateUser();
     const { success, error } = useToast();
     const [form, setForm] = useState({ full_name: '', email: '', password: '', role_id: '' });
 
-
     const handleSubmit = async () => {
         if (!form.email || !form.password || !form.role_id) return;
+
         try {
             await createUser.mutateAsync(form);
             success(`User ${form.email} created successfully`);
@@ -39,7 +47,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
                 label="Full Name"
                 placeholder="John Doe"
                 value={form.full_name}
-                onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))}
+                onChange={(event) => setForm((current) => ({ ...current, full_name: event.target.value }))}
             />
             <Input
                 label="Email"
@@ -47,7 +55,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
                 required
                 placeholder="user@medflow.com"
                 value={form.email}
-                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
             />
             <Input
                 label="Password"
@@ -55,20 +63,31 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
                 required
                 placeholder="Min. 8 characters"
                 value={form.password}
-                onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))}
             />
             <Select
                 label="Role"
                 required
                 value={form.role_id}
-                onChange={e => setForm(f => ({ ...f, role_id: e.target.value }))}
+                onChange={(event) => setForm((current) => ({ ...current, role_id: event.target.value }))}
             >
-                <option value="">Select a role…</option>
-                {roles.map((r: Role) => <option key={r.id} value={r.id}>{r.name}</option>)}
+                <option value="">Select a role...</option>
+                {roles.map((role: Role) => (
+                    <option key={role.id} value={role.id}>
+                        {role.name}
+                    </option>
+                ))}
             </Select>
             <div className="flex justify-end gap-3 pt-1">
-                <Button variant="secondary" onClick={onClose}>Cancel</Button>
-                <Button variant="primary" loading={createUser.isPending} disabled={!form.email || !form.password || !form.role_id} onClick={handleSubmit}>
+                <Button variant="secondary" onClick={onClose}>
+                    Cancel
+                </Button>
+                <Button
+                    variant="primary"
+                    loading={createUser.isPending}
+                    disabled={!form.email || !form.password || !form.role_id}
+                    onClick={handleSubmit}
+                >
                     Create User
                 </Button>
             </div>
@@ -76,8 +95,15 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
     );
 }
 
-// ─── Assign Role Modal ────────────────────────────────────────────────────────
-function AssignRoleModal({ userId, currentRoleId, onClose }: { userId: string; currentRoleId: string; onClose: () => void }) {
+function AssignRoleModal({
+    userId,
+    currentRoleId,
+    onClose,
+}: {
+    userId: string;
+    currentRoleId: string;
+    onClose: () => void;
+}) {
     const { data: roles = [] } = useRoles();
     const updateRole = useUpdateUserRole();
     const { success, error } = useToast();
@@ -86,10 +112,10 @@ function AssignRoleModal({ userId, currentRoleId, onClose }: { userId: string; c
     const handleSave = async () => {
         try {
             await updateRole.mutateAsync({ userId, roleId });
-            success('Role assigned successfully');
+            success('User updated successfully');
             onClose();
         } catch (err: unknown) {
-            error(err instanceof Error ? err.message : 'Failed to assign role');
+            error(err instanceof Error ? err.message : 'Failed to update user');
         }
     };
 
@@ -99,88 +125,207 @@ function AssignRoleModal({ userId, currentRoleId, onClose }: { userId: string; c
                 label="Role"
                 title="Select role"
                 value={roleId}
-                onChange={e => setRoleId(e.target.value)}
+                onChange={(event) => setRoleId(event.target.value)}
             >
-                {roles.map((r: Role) => <option key={r.id} value={r.id}>{r.name}</option>)}
+                {roles.map((role: Role) => (
+                    <option key={role.id} value={role.id}>
+                        {role.name}
+                    </option>
+                ))}
             </Select>
             <div className="flex justify-end gap-3">
-                <Button variant="secondary" onClick={onClose}>Cancel</Button>
-                <Button variant="primary" loading={updateRole.isPending} onClick={handleSave}>Assign Role</Button>
+                <Button variant="secondary" onClick={onClose}>
+                    Cancel
+                </Button>
+                <Button variant="primary" loading={updateRole.isPending} onClick={handleSave}>
+                    Save Changes
+                </Button>
             </div>
         </div>
     );
 }
 
-// ─── Users Page ───────────────────────────────────────────────────────────────
+// Local UserAvatar removed in favor of centralized UI component
+
 export function UsersPage() {
     const { data: users = [], isLoading } = useUsers();
     const deactivateUser = useDeactivateUser();
-    const activateUser = useActivateUser();
+    const reactivateUser = useReactivateUser();
+    const deleteUser = useDeleteUser();
+    const currentUserId = useAuthStore((state) => state.user?.id ?? null);
     const { success, error } = useToast();
 
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
     const [showCreate, setShowCreate] = useState(false);
     const [assignRoleUser, setAssignRoleUser] = useState<{ id: string; role_id: string } | null>(null);
+    const [deactivateTarget, setDeactivateTarget] = useState<User | null>(null);
+    const [reactivateTarget, setReactivateTarget] = useState<User | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+    const [deleteRestrictionMessage, setDeleteRestrictionMessage] = useState<string | null>(null);
 
-    const filtered = users.filter(u => {
-        const matchSearch = !search || (u.full_name ?? u.email).toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
-        const matchStatus = statusFilter === 'all' || (statusFilter === 'active' ? u.is_active : !u.is_active);
-        return matchSearch && matchStatus;
+    const filteredUsers = users.filter((user) => {
+        const normalizedSearch = search.toLowerCase();
+        const displayName = (user.full_name ?? user.email).toLowerCase();
+        const email = user.email.toLowerCase();
+        const matchesSearch = !search || displayName.includes(normalizedSearch) || email.includes(normalizedSearch);
+        const matchesStatus = statusFilter === 'all' || (statusFilter === 'active' ? user.is_active : !user.is_active);
+
+        return matchesSearch && matchesStatus;
     });
 
-    const handleToggleActive = async (userId: string, isActive: boolean) => {
+    const openDeleteDialog = (user: User) => {
+        if (user.role?.name === 'Super Admin' || user.id === currentUserId) {
+            setDeleteRestrictionMessage('This account cannot be deleted.');
+            return;
+        }
+
+        setDeleteTarget(user);
+    };
+
+    const handleDeactivate = async () => {
+        if (!deactivateTarget) return;
+
         try {
-            if (isActive) {
-                await deactivateUser.mutateAsync(userId);
-                success('User deactivated');
-            } else {
-                await activateUser.mutateAsync(userId);
-                success('User activated');
-            }
+            await deactivateUser.mutateAsync({
+                userId: deactivateTarget.id,
+                reason: 'Deactivated from the admin panel.',
+            });
+            success('User deactivated');
+            setDeactivateTarget(null);
         } catch (err: unknown) {
-            error(err instanceof Error ? err.message : 'Action failed');
+            error(err instanceof Error ? err.message : 'Failed to deactivate user');
         }
     };
+
+    const handleReactivate = async () => {
+        if (!reactivateTarget) return;
+
+        try {
+            await reactivateUser.mutateAsync({
+                userId: reactivateTarget.id,
+                reason: 'Reactivated from the admin panel.',
+            });
+            success('User reactivated');
+            setReactivateTarget(null);
+        } catch (err: unknown) {
+            error(err instanceof Error ? err.message : 'Failed to reactivate user');
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!deleteTarget) return;
+
+        try {
+            await deleteUser.mutateAsync({
+                userId: deleteTarget.id,
+                reason: 'Permanently deleted from the admin panel.',
+            });
+            success('User permanently deleted');
+            setDeleteTarget(null);
+        } catch (err: unknown) {
+            setDeleteTarget(null);
+            setDeleteRestrictionMessage('This account cannot be deleted.');
+            error(err instanceof Error ? err.message : 'This account cannot be deleted.');
+        }
+    };
+
+    const renderActions = (user: User, compact = false) => (
+        <div className={clsx('flex gap-2', compact ? 'flex-col' : 'flex-nowrap items-center')}>
+            <PermissionGuard permission={PERMISSIONS.ADMIN_ROLES_ASSIGN}>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className={clsx('bg-card font-bold whitespace-nowrap', compact && 'min-h-[40px] flex-1')}
+                    onClick={() => setAssignRoleUser({ id: user.id, role_id: user.role_id })}
+                >
+                    Change Role
+                </Button>
+            </PermissionGuard>
+            <PermissionGuard permission={PERMISSIONS.ADMIN_USERS_DEACTIVATE}>
+                {user.is_active ? (
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className={clsx(
+                            'border-amber-700/30 text-amber-700 hover:bg-amber-50 hover:border-amber-500 hover:text-amber-500 font-bold whitespace-nowrap',
+                            compact && 'min-h-[40px] flex-1'
+                        )}
+                        onClick={() => setDeactivateTarget(user)}
+                    >
+                        Deactivate
+                    </Button>
+                ) : (
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className={clsx(
+                            'border-emerald-700/30 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-500 hover:text-emerald-500 font-bold whitespace-nowrap',
+                            compact && 'min-h-[40px] flex-1'
+                        )}
+                        onClick={() => setReactivateTarget(user)}
+                    >
+                        Activate
+                    </Button>
+                )}
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className={clsx(
+                        'border-danger/30 text-danger hover:bg-danger/10 hover:border-danger hover:text-danger font-bold whitespace-nowrap',
+                        compact && 'min-h-[40px] flex-1'
+                    )}
+                    onClick={() => openDeleteDialog(user)}
+                >
+                    Delete
+                </Button>
+            </PermissionGuard>
+        </div>
+    );
 
     return (
         <PermissionGuard permission={PERMISSIONS.ADMIN_USERS_VIEW}>
             <div className="space-y-4">
-                {/* Toolbar */}
-                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
-                    <div className="relative flex-1 min-w-0 sm:min-w-[200px]">
+                <div className="flex flex-col flex-wrap items-stretch gap-3 sm:flex-row sm:items-center">
+                    <div className="relative min-w-0 flex-1 sm:min-w-[200px]">
                         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-dim" />
                         <input
                             type="text"
-                            className="pl-10 pr-4 py-2.5 md:py-2 w-full rounded-xl bg-card border border-border-main text-sm text-text-main placeholder:text-text-dim focus:outline-none focus:ring-2 focus:ring-brand/30 transition-all font-medium"
-                            placeholder="Search by name or email…"
+                            className="w-full rounded-xl border border-border-main bg-card py-2.5 pl-10 pr-4 text-sm font-medium text-text-main placeholder:text-text-dim transition-all focus:outline-none focus:ring-2 focus:ring-brand/30"
+                            placeholder="Search by name or email..."
                             value={search}
-                            onChange={e => setSearch(e.target.value)}
+                            onChange={(event) => setSearch(event.target.value)}
                         />
                     </div>
                     <div className="flex items-center justify-between sm:justify-start">
                         <div className="flex border-b border-border-dim/50">
-                            {(['all', 'active', 'inactive'] as const).map(s => {
-                                const isActive = statusFilter === s;
+                            {(['all', 'active', 'inactive'] as const).map((status) => {
+                                const isActiveFilter = statusFilter === status;
+
                                 return (
                                     <button
-                                        key={s}
-                                        onClick={() => setStatusFilter(s)}
+                                        key={status}
+                                        onClick={() => setStatusFilter(status)}
                                         className={clsx(
-                                            'px-3 md:px-4 py-2.5 md:py-3 text-xs md:text-sm font-bold capitalize transition-all relative',
-                                            isActive ? 'text-brand' : 'text-text-dim hover:text-text-main'
+                                            'relative px-3 py-2.5 text-xs font-bold capitalize transition-all md:px-4 md:py-3 md:text-sm',
+                                            isActiveFilter ? 'text-brand' : 'text-text-dim hover:text-text-main'
                                         )}
                                     >
-                                        {s}
-                                        {isActive && (
-                                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand rounded-t-full shadow-[0_-2px_6px_rgba(20,110,245,0.3)]" />
+                                        {status}
+                                        {isActiveFilter && (
+                                            <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t-full bg-brand shadow-[0_-2px_6px_rgba(20,110,245,0.3)]" />
                                         )}
                                     </button>
                                 );
                             })}
                         </div>
                         <PermissionGuard permission={PERMISSIONS.ADMIN_USERS_CREATE}>
-                            <Button variant="primary" icon={<UserPlus size={15} />} onClick={() => setShowCreate(true)} className="ml-3 sm:ml-0">
+                            <Button
+                                variant="primary"
+                                icon={<UserPlus size={15} />}
+                                onClick={() => setShowCreate(true)}
+                                className="ml-3 sm:ml-0"
+                            >
                                 <span className="hidden sm:inline">New User</span>
                                 <span className="sm:hidden">New</span>
                             </Button>
@@ -188,40 +333,31 @@ export function UsersPage() {
                     </div>
                 </div>
 
-                {/* Mobile Card View */}
-                <div className="md:hidden space-y-3">
+                <div className="space-y-3 md:hidden">
                     {isLoading ? (
-                        Array.from({ length: 3 }).map((_, i) => (
-                            <div key={i} className="bg-card rounded-xl border border-border-dim p-4">
-                                <div className="h-4 bg-gray-100 rounded animate-pulse mb-2" />
-                                <div className="h-3 bg-gray-100 rounded animate-pulse w-2/3" />
+                        Array.from({ length: 3 }).map((_, index) => (
+                            <div key={index} className="rounded-xl border border-border-dim bg-card p-4">
+                                <div className="mb-2 h-4 animate-pulse rounded bg-gray-100" />
+                                <div className="h-3 w-2/3 animate-pulse rounded bg-gray-100" />
                             </div>
                         ))
-                    ) : filtered.length === 0 ? (
-                        <div className="bg-card rounded-xl border border-border-dim p-8 text-center">
-                            <Users2 size={32} className="text-text-dim/20 mx-auto mb-3" />
-                            <p className="text-text-dim text-sm">{search ? 'No users match your search' : 'No users found'}</p>
+                    ) : filteredUsers.length === 0 ? (
+                        <div className="rounded-xl border border-border-dim bg-card p-8 text-center">
+                            <Users2 size={32} className="mx-auto mb-3 text-text-dim/20" />
+                            <p className="text-sm text-text-dim">
+                                {search ? 'No users match your search' : 'No users found'}
+                            </p>
                         </div>
                     ) : (
-                        filtered.map(user => (
-                            <div key={user.id} className="bg-card rounded-xl border border-border-dim p-4 space-y-3">
+                        filteredUsers.map((user) => (
+                            <div key={user.id} className="space-y-3 rounded-xl border border-border-dim bg-card p-4">
                                 <div className="flex items-center gap-3">
-                                    {user.avatar_url ? (
-                                        <img
-                                            src={user.avatar_url}
-                                            alt={user.full_name ?? 'Avatar'}
-                                            className="w-9 h-9 rounded-full object-cover ring-2 ring-border-dim shrink-0"
-                                        />
-                                    ) : (
-                                        <div className="w-9 h-9 rounded-full bg-brand/20 border border-brand/30 flex items-center justify-center shrink-0">
-                                            <span className="text-brand text-xs font-bold">
-                                                {(user.full_name ?? user.email).charAt(0).toUpperCase()}
-                                            </span>
-                                        </div>
-                                    )}
+                                    <Avatar src={user.avatar_url} name={user.full_name ?? user.email} size="md" />
                                     <div className="min-w-0 flex-1">
-                                        <p className="font-semibold text-text-main text-sm truncate">{user.full_name ?? '—'}</p>
-                                        <p className="text-xs text-text-sub truncate">{user.email}</p>
+                                        <p className="truncate text-sm font-semibold text-text-main">
+                                            {user.full_name ?? '—'}
+                                        </p>
+                                        <p className="truncate text-xs text-text-sub">{user.email}</p>
                                     </div>
                                     <StatusBadge status={user.is_active ? 'active' : 'inactive'} />
                                 </div>
@@ -230,147 +366,164 @@ export function UsersPage() {
                                         <span className="text-text-dim">Role</span>
                                         <div className="mt-0.5">
                                             {user.role ? (
-                                                <RoleBadge 
-                                                    roleName={user.role.name} 
-                                                    isCustom={!user.role.is_system} 
-                                                    size="sm" 
-                                                />
+                                                <RoleBadge roleName={user.role.name} isCustom={!user.role.is_system} size="sm" />
                                             ) : (
-                                                <span className="text-text-dim/40 italic">No role</span>
+                                                <span className="italic text-text-dim/40">No role</span>
                                             )}
                                         </div>
                                     </div>
                                     <div>
                                         <span className="text-text-dim">Joined</span>
-                                        <p className="font-medium text-text-main mt-0.5">{format(new Date(user.created_at), 'MMM d, yyyy')}</p>
+                                        <p className="mt-0.5 font-medium text-text-main">
+                                            {format(new Date(user.created_at), 'MMM d, yyyy')}
+                                        </p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2 pt-1">
-                                    <PermissionGuard permission={PERMISSIONS.ADMIN_ROLES_ASSIGN}>
-                                        <Button variant="ghost" size="sm" className="flex-1 min-h-[40px]"
-                                            onClick={() => setAssignRoleUser({ id: user.id, role_id: user.role_id })}>
-                                            Assign Role
-                                        </Button>
-                                    </PermissionGuard>
-                                    <PermissionGuard permission={PERMISSIONS.ADMIN_USERS_DEACTIVATE}>
-                                        <Button variant="ghost" size="sm"
-                                            className={clsx('flex-1 min-h-[40px]', user.is_active ? 'text-danger hover:bg-danger/10' : 'text-success hover:bg-success/10')}
-                                            onClick={() => handleToggleActive(user.id, user.is_active)}>
-                                            {user.is_active ? 'Deactivate' : 'Activate'}
-                                        </Button>
-                                    </PermissionGuard>
-                                </div>
+                                {renderActions(user, true)}
                             </div>
                         ))
                     )}
-                    {filtered.length > 0 && (
-                        <p className="text-xs text-text-dim text-center pt-1">
-                            Showing {filtered.length} of {users.length} users
+                    {filteredUsers.length > 0 && (
+                        <p className="pt-1 text-center text-xs text-text-dim">
+                            Showing {filteredUsers.length} of {users.length} users
                         </p>
                     )}
                 </div>
 
-                {/* Desktop Table */}
-                <div className="hidden md:block bg-card rounded-2xl border border-border-dim overflow-hidden shadow-sm">
+                <div className="hidden overflow-hidden rounded-2xl border border-border-dim bg-card shadow-sm md:block">
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
-                            <thead className="bg-surface-dim border-b border-border-dim">
+                            <thead className="border-b border-border-dim bg-surface-dim">
                                 <tr>
-                                    {['User', 'Email', 'Role', 'Status', 'Joined', 'Actions'].map(h => (
-                                        <th key={h} className="text-left px-4 lg:px-5 py-3.5 text-xs font-semibold text-text-sub uppercase tracking-wide">{h}</th>
+                                    {['User', 'Email', 'Role', 'Status', 'Joined', 'Actions'].map((header) => (
+                                        <th
+                                            key={header}
+                                            className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-text-sub lg:px-5"
+                                        >
+                                            {header}
+                                        </th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border-dim/30">
                                 {isLoading ? (
-                                    Array.from({ length: 4 }).map((_, i) => (
-                                        <tr key={i}><td colSpan={6} className="px-5 py-3.5"><div className="h-4 bg-gray-100 rounded animate-pulse" /></td></tr>
+                                    Array.from({ length: 4 }).map((_, index) => (
+                                        <tr key={index}>
+                                            <td colSpan={6} className="px-5 py-3.5">
+                                                <div className="h-4 animate-pulse rounded bg-gray-100" />
+                                            </td>
+                                        </tr>
                                     ))
-                                ) : filtered.length === 0 ? (
+                                ) : filteredUsers.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} className="px-5 py-16 text-center">
-                                            <Users2 size={36} className="text-text-dim/20 mx-auto mb-3" />
-                                            <p className="text-text-dim text-sm">{search ? 'No users match your search' : 'No users found'}</p>
+                                            <Users2 size={36} className="mx-auto mb-3 text-text-dim/20" />
+                                            <p className="text-sm text-text-dim">
+                                                {search ? 'No users match your search' : 'No users found'}
+                                            </p>
                                         </td>
                                     </tr>
                                 ) : (
-                                    filtered.map(user => (
-                                        <tr key={user.id} className="hover:bg-surface-dim/60 transition-colors">
-                                            <td className="px-4 lg:px-5 py-3.5">
+                                    filteredUsers.map((user) => (
+                                        <tr key={user.id} className="transition-colors hover:bg-surface-dim/60">
+                                            <td className="px-4 py-3.5 lg:px-5">
                                                 <div className="flex items-center gap-3">
-                                                    {user.avatar_url ? (
-                                                        <img
-                                                            src={user.avatar_url}
-                                                            alt={user.full_name ?? 'Avatar'}
-                                                            className="w-8 h-8 rounded-full object-cover ring-2 ring-border-dim shrink-0"
-                                                        />
-                                                    ) : (
-                                                        <div className="w-8 h-8 rounded-full bg-brand/20 border border-brand/30 flex items-center justify-center shrink-0">
-                                                            <span className="text-brand text-xs font-bold">
-                                                                {(user.full_name ?? user.email).charAt(0).toUpperCase()}
-                                                            </span>
-                                                        </div>
-                                                    )}
-                                                    <span className="font-semibold text-text-main">{user.full_name ?? '—'}</span>
+                                                    <Avatar src={user.avatar_url} name={user.full_name ?? user.email} size="md" />
+                                                    <span className="font-semibold text-text-main">
+                                                        {user.full_name ?? '—'}
+                                                    </span>
                                                 </div>
                                             </td>
-                                            <td className="px-4 lg:px-5 py-3.5 text-text-sub">{user.email}</td>
-                                            <td className="px-4 lg:px-5 py-3.5">
+                                            <td className="px-4 py-3.5 text-text-sub lg:px-5">{user.email}</td>
+                                            <td className="px-4 py-3.5 lg:px-5">
                                                 {user.role ? (
-                                                    <RoleBadge 
-                                                        roleName={user.role.name} 
-                                                        isCustom={!user.role.is_system} 
-                                                    />
+                                                    <RoleBadge roleName={user.role.name} isCustom={!user.role.is_system} />
                                                 ) : (
-                                                    <span className="text-text-dim/40 text-xs italic">No role</span>
+                                                    <span className="text-xs italic text-text-dim/40">No role</span>
                                                 )}
                                             </td>
-                                            <td className="px-4 lg:px-5 py-3.5">
+                                            <td className="px-4 py-3.5 lg:px-5">
                                                 <StatusBadge status={user.is_active ? 'active' : 'inactive'} />
                                             </td>
-                                            <td className="px-4 lg:px-5 py-3.5 text-xs text-text-dim">
+                                            <td className="px-4 py-3.5 text-xs text-text-dim lg:px-5">
                                                 {format(new Date(user.created_at), 'MMM d, yyyy')}
                                             </td>
-                                            <td className="px-4 lg:px-5 py-3.5">
-                                                <div className="flex items-center gap-2">
-                                                    <PermissionGuard permission={PERMISSIONS.ADMIN_ROLES_ASSIGN}>
-                                                        <Button variant="ghost" size="sm"
-                                                            onClick={() => setAssignRoleUser({ id: user.id, role_id: user.role_id })}>
-                                                            Role
-                                                        </Button>
-                                                    </PermissionGuard>
-                                                    <PermissionGuard permission={PERMISSIONS.ADMIN_USERS_DEACTIVATE}>
-                                                        <Button variant="ghost" size="sm"
-                                                            className={user.is_active ? 'text-danger hover:bg-danger/10' : 'text-success hover:bg-success/10'}
-                                                            onClick={() => handleToggleActive(user.id, user.is_active)}>
-                                                            {user.is_active ? 'Deactivate' : 'Activate'}
-                                                        </Button>
-                                                    </PermissionGuard>
-                                                </div>
-                                            </td>
+                                            <td className="px-4 py-3.5 lg:px-5">{renderActions(user)}</td>
                                         </tr>
                                     ))
                                 )}
                             </tbody>
                         </table>
                     </div>
-                    {filtered.length > 0 && (
-                        <div className="px-5 py-3 border-t border-border-dim text-xs text-text-dim">
-                            Showing {filtered.length} of {users.length} users
+                    {filteredUsers.length > 0 && (
+                        <div className="border-t border-border-dim px-5 py-3 text-xs text-text-dim">
+                            Showing {filteredUsers.length} of {users.length} users
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Modals */}
             {showCreate && (
                 <Modal title="Create New User" size="md" onClose={() => setShowCreate(false)}>
                     <CreateUserModal onClose={() => setShowCreate(false)} />
                 </Modal>
             )}
+
             {assignRoleUser && (
-                <Modal title="Assign Role" size="sm" onClose={() => setAssignRoleUser(null)}>
-                    <AssignRoleModal userId={assignRoleUser.id} currentRoleId={assignRoleUser.role_id} onClose={() => setAssignRoleUser(null)} />
+                <Modal title="Edit User" size="sm" onClose={() => setAssignRoleUser(null)}>
+                    <AssignRoleModal
+                        userId={assignRoleUser.id}
+                        currentRoleId={assignRoleUser.role_id}
+                        onClose={() => setAssignRoleUser(null)}
+                    />
+                </Modal>
+            )}
+
+            {deactivateTarget && (
+                <Modal title="Deactivate User" size="sm" onClose={() => setDeactivateTarget(null)}>
+                    <DeactivateUserDialog
+                        user={deactivateTarget}
+                        loading={deactivateUser.isPending}
+                        onClose={() => setDeactivateTarget(null)}
+                        onConfirm={handleDeactivate}
+                    />
+                </Modal>
+            )}
+
+            {reactivateTarget && (
+                <Modal title="Reactivate User" size="sm" onClose={() => setReactivateTarget(null)}>
+                    <ReactivateUserDialog
+                        user={reactivateTarget}
+                        loading={reactivateUser.isPending}
+                        onClose={() => setReactivateTarget(null)}
+                        onConfirm={handleReactivate}
+                    />
+                </Modal>
+            )}
+
+            {deleteTarget && (
+                <Modal title="Permanently Delete User" size="sm" onClose={() => setDeleteTarget(null)}>
+                    <DeleteUserDialog
+                        user={deleteTarget}
+                        loading={deleteUser.isPending}
+                        onClose={() => setDeleteTarget(null)}
+                        onConfirm={handleDelete}
+                    />
+                </Modal>
+            )}
+
+            {deleteRestrictionMessage && (
+                <Modal title="Cannot Delete User" size="sm" onClose={() => setDeleteRestrictionMessage(null)}>
+                    <div className="space-y-4">
+                        <div className="rounded-xl border border-danger/20 bg-danger/10 p-4 text-sm text-danger">
+                            {deleteRestrictionMessage}
+                        </div>
+                        <div className="flex justify-end">
+                            <Button variant="secondary" onClick={() => setDeleteRestrictionMessage(null)}>
+                                Close
+                            </Button>
+                        </div>
+                    </div>
                 </Modal>
             )}
         </PermissionGuard>
