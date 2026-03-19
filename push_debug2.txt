@@ -1,0 +1,75 @@
+open C:\Users\nimsa\.supabase\profile: The system cannot find the path specified.
+Loading project ref from file: supabase\.temp\project-ref
+Resolved DNS: [2406:da1c:f42:ae0e:8c4b:fb9:b793:dff3]:5432
+Initialising login role...
+Using access token for profile: supabase
+Supabase CLI 2.81.3
+Using profile: supabase (supabase.co)
+Connecting to remote database...
+2026/03/18 16:31:08 PG Send: {"Type":"StartupMessage","ProtocolVersion":196608,"Parameters":{"database":"postgres","user":"cli_login_postgres"}}
+2026/03/18 16:31:08 PG Recv: {"Type":"AuthenticationSASL","AuthMechanisms":["SCRAM-SHA-256"]}
+2026/03/18 16:31:08 PG Send: {"Type":"SASLInitialResponse","AuthMechanism":"SCRAM-SHA-256","Data":"n,,n=,r=ekep1UAUak9u2A+QdmbQIq5J"}
+2026/03/18 16:31:08 PG Recv: {"Type":"AuthenticationSASLContinue","Data":"r=ekep1UAUak9u2A+QdmbQIq5JnU8mLf2fM/6S6e4QOF19PAaE,s=crvjkNGCGSATf5wEI8oK7A==,i=4096"}
+2026/03/18 16:31:08 PG Send: {"Type":"SASLResponse","Data":"c=biws,r=ekep1UAUak9u2A+QdmbQIq5JnU8mLf2fM/6S6e4QOF19PAaE,p=gEofn8xOZmQlXWm++B7ZD5uBn1Xs2auL8ZXkbilu8uk="}
+2026/03/18 16:31:08 PG Recv: {"Type":"AuthenticationSASLFinal","Data":"v=DpQVedO1EXG014w33F3+owk6Ka8vL4wbMEjIWx+8EZ8="}
+2026/03/18 16:31:08 PG Recv: {"Type":"AuthenticationOK"}
+2026/03/18 16:31:08 PG Recv: {"Type":"ParameterStatus","Name":"in_hot_standby","Value":"off"}
+2026/03/18 16:31:08 PG Recv: {"Type":"ParameterStatus","Name":"integer_datetimes","Value":"on"}
+2026/03/18 16:31:08 PG Recv: {"Type":"ParameterStatus","Name":"TimeZone","Value":"UTC"}
+2026/03/18 16:31:08 PG Recv: {"Type":"ParameterStatus","Name":"IntervalStyle","Value":"postgres"}
+2026/03/18 16:31:08 PG Recv: {"Type":"ParameterStatus","Name":"is_superuser","Value":"off"}
+2026/03/18 16:31:08 PG Recv: {"Type":"ParameterStatus","Name":"application_name","Value":""}
+2026/03/18 16:31:08 PG Recv: {"Type":"ParameterStatus","Name":"default_transaction_read_only","Value":"off"}
+2026/03/18 16:31:08 PG Recv: {"Type":"ParameterStatus","Name":"scram_iterations","Value":"4096"}
+2026/03/18 16:31:08 PG Recv: {"Type":"ParameterStatus","Name":"DateStyle","Value":"ISO, MDY"}
+2026/03/18 16:31:08 PG Recv: {"Type":"ParameterStatus","Name":"standard_conforming_strings","Value":"on"}
+2026/03/18 16:31:08 PG Recv: {"Type":"ParameterStatus","Name":"session_authorization","Value":"cli_login_postgres"}
+2026/03/18 16:31:08 PG Recv: {"Type":"ParameterStatus","Name":"client_encoding","Value":"UTF8"}
+2026/03/18 16:31:08 PG Recv: {"Type":"ParameterStatus","Name":"server_version","Value":"17.6"}
+2026/03/18 16:31:08 PG Recv: {"Type":"ParameterStatus","Name":"server_encoding","Value":"UTF8"}
+2026/03/18 16:31:08 PG Recv: {"Type":"BackendKeyData","ProcessID":1136438,"SecretKey":3811914260}
+2026/03/18 16:31:08 PG Recv: {"Type":"ReadyForQuery","TxStatus":"I"}
+2026/03/18 16:31:08 PG Send: {"Type":"Query","String":"SET SESSION ROLE postgres"}
+2026/03/18 16:31:09 PG Recv: {"Type":"CommandComplete","CommandTag":"SET"}
+2026/03/18 16:31:09 PG Recv: {"Type":"ReadyForQuery","TxStatus":"I"}
+2026/03/18 16:31:09 PG Send: {"Type":"Parse","Name":"lrupsc_1_0","Query":"SELECT version FROM supabase_migrations.schema_migrations ORDER BY version","ParameterOIDs":null}
+2026/03/18 16:31:09 PG Send: {"Type":"Describe","ObjectType":"S","Name":"lrupsc_1_0"}
+2026/03/18 16:31:09 PG Send: {"Type":"Sync"}
+2026/03/18 16:31:09 PG Recv: {"Type":"ParseComplete"}
+2026/03/18 16:31:09 PG Recv: {"Type":"ParameterDescription","ParameterOIDs":[]}
+2026/03/18 16:31:09 PG Recv: {"Type":"RowDescription","Fields":[{"Name":"version","TableOID":20014,"TableAttributeNumber":1,"DataTypeOID":25,"DataTypeSize":-1,"TypeModifier":-1,"Format":0}]}
+2026/03/18 16:31:09 PG Recv: {"Type":"ReadyForQuery","TxStatus":"I"}
+2026/03/18 16:31:09 PG Send: {"Type":"Bind","DestinationPortal":"","PreparedStatement":"lrupsc_1_0","ParameterFormatCodes":null,"Parameters":[],"ResultFormatCodes":[0]}
+2026/03/18 16:31:09 PG Send: {"Type":"Describe","ObjectType":"P","Name":""}
+2026/03/18 16:31:09 PG Send: {"Type":"Execute","Portal":"","MaxRows":0}
+2026/03/18 16:31:09 PG Send: {"Type":"Sync"}
+2026/03/18 16:31:09 PG Recv: {"Type":"BindComplete"}
+2026/03/18 16:31:09 PG Recv: {"Type":"RowDescription","Fields":[{"Name":"version","TableOID":20014,"TableAttributeNumber":1,"DataTypeOID":25,"DataTypeSize":-1,"TypeModifier":-1,"Format":0}]}
+2026/03/18 16:31:09 PG Recv: {"Type":"DataRow","Values":[{"text":"001"}]}
+2026/03/18 16:31:09 PG Recv: {"Type":"DataRow","Values":[{"text":"002"}]}
+2026/03/18 16:31:09 PG Recv: {"Type":"DataRow","Values":[{"text":"003"}]}
+2026/03/18 16:31:09 PG Recv: {"Type":"DataRow","Values":[{"text":"004"}]}
+2026/03/18 16:31:09 PG Recv: {"Type":"DataRow","Values":[{"text":"20260307085500"}]}
+2026/03/18 16:31:09 PG Recv: {"Type":"DataRow","Values":[{"text":"20260307092741"}]}
+2026/03/18 16:31:09 PG Recv: {"Type":"DataRow","Values":[{"text":"20260308045000"}]}
+2026/03/18 16:31:09 PG Recv: {"Type":"DataRow","Values":[{"text":"20260311"}]}
+2026/03/18 16:31:09 PG Recv: {"Type":"DataRow","Values":[{"text":"20260311000000"}]}
+2026/03/18 16:31:09 PG Recv: {"Type":"DataRow","Values":[{"text":"20260312080000"}]}
+2026/03/18 16:31:09 PG Recv: {"Type":"CommandComplete","CommandTag":"SELECT 10"}
+2026/03/18 16:31:09 PG Recv: {"Type":"ReadyForQuery","TxStatus":"I"}
+Skipping migration 004b_inventory_batches.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 005b_stock_counts_v2.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 006b_sales_pos.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 007b_otp_codes.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 008b_pos_integration.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 009b_pos_atomic_transaction.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration test_seed.sql... (file name must match pattern "<timestamp>_name.sql")
+Remote migration versions not found in local migrations directory.
+
+Make sure your local git repo is up-to-date. If the error persists, try repairing the migration history table:
+supabase migration repair --status reverted 20260311
+
+And update local migrations to match remote database:
+supabase db pull
+
+2026/03/18 16:31:09 PG Send: {"Type":"Terminate"}

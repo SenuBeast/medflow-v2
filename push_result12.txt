@@ -1,0 +1,19 @@
+Initialising login role...
+Connecting to remote database...
+Skipping migration 004b_inventory_batches.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 005b_stock_counts_v2.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 006b_sales_pos.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 007b_otp_codes.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 008b_pos_integration.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 009b_pos_atomic_transaction.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration test_seed.sql... (file name must match pattern "<timestamp>_name.sql")
+Do you want to push these migrations to the remote database?
+ • 20260316090000_user_lifecycle_management.sql
+
+ [Y/n] y
+Applying migration 20260316090000_user_lifecycle_management.sql...
+NOTICE (42701): column "deactivated_at" of relation "users" already exists, skipping
+NOTICE (42701): column "deactivated_by" of relation "users" already exists, skipping
+NOTICE (42701): column "deleted_at" of relation "users" already exists, skipping
+NOTICE (42701): column "deleted_by" of relation "users" already exists, skipping
+Finished supabase db push.

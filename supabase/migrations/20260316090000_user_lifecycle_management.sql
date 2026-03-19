@@ -148,10 +148,9 @@ BEGIN
         RETURN;
     END IF;
 
-    SELECT u.*, r.name
-    INTO v_target, v_target_role_name
+    SELECT *
+    INTO v_target
     FROM public.users u
-    JOIN public.roles r ON r.id = u.role_id
     WHERE u.id = p_target_user_id
       AND u.deleted_at IS NULL;
 
@@ -159,6 +158,11 @@ BEGIN
         RETURN QUERY SELECT false, 'TARGET_NOT_FOUND', 'This account cannot be deleted.', ''::TEXT;
         RETURN;
     END IF;
+
+    SELECT r.name
+    INTO v_target_role_name
+    FROM public.roles r
+    WHERE r.id = v_target.role_id;
 
     IF v_actor.tenant_id IS DISTINCT FROM v_target.tenant_id THEN
         RETURN QUERY SELECT false, 'CROSS_TENANT', 'This account cannot be deleted.', ''::TEXT;
@@ -345,16 +349,19 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-    v_guard RECORD;
+    v_guard_allowed BOOLEAN;
+    v_guard_error_code TEXT;
+    v_guard_message TEXT;
+    v_guard_confirmation_value TEXT;
     v_deleted_role_id UUID;
     v_scrub_email TEXT;
 BEGIN
-    SELECT *
-    INTO v_guard
+    SELECT allowed, error_code, message, confirmation_value
+    INTO v_guard_allowed, v_guard_error_code, v_guard_message, v_guard_confirmation_value
     FROM public.get_user_delete_guardrails(p_actor_admin_id, p_target_user_id);
 
-    IF NOT COALESCE(v_guard.allowed, false) THEN
-        RAISE EXCEPTION '%', COALESCE(v_guard.message, 'This account cannot be deleted.');
+    IF NOT COALESCE(v_guard_allowed, false) THEN
+        RAISE EXCEPTION '%', COALESCE(v_guard_message, 'This account cannot be deleted.');
     END IF;
 
     SELECT id
@@ -400,7 +407,7 @@ BEGIN
     RETURN jsonb_build_object(
         'success', true,
         'target_user_id', p_target_user_id,
-        'confirmation_value', v_guard.confirmation_value
+        'confirmation_value', v_guard_confirmation_value
     );
 END;
 $$;

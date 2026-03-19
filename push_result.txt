@@ -1,0 +1,49 @@
+Initialising login role...
+Connecting to remote database...
+Skipping migration 004b_inventory_batches.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 005b_stock_counts_v2.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 006b_sales_pos.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 007b_otp_codes.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 008b_pos_integration.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 009b_pos_atomic_transaction.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration test_seed.sql... (file name must match pattern "<timestamp>_name.sql")
+Do you want to push these migrations to the remote database?
+ • 20260311000000_sales_dashboard_realtime.sql
+ • 20260311_user_profile_fields.sql
+ • 20260312080000_pos_integration_full.sql
+ • 20260312110000_remove_custom_otp.sql
+ • 20260313130000_pharmacy_inventory_system.sql
+ • 20260314120000_fix_deduct_stock_fefo_expiry_ambiguity.sql
+ • 20260314130000_rbac_overhaul_v2.sql
+ • 20260316090000_user_lifecycle_management.sql
+
+ [Y/n] y
+Applying migration 20260311000000_sales_dashboard_realtime.sql...
+Applying migration 20260311_user_profile_fields.sql...
+NOTICE (42701): column "avatar_url" of relation "users" already exists, skipping
+NOTICE (42701): column "provider" of relation "users" already exists, skipping
+NOTICE (42701): column "updated_at" of relation "users" already exists, skipping
+Applying migration 20260312080000_pos_integration_full.sql...
+NOTICE (42P07): relation "patients" already exists, skipping
+NOTICE (42P07): relation "idx_patients_name" already exists, skipping
+NOTICE (42P07): relation "prescriptions" already exists, skipping
+NOTICE (42P07): relation "idx_prescriptions_patient" already exists, skipping
+NOTICE (42P07): relation "idx_prescriptions_status" already exists, skipping
+NOTICE (42P07): relation "prescription_items" already exists, skipping
+NOTICE (42P07): relation "idx_prescription_items_rx" already exists, skipping
+NOTICE (42P07): relation "medical_records" already exists, skipping
+NOTICE (42P07): relation "idx_medical_records_patient" already exists, skipping
+NOTICE (42P07): relation "billing_records" already exists, skipping
+NOTICE (42P07): relation "idx_billing_records_patient" already exists, skipping
+NOTICE (42701): column "prescription_id" of relation "sale_transactions" already exists, skipping
+NOTICE (42701): column "patient_id" of relation "sale_transactions" already exists, skipping
+NOTICE (42P07): relation "idx_sale_txn_prescription" already exists, skipping
+NOTICE (42P07): relation "idx_sale_txn_patient" already exists, skipping
+Applying migration 20260312110000_remove_custom_otp.sql...
+ERROR: relation "public.otp_codes" does not exist (SQLSTATE 42P01)     
+At statement: 0                                                        
+-- Remove legacy custom email OTP flow.                                
+-- Native Supabase TOTP MFA is now used for second-factor verification.
+                                                                       
+DROP TRIGGER IF EXISTS trigger_cleanup_otp_codes ON public.otp_codes   
+Try rerunning the command with --debug to troubleshoot the error.

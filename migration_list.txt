@@ -1,0 +1,30 @@
+Initialising login role...
+Connecting to remote database...
+Skipping migration 004b_inventory_batches.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 005b_stock_counts_v2.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 006b_sales_pos.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 007b_otp_codes.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 008b_pos_integration.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 009b_pos_atomic_transaction.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration test_seed.sql... (file name must match pattern "<timestamp>_name.sql")
+
+  
+   Local          | Remote         | Time (UTC)          
+  ----------------|----------------|---------------------
+   001            | 001            | 001                 
+   002            | 002            | 002                 
+   003            | 003            | 003                 
+   004            | 004            | 004                 
+   20260307085500 | 20260307085500 | 2026-03-07 08:55:00 
+   20260307092741 | 20260307092741 | 2026-03-07 09:27:41 
+   20260308045000 | 20260308045000 | 2026-03-08 04:50:00 
+                  | 20260311       | 20260311            
+   20260311000000 | 20260311000000 | 2026-03-11 00:00:00 
+   20260311       |                | 20260311            
+   20260312080000 | 20260312080000 | 2026-03-12 08:00:00 
+   20260312110000 |                | 2026-03-12 11:00:00 
+   20260313130000 |                | 2026-03-13 13:00:00 
+   20260314120000 |                | 2026-03-14 12:00:00 
+   20260314130000 |                | 2026-03-14 13:00:00 
+   20260316090000 |                | 2026-03-16 09:00:00 
+

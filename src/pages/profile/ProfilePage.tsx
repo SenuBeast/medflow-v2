@@ -9,6 +9,7 @@ import { AvatarCropperModal } from '../../components/profile/AvatarCropperModal'
 import { TwoFactorSetupCard } from '../../components/profile/TwoFactorSetupCard';
 import { Avatar } from '../../components/ui/Avatar';
 import { useToast } from '../../components/ui/Toast';
+import { Input } from '../../components/ui/Input';
 
 interface AuthErrorLike {
     code?: string;
@@ -105,6 +106,30 @@ export function ProfilePage() {
             document.getElementById('avatar-menu')?.classList.add('hidden');
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Failed to import Google photo.');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleRemovePhoto = async () => {
+        setSaving(true);
+        setError(null);
+        document.getElementById('avatar-menu')?.classList.add('hidden');
+        setAvatarFile(null);
+        setAvatarPreview(null);
+        try {
+            // Check if current avatar is custom (not Google)
+            if (user.avatar_url && !user.avatar_url.includes('googleusercontent.com')) {
+                // Remove all files in the user's avatar folder to clean up.
+                const { data: files } = await supabase.storage.from('avatars').list(user.id);
+                if (files && files.length > 0) {
+                    const pathsToRemove = files.map(f => `${user.id}/${f.name}`);
+                    await supabase.storage.from('avatars').remove(pathsToRemove);
+                }
+            }
+            await updateProfile({ avatar_url: '' });
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Failed to remove photo.');
         } finally {
             setSaving(false);
         }
@@ -253,15 +278,10 @@ export function ProfilePage() {
 
                             {(displayAvatar || avatarFile) && (
                                 <button
-                                    onClick={() => {
-                                        document.getElementById('avatar-menu')?.classList.add('hidden');
-                                        setAvatarFile(null);
-                                        setAvatarPreview(null);
-                                        updateProfile({ avatar_url: '' }).catch((e) => setError(e.message));
-                                    }}
-                                    className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors whitespace-nowrap border-t border-border-dim mt-1 pt-2"
-                                >
-                                    Remove Photo
+                                        onClick={handleRemovePhoto}
+                                        className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors whitespace-nowrap border-t border-border-dim mt-1 pt-2"
+                                    >
+                                        Remove Photo
                                 </button>
                             )}
                         </div>
@@ -458,12 +478,12 @@ export function ProfilePage() {
                 {showDisableConfirm && mfaEnabled && (
                     <div className="rounded-2xl border border-border-dim bg-surface-dim p-4 space-y-3">
                         <p className="text-sm font-semibold text-text-main">Confirm your current password to disable 2FA</p>
-                        <input
+                        <Input
                             type="password"
                             value={disablePassword}
                             onChange={(e) => setDisablePassword(e.target.value)}
-                            className="w-full px-4 py-2.5 rounded-xl bg-surface border border-border-dim text-text-main text-sm focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand transition-all"
                             placeholder="Current password"
+                            className="bg-surface border-border-dim"
                         />
                         {mfaError && (
                             <div className="p-3 rounded-xl bg-danger/10 border border-danger/20 text-sm text-danger">{mfaError}</div>

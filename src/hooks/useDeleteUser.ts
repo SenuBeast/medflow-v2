@@ -17,10 +17,13 @@ export function useDeleteUser() {
 
     return useMutation({
         mutationFn: async ({ userId, reason }: DeleteUserPayload): Promise<DeleteUserResponse> => {
-            const { data: { session } } = await supabase.auth.getSession();
+            // Force a session refresh to ensure the token is fresh and valid.
+            // If the local token is completely invalid (e.g. JWT secret changed),
+            // this will fail and correctly drop the session.
+            const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
             
-            if (!session) {
-                throw new Error('You must be logged in to perform this action.');
+            if (!session || sessionError) {
+                throw new Error('Your session has expired or is invalid. Please log out and back in.');
             }
 
             console.log('[DeleteUser] Invoking function for user:', userId);
@@ -31,6 +34,9 @@ export function useDeleteUser() {
                     userId,
                     reason: reason ?? null,
                 },
+                headers: {
+                    Authorization: `Bearer ${session.access_token}`
+                }
             });
 
             if (error) {

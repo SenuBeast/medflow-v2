@@ -371,9 +371,14 @@ export function useAuth() {
 
     const signOut = async () => {
         cleanupRealtimeSync();
-        await supabase.auth.signOut();
-        useAuthStore.getState().clearDeactivatedAccountNotice();
-        useAuthStore.getState().reset();
+        try {
+            await supabase.auth.signOut();
+        } catch (err: unknown) {
+            console.error('[AUTH] Supabase sign out failed, clearing local state anyway:', err);
+        } finally {
+            useAuthStore.getState().clearDeactivatedAccountNotice();
+            useAuthStore.getState().reset();
+        }
     };
 
     const linkGoogleAccount = async () => {

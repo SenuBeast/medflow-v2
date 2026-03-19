@@ -7,8 +7,22 @@ ALTER TABLE public.sale_transactions REPLICA IDENTITY FULL;
 ALTER TABLE public.sale_items REPLICA IDENTITY FULL;
 
 -- 2. Add tables to the supabase_realtime publication to enable WebSocket broadcasting.
-ALTER PUBLICATION supabase_realtime ADD TABLE public.sale_transactions;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.sale_items;
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'sale_transactions'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.sale_transactions;
+    END IF;
+    
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'sale_items'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.sale_items;
+    END IF;
+END $$;
 
 -- 3. Analytics RPC Functions
 

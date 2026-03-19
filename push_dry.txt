@@ -1,0 +1,18 @@
+Initialising login role...
+DRY RUN: migrations will *not* be pushed to the database.
+Connecting to remote database...
+Skipping migration 004b_inventory_batches.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 005b_stock_counts_v2.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 006b_sales_pos.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 007b_otp_codes.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 008b_pos_integration.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 009b_pos_atomic_transaction.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration test_seed.sql... (file name must match pattern "<timestamp>_name.sql")
+Remote migration versions not found in local migrations directory.
+
+Make sure your local git repo is up-to-date. If the error persists, try repairing the migration history table:
+supabase migration repair --status reverted 20260311
+
+And update local migrations to match remote database:
+supabase db pull
+

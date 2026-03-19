@@ -49,8 +49,17 @@ export function SignupForm({ onSignedUp, onSwitchToLogin }: SignupFormProps) {
             onSignedUp(email);
         } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : 'Sign up failed';
-            setError(msg.includes('already') ? 'This email is already registered.' : msg);
-            toastError('Sign up failed');
+            
+            if (msg.toLowerCase().includes('rate limit') || msg.includes('429')) {
+                setError('Email rate limit exceeded. Please wait 60 minutes.');
+                toastError('Too many requests');
+            } else if (msg.includes('already')) {
+                setError('This email is already registered.');
+                toastError('Sign up failed');
+            } else {
+                setError(msg);
+                toastError('Sign up failed');
+            }
         } finally {
             setLoading(false);
         }
@@ -159,5 +168,3 @@ export function SignupForm({ onSignedUp, onSwitchToLogin }: SignupFormProps) {
         </form>
     );
 }
-
-

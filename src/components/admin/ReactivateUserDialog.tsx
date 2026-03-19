@@ -40,10 +40,10 @@ export function ReactivateUserDialog({
                     Cancel
                 </Button>
                 <Button
-                    variant="ghost"
+                    variant="primary"
                     loading={loading}
                     onClick={onConfirm}
-                    className="bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500"
+                    className="bg-emerald-600 hover:bg-emerald-500 border-none shadow-emerald-900/20"
                 >
                     Reactivate
                 </Button>

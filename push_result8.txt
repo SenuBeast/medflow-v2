@@ -1,0 +1,211 @@
+Initialising login role...
+Connecting to remote database...
+Skipping migration 004b_inventory_batches.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 005b_stock_counts_v2.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 006b_sales_pos.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 007b_otp_codes.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 008b_pos_integration.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration 009b_pos_atomic_transaction.sql... (file name must match pattern "<timestamp>_name.sql")
+Skipping migration test_seed.sql... (file name must match pattern "<timestamp>_name.sql")
+Do you want to push these migrations to the remote database?
+ • 20260308045000_user_theme_preference.sql
+ • 20260311_user_profile_fields.sql
+ • 20260312080000_pos_integration_full.sql
+ • 20260312110000_remove_custom_otp.sql
+ • 20260313130000_pharmacy_inventory_system.sql
+ • 20260314120000_fix_deduct_stock_fefo_expiry_ambiguity.sql
+ • 20260314130000_rbac_overhaul_v2.sql
+ • 20260316090000_user_lifecycle_management.sql
+
+ [Y/n] y
+Applying migration 20260308045000_user_theme_preference.sql...
+NOTICE (42701): column "theme_preference" of relation "users" already exists, skipping
+Applying migration 20260311_user_profile_fields.sql...
+NOTICE (42701): column "avatar_url" of relation "users" already exists, skipping
+NOTICE (42701): column "provider" of relation "users" already exists, skipping
+NOTICE (42701): column "updated_at" of relation "users" already exists, skipping
+Applying migration 20260312080000_pos_integration_full.sql...
+NOTICE (42P07): relation "patients" already exists, skipping
+NOTICE (42P07): relation "idx_patients_name" already exists, skipping
+NOTICE (42P07): relation "prescriptions" already exists, skipping
+NOTICE (42P07): relation "idx_prescriptions_patient" already exists, skipping
+NOTICE (42P07): relation "idx_prescriptions_status" already exists, skipping
+NOTICE (42P07): relation "prescription_items" already exists, skipping
+NOTICE (42P07): relation "idx_prescription_items_rx" already exists, skipping
+NOTICE (42P07): relation "medical_records" already exists, skipping
+NOTICE (42P07): relation "idx_medical_records_patient" already exists, skipping
+NOTICE (42P07): relation "billing_records" already exists, skipping
+NOTICE (42P07): relation "idx_billing_records_patient" already exists, skipping
+NOTICE (42701): column "prescription_id" of relation "sale_transactions" already exists, skipping
+NOTICE (42701): column "patient_id" of relation "sale_transactions" already exists, skipping
+NOTICE (42P07): relation "idx_sale_txn_prescription" already exists, skipping
+NOTICE (42P07): relation "idx_sale_txn_patient" already exists, skipping
+Applying migration 20260312110000_remove_custom_otp.sql...
+NOTICE (00000): function public.cleanup_expired_otp_codes() does not exist, skipping
+NOTICE (00000): table "otp_codes" does not exist, skipping
+Applying migration 20260313130000_pharmacy_inventory_system.sql...
+NOTICE (42P07): relation "products" already exists, skipping
+NOTICE (42P07): relation "idx_products_tenant_name" already exists, skipping
+NOTICE (42P07): relation "idx_products_tenant_category" already exists, skipping
+NOTICE (42P07): relation "idx_products_controlled" already exists, skipping
+NOTICE (42P07): relation "idx_products_barcode" already exists, skipping
+NOTICE (42P07): relation "suppliers" already exists, skipping
+NOTICE (42P07): relation "idx_suppliers_tenant_name" already exists, skipping
+NOTICE (42P07): relation "idx_suppliers_tenant_company" already exists, skipping
+NOTICE (42P07): relation "purchase_orders" already exists, skipping
+NOTICE (42P07): relation "purchase_order_items" already exists, skipping
+NOTICE (42P07): relation "idx_purchase_orders_tenant_status" already exists, skipping
+NOTICE (42P07): relation "idx_purchase_orders_supplier" already exists, skipping
+NOTICE (42P07): relation "idx_purchase_order_items_po" already exists, skipping
+NOTICE (42P07): relation "grn" already exists, skipping
+NOTICE (42P07): relation "grn_items" already exists, skipping
+NOTICE (42P07): relation "idx_grn_tenant_date" already exists, skipping
+NOTICE (42P07): relation "idx_grn_status" already exists, skipping
+NOTICE (42P07): relation "idx_grn_items_grn" already exists, skipping
+NOTICE (42P07): relation "idx_grn_items_product" already exists, skipping
+NOTICE (42P07): relation "batches" already exists, skipping
+NOTICE (42P07): relation "idx_batches_product_expiry" already exists, skipping
+NOTICE (42P07): relation "idx_batches_tenant_expiry" already exists, skipping
+NOTICE (42P07): relation "idx_batches_status" already exists, skipping
+NOTICE (42P07): relation "inventory" already exists, skipping
+NOTICE (42P07): relation "idx_inventory_tenant_product" already exists, skipping
+NOTICE (42P07): relation "idx_inventory_tenant_batch" already exists, skipping
+NOTICE (42P07): relation "units" already exists, skipping
+NOTICE (42P07): relation "idx_units_product" already exists, skipping
+NOTICE (42P07): relation "purchase_invoices" already exists, skipping
+NOTICE (42P07): relation "idx_purchase_invoices_supplier" already exists, skipping
+NOTICE (42P07): relation "idx_purchase_invoices_date" already exists, skipping
+NOTICE (42P07): relation "idx_purchase_invoices_status" already exists, skipping
+NOTICE (42P07): relation "stock_adjustments" already exists, skipping
+NOTICE (42P07): relation "stock_movements" already exists, skipping
+NOTICE (42P07): relation "idx_stock_adjustments_product" already exists, skipping
+NOTICE (42P07): relation "idx_stock_adjustments_batch" already exists, skipping
+NOTICE (42P07): relation "idx_stock_movements_product" already exists, skipping
+NOTICE (42P07): relation "idx_stock_movements_batch" already exists, skipping
+NOTICE (42P07): relation "idx_stock_movements_reference" already exists, skipping
+NOTICE (42P07): relation "supplier_returns" already exists, skipping
+NOTICE (42P07): relation "customer_returns" already exists, skipping
+NOTICE (42P07): relation "idx_supplier_returns_supplier" already exists, skipping
+NOTICE (42P07): relation "idx_customer_returns_sale" already exists, skipping
+NOTICE (42P07): relation "inventory_alerts" already exists, skipping
+NOTICE (42P07): relation "uq_inventory_alerts_open" already exists, skipping
+NOTICE (42P07): relation "idx_inventory_alerts_tenant_open" already exists, skipping
+NOTICE (42P07): relation "sale_batch_allocations" already exists, skipping
+NOTICE (42P07): relation "idx_sale_batch_allocations_tx" already exists, skipping
+NOTICE (42P07): relation "idx_sale_batch_allocations_batch" already exists, skipping
+NOTICE (42701): column "product_id" of relation "sale_items" already exists, skipping
+NOTICE (42P07): relation "idx_sale_items_product_id" already exists, skipping
+NOTICE (42P07): relation "grn_number_seq" already exists, skipping
+NOTICE (42P07): relation "purchase_invoice_seq" already exists, skipping
+ERROR: cannot change return type of existing function (SQLSTATE 42P13) 
+Row type defined by OUT parameters is different.                       
+At statement: 94                                                       
+CREATE OR REPLACE FUNCTION public.deduct_stock_fefo(                   
+    p_product_id uuid,                                                 
+    p_quantity numeric,                                                
+    p_reference_id uuid,                                               
+    p_reference_type text,                                             
+    p_performed_by uuid DEFAULT auth.uid(),                            
+    p_action_type public.movement_action_type_enum DEFAULT 'Sale',     
+    p_allow_expired boolean DEFAULT false                              
+)                                                                      
+RETURNS TABLE (                                                        
+    batch_id uuid,                                                     
+    quantity_deducted numeric,                                         
+    expiry_date date,                                                  
+    error_code text                                                    
+)                                                                      
+LANGUAGE plpgsql                                                       
+SECURITY DEFINER                                                       
+SET search_path = public                                               
+AS $$                                                                  
+DECLARE                                                                
+    v_remaining        numeric := p_quantity;                          
+    v_take             numeric;                                        
+    v_available        numeric := 0;                                   
+    v_batch            record;                                         
+BEGIN                                                                  
+    IF p_quantity IS NULL OR p_quantity <= 0 THEN                      
+        RAISE EXCEPTION 'Requested quantity must be greater than zero';
+    END IF;                                                            
+                                                                       
+    SELECT COALESCE(SUM(b.quantity), 0)                                
+    INTO v_available                                                   
+    FROM public.batches b                                              
+    WHERE b.product_id = p_product_id                                  
+      AND b.status = 'active'                                          
+      AND b.quantity > 0                                               
+      AND (p_allow_expired OR b.expiry_date >= current_date);          
+                                                                       
+    IF v_available < p_quantity THEN                                   
+        batch_id := NULL;                                              
+        quantity_deducted := 0;                                        
+        expiry_date := NULL;                                           
+        error_code := 'INSUFFICIENT_STOCK';                            
+        RETURN NEXT;                                                   
+        RETURN;                                                        
+    END IF;                                                            
+                                                                       
+    FOR v_batch IN                                                     
+        SELECT b.id, b.tenant_id, b.quantity, b.expiry_date            
+        FROM public.batches b                                          
+        WHERE b.product_id = p_product_id                              
+          AND b.status = 'active'                                      
+          AND b.quantity > 0                                           
+          AND (p_allow_expired OR b.expiry_date >= current_date)       
+        ORDER BY b.expiry_date ASC, b.created_at ASC                   
+        FOR UPDATE OF b                                                
+    LOOP                                                               
+        EXIT WHEN v_remaining <= 0;                                    
+                                                                       
+        v_take := LEAST(v_batch.quantity, v_remaining);                
+                                                                       
+        UPDATE public.batches                                          
+        SET quantity = quantity - v_take,                              
+            status = CASE                                              
+                        WHEN quantity - v_take = 0 THEN 'depleted'     
+                        WHEN expiry_date < current_date THEN 'expired' 
+                        ELSE status                                    
+                     END,                                              
+            updated_at = now()                                         
+        WHERE id = v_batch.id;                                         
+                                                                       
+        INSERT INTO public.stock_movements (                           
+            tenant_id,                                                 
+            product_id,                                                
+            batch_id,                                                  
+            action_type,                                               
+            quantity_change,                                           
+            reference_id,                                              
+            reference_type,                                            
+            performed_by,                                              
+            metadata                                                   
+        )                                                              
+        VALUES (                                                       
+            v_batch.tenant_id,                                         
+            p_product_id,                                              
+            v_batch.id,                                                
+            p_action_type,                                             
+            -v_take,                                                   
+            p_reference_id,                                            
+            p_reference_type,                                          
+            p_performed_by,                                            
+            jsonb_build_object(                                        
+                'fefo', true,                                          
+                'batch_expiry', v_batch.expiry_date                    
+            )                                                          
+        );                                                             
+                                                                       
+        PERFORM public.sync_inventory_for_batch(v_batch.id);           
+                                                                       
+        v_remaining := v_remaining - v_take;                           
+                                                                       
+        batch_id := v_batch.id;                                        
+        quantity_deducted := v_take;                                   
+        expiry_date := v_batch.expiry_date;                            
+        error_code := NULL;                                            
+        RETURN NEXT;                                                   
+    END LOOP;                                                          
+END;                                                                   
+$$                                                                     
+Try rerunning the command with --debug to troubleshoot the error.

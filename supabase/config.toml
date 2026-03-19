@@ -1,2 +1,5 @@
 # No custom Edge Functions are configured for authentication.
 # MedFlow authentication relies on Supabase Auth (Email/Password, Google OAuth, Native MFA).
+
+[functions.admin-user-lifecycle]
+verify_jwt = false

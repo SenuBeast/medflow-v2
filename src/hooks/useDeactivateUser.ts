@@ -11,6 +11,12 @@ export function useDeactivateUser() {
 
     return useMutation({
         mutationFn: async ({ userId, reason }: DeactivateUserPayload) => {
+            const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
+
+            if (!session || sessionError) {
+                throw new Error('Your session has expired or is invalid. Please log out and back in.');
+            }
+
             const { data, error } = await supabase.rpc('admin_deactivate_user', {
                 p_target_user_id: userId,
                 p_reason: reason ?? null,

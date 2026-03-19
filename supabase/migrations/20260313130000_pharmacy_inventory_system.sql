@@ -1447,6 +1447,9 @@ BEGIN
 END;
 $$;
 
+DROP FUNCTION IF EXISTS public.deduct_stock_fefo;
+DROP FUNCTION IF EXISTS public.deduct_stock_fefo(uuid, numeric, uuid, text, uuid, public.movement_action_type_enum);
+
 CREATE OR REPLACE FUNCTION public.deduct_stock_fefo(
     p_product_id uuid,
     p_quantity numeric,

@@ -1,0 +1,11 @@
+Applying migration 20260316090000_user_lifecycle_management.sql...
+NOTICE (42701): column "deactivated_at" of relation "users" already exists, skipping
+NOTICE (42701): column "deactivated_by" of relation "users" already exists, skipping
+NOTICE (42701): column "deleted_at" of relation "users" already exists, skipping
+NOTICE (42701): column "deleted_by" of relation "users" already exists, skipping
+ERROR: record variable cannot be part of multiple-item INTO list (SQLSTATE 42601)                         
+At statement: 8                                                                                           
+CREATE OR REPLACE FUNCTION public.get_user_delete_guardrails(                                             
+    p_actor_admin_id UUID,                                                                                
+    p_target_user_id UUID                                                                                 
+)                                                                 

@@ -14,6 +14,8 @@ BEGIN
 
     IF v_result ILIKE '%error_code%' THEN
         EXECUTE $fn$
+        DROP FUNCTION IF EXISTS public.deduct_stock_fefo;
+        DROP FUNCTION IF EXISTS public.deduct_stock_fefo(uuid, numeric, uuid, text, uuid, public.movement_action_type_enum, boolean);
         CREATE OR REPLACE FUNCTION public.deduct_stock_fefo(
             p_product_id uuid,
             p_quantity numeric,
@@ -125,6 +127,8 @@ BEGIN
         $fn$;
     ELSE
         EXECUTE $fn$
+        DROP FUNCTION IF EXISTS public.deduct_stock_fefo;
+        DROP FUNCTION IF EXISTS public.deduct_stock_fefo(uuid, numeric, uuid, text, uuid, public.movement_action_type_enum, boolean);
         CREATE OR REPLACE FUNCTION public.deduct_stock_fefo(
             p_product_id uuid,
             p_quantity numeric,

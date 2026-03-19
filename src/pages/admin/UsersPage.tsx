@@ -236,7 +236,10 @@ export function UsersPage() {
                 <Button
                     variant="outline"
                     size="sm"
-                    className={clsx('bg-card font-bold whitespace-nowrap', compact && 'min-h-[40px] flex-1')}
+                    className={clsx(
+                        'bg-card font-bold whitespace-nowrap justify-center',
+                        compact ? 'min-h-[40px] flex-1' : 'w-[110px]'
+                    )}
                     onClick={() => setAssignRoleUser({ id: user.id, role_id: user.role_id })}
                 >
                     Change Role
@@ -248,8 +251,8 @@ export function UsersPage() {
                         variant="outline"
                         size="sm"
                         className={clsx(
-                            'border-amber-700/30 text-amber-700 hover:bg-amber-50 hover:border-amber-500 hover:text-amber-500 font-bold whitespace-nowrap',
-                            compact && 'min-h-[40px] flex-1'
+                            'border-amber-700/30 text-amber-700 hover:bg-amber-50 hover:border-amber-500 hover:text-amber-500 font-bold whitespace-nowrap justify-center',
+                            compact ? 'min-h-[40px] flex-1' : 'w-[110px]'
                         )}
                         onClick={() => setDeactivateTarget(user)}
                     >
@@ -260,8 +263,8 @@ export function UsersPage() {
                         variant="outline"
                         size="sm"
                         className={clsx(
-                            'border-emerald-700/30 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-500 hover:text-emerald-500 font-bold whitespace-nowrap',
-                            compact && 'min-h-[40px] flex-1'
+                            'border-emerald-700/30 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-500 hover:text-emerald-500 font-bold whitespace-nowrap justify-center',
+                            compact ? 'min-h-[40px] flex-1' : 'w-[110px]'
                         )}
                         onClick={() => setReactivateTarget(user)}
                     >
@@ -272,8 +275,8 @@ export function UsersPage() {
                     variant="outline"
                     size="sm"
                     className={clsx(
-                        'border-danger/30 text-danger hover:bg-danger/10 hover:border-danger hover:text-danger font-bold whitespace-nowrap',
-                        compact && 'min-h-[40px] flex-1'
+                        'border-danger/30 text-danger hover:bg-danger/10 hover:border-danger hover:text-danger font-bold whitespace-nowrap justify-center',
+                        compact ? 'min-h-[40px] flex-1' : 'w-[80px]'
                     )}
                     onClick={() => openDeleteDialog(user)}
                 >
